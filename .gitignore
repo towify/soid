@@ -1,5 +1,5 @@
 # workplace
-.idea
+/.idea
 *.xml
 *.DS_Store
 /dist
