@@ -352,6 +352,14 @@ export abstract class View {
     return <number | undefined>this.style.values.height;
   }
 
+  public get paddingLeft(): number | undefined {
+    return <number | undefined>this.style.values.paddingLeft;
+  }
+
+  public get paddingRight(): number | undefined {
+    return <number | undefined>this.style.values.paddingRight;
+  }
+
   public get hasHorizontalPadding(): boolean {
     return <boolean>this.style.values.hasHorizontalPadding;
   }

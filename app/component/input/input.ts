@@ -19,7 +19,8 @@ export class Input extends RelativeLayout {
   #blurEvent: (event: FocusEvent) => void;
   #changeEvent: (event: FocusEvent) => void;
   #_hasClearButton = true;
-  #_isDisplayedClearButton = false;
+  #_hasDisplayedClearButton = false;
+  #clearButtonSize = 12;
 
   constructor() {
     super();
@@ -28,26 +29,27 @@ export class Input extends RelativeLayout {
       .setMinHeight(30)
       .setOverflow("hidden")
       .setBoxSizing("border-box")
-      .setRightPadding(20)
+      .setHorizontalPadding(15)
       .setBackgroundColor(Color.white);
     this.#clearButton
-      .setWidth(12)
-      .setHeight(12)
-      .setRadius(6)
-      .setRight(5)
+      .setWidth(this.#clearButtonSize)
+      .setHeight(this.#clearButtonSize)
+      .setRightPadding(10)
+      .setRight(0)
       .setDisplay(DisplayType.None)
       .setImage("resource/image/close_icon.svg")
       .setMode(ImageMode.AspectFit)
       .setCursor(Cursor.Pointer)
       .onClick(event => {
         this.setValue("");
-        this.#_isDisplayedClearButton = false;
+        this.#_hasDisplayedClearButton = false;
         this.#placeHolder.setOpacity(1).updateStyle();
         this.#clearButton.setDisplay(DisplayType.None).updateStyle();
       });
+    const contentWidth = `calc(100% - ${(this.paddingLeft || 0) + (this.paddingRight || 0)}px - ${this.#clearButtonSize}px)`;
     this.style.addRule(StyleTag.AlignItems, Align.Center);
     this.#inputStyle
-      .addRule(StyleTag.Width, "80%")
+      .addRule(StyleTag.Width, contentWidth)
       .addRule(StyleTag.Height, "100%")
       .addRule(StyleTag.Outline, "none")
       .addRule(StyleTag.Border, "none")
@@ -129,13 +131,13 @@ export class Input extends RelativeLayout {
     if (!this.#changeEvent && this.isEnable && this.isFocusable) {
       this.#changeEvent = (event) => {
         if (!this.isEnable || !this.isFocusable) return;
-        if (this.value.length && !this.#_isDisplayedClearButton) {
+        if (this.value.length && !this.#_hasDisplayedClearButton) {
           this.showClearButton(true);
-          this.#_isDisplayedClearButton = true;
+          this.#_hasDisplayedClearButton = true;
         } else {
           if (!this.value.length) {
             this.showClearButton(false);
-            this.#_isDisplayedClearButton = false;
+            this.#_hasDisplayedClearButton = false;
           }
         }
         hold(this.value);
@@ -176,6 +178,7 @@ export class Input extends RelativeLayout {
 
   public setTextType(type: TextType) {
     this.#inputStyle.addRule(StyleTag.FontSize, type);
+    this.#placeHolder.setTextType(type);
     return this;
   }
 
