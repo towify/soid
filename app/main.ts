@@ -97,7 +97,9 @@ class Text extends Fragment {
       .setTextColor(Color.white);
     const input = new Input()
       .setPlaceholder("enter you email address")
-      .setTextType(TextType.Inherit)
+      .setTextType(TextType.Small)
+      .setRadius(15)
+      .setBorder("2px solid gray")
       .setPlaceholderColor(new Color("gray"))
       .setWidth(150)
       .setHeight(30)

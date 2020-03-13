@@ -62,6 +62,11 @@ export class Style {
       case StyleTag.PaddingLeft:
       case StyleTag.PaddingRight: {
         this.values["hasHorizontalPadding"] = this.getValue(tag) !== undefined;
+        if (tag === StyleTag.PaddingLeft) {
+          this.values["paddingLeft"] = this.getValue(tag, true);
+        } else {
+          this.values["paddingRight"] = this.getValue(tag, true);
+        }
         break;
       }
       case StyleTag.MinHeight: {
