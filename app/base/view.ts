@@ -1,0 +1,358 @@
+/*
+ * @author kaysaith
+ * @date 2020/3/11 00:01
+ */
+
+import { ListenerType, Platform } from "../value/type";
+import { Cursor, DisplayType, Style, StyleTag, ViewPosition, WillChangeType } from "../value/style";
+import { Color } from "../value/color";
+
+export abstract class View {
+  protected readonly style = new Style();
+  readonly _element = document.createElement("div");
+  #_isEnable = true;
+  #_isClickable = true;
+  #_isFocusable = true;
+  #_isDisplayNone: boolean = false;
+  #_clickEvent: (event: MouseEvent) => void;
+
+  // Property Methods
+  public setAttribute(qualifiedName: string, value: string) {
+    this._element.setAttribute(qualifiedName, value);
+    return this;
+  }
+
+  get cssText() {
+    return this._element.style.cssText;
+  }
+
+  get isClickable() {
+    return this.#_isClickable;
+  }
+
+  set isClickable(status: boolean) {
+    this.setPointerEvent(status ? "auto" : "none");
+    this.#_isClickable = status;
+  }
+
+  set isEnable(status: boolean) {
+    this.#_isEnable = status;
+  }
+
+  get isEnable() {
+    return this.#_isEnable;
+  }
+
+  set isFocusable(status: boolean) {
+    this.#_isFocusable = status;
+  }
+
+  get isFocusable() {
+    return this.#_isFocusable;
+  }
+
+  // Dom Node Methods
+  public remove() {
+    !this.#_clickEvent || this._element.removeEventListener(ListenerType.Click, this.#_clickEvent);
+    this._element.remove();
+    this.onDetached();
+  }
+
+  public setOrder(value: number) {
+    this.style.addRule(StyleTag.Order, `${value}`);
+    return this;
+  }
+
+  // Behavior Operation Methods
+  public setPointerEvent(value: string) {
+    this.style.addRule(StyleTag.PointerEvents, value);
+    return this;
+  }
+
+  public onClick(action: (event: MouseEvent) => void) {
+    if (!this.#_clickEvent && this.isEnable && this.isClickable) {
+      this.#_clickEvent = (event) => {
+        if (!this.isEnable || !this.isClickable) return;
+        action(event);
+        event.stopPropagation();
+      };
+      this._element.addEventListener(ListenerType.Click, this.#_clickEvent);
+    }
+    return this;
+  }
+
+  // Cross Platform Methods
+  public serialize(platform: Platform) {
+    // convert the code to target platform version
+    return "";
+  }
+
+  // Life Cycle
+  public async beforeAttachedToParent() {}
+
+  public async onAttachedToParent() {}
+
+  public onShow() {
+    !this.#_clickEvent || this._element.addEventListener(ListenerType.Click, this.#_clickEvent);
+  }
+
+  public onHide() {
+    !this.#_clickEvent || this._element.removeEventListener(ListenerType.Click, this.#_clickEvent);
+  }
+
+  public onDetached() {}
+
+  async _prepareLifeCycle() {
+    await this.beforeAttachedToParent();
+    this.style.setStyle(this);
+    await this.onAttachedToParent();
+  }
+
+  // Interface Settings Methods
+  public updateStyle(): this {
+    this.style.setStyle(this);
+    return this;
+  }
+
+  public cloneCssText(): string {
+    return this.style.generateCssText();
+  }
+
+  public setCssText(cssText: string) {
+    this.style.cssText = cssText;
+    return this;
+  }
+
+  public setDisplay(type: DisplayType) {
+    if (type === DisplayType.None) {
+      this.onHide();
+      this.#_isDisplayNone = true;
+    } else {
+      if (this.#_isDisplayNone) {
+        this.onShow();
+        this.#_isDisplayNone = false;
+      }
+    }
+    this.style.addRule(StyleTag.Display, type);
+    return this;
+  }
+
+  public setWidth(value: number): this {
+    this.style.addRule(StyleTag.Width, `${value}px`);
+    return this;
+  }
+
+  public setHeight(value: number): this {
+    this.style.addRule(StyleTag.Height, `${value}px`);
+    return this;
+  }
+
+  public setPercentWidth(value: number): this {
+    this.style.addRule(StyleTag.Width, `${value}%`);
+    return this;
+  }
+
+  public setPercentHeight(value: number): this {
+    this.style.addRule(StyleTag.Height, `${value}%`);
+    return this;
+  }
+
+  public setMinWidth(minWidth: number) {
+    this.style.addRule(StyleTag.MinWidth, `${minWidth}px`);
+    return this;
+  }
+
+  public setMaxWidth(maxWidth: number) {
+    this.style.addRule(StyleTag.MaxWidth, `${maxWidth}px`);
+    return this;
+  }
+
+  public setMinHeight(minHeight: number) {
+    this.style.addRule(StyleTag.MinHeight, `${minHeight}px`);
+    return this;
+  }
+
+  public setFullParent() {
+    this.style
+      .addRule(StyleTag.Width, "100%")
+      .addRule(StyleTag.Height, "100%");
+    return this;
+  }
+
+  public setFullScreen() {
+    this.style
+      .addRule(StyleTag.Width, "100vw")
+      .addRule(StyleTag.Height, "100vh");
+    return this;
+  }
+
+  public setHorizontalPadding(value: number) {
+    this.style
+      .addRule(StyleTag.PaddingLeft, `${value}px`)
+      .addRule(StyleTag.PaddingRight, `${value}px`);
+    return this;
+  }
+
+  public setVerticalPadding(value: number) {
+    this.style
+      .addRule(StyleTag.PaddingTop, `${value}px`)
+      .addRule(StyleTag.PaddingBottom, `${value}px`);
+    return this;
+  }
+
+  public setTopPadding(value: number) {
+    this.style.addRule(StyleTag.PaddingTop, `${value}px`);
+    return this;
+  }
+
+  public setBottomPadding(value: number) {
+    this.style.addRule(StyleTag.PaddingBottom, `${value}px`);
+    return this;
+  }
+
+  public setLeftPadding(value: number) {
+    this.style.addRule(StyleTag.PaddingLeft, `${value}px`);
+    return this;
+  }
+
+  public setRightPadding(value: number) {
+    this.style.addRule(StyleTag.PaddingRight, `${value}px`);
+    return this;
+  }
+
+  public setMargin(value: string) {
+    this.style.addRule(StyleTag.Margin, value);
+    return this;
+  }
+
+  public setMarginTop(value: number) {
+    this.style.addRule(StyleTag.MarginTop, `${value}px`);
+    return this;
+  }
+
+  public setMarginBottom(value: number) {
+    this.style.addRule(StyleTag.MarginBottom, `${value}px`);
+    return this;
+  }
+
+  public setPosition(position: ViewPosition) {
+    this.style.addRule(StyleTag.Position, position);
+    return this;
+  }
+
+  public setTop(value: number): this {
+    this.style.addRule(StyleTag.Top, `${value}px`);
+    return this;
+  }
+
+  public setBottom(value: number): this {
+    this.style.addRule(StyleTag.Bottom, `${value}px`);
+    return this;
+  }
+
+  public setRight(value: number): this {
+    this.style.addRule(StyleTag.Right, `${value}px`);
+    return this;
+  }
+
+  public setLeft(value: number): this {
+    this.style.addRule(StyleTag.Left, `${value}px`);
+    return this;
+  }
+
+  public setBackgroundColor(color: Color): this {
+    this.style.addRule(StyleTag.BackgroundColor, `${color.value}`);
+    return this;
+  }
+
+  public setOpacity(opacity: number) {
+    if (opacity === 0) {
+      this.onHide();
+    }
+    if (opacity === 1) {
+      this.onShow();
+    }
+    this.style.addRule(StyleTag.Opacity, `${opacity}`);
+    return this;
+  }
+
+  public setWillChange(type: WillChangeType) {
+    this.style.addRule(StyleTag.WillChange, type);
+    return this;
+  }
+
+  public setOverflow(value: string) {
+    this.style.addRule(StyleTag.Overflow, value);
+    return this;
+  }
+
+  public setOverflowY(value: string) {
+    this.style.addRule(StyleTag.OverflowY, value);
+    return this;
+  }
+
+  public setOverflowX(value: string) {
+    this.style.addRule(StyleTag.OverflowX, value);
+    return this;
+  }
+
+  public setBoxSizing(value: string) {
+    this.style.addRule(StyleTag.BoxSizing, value);
+    return this;
+  }
+
+  public setBorder(value: string) {
+    this.style.addRule(StyleTag.Border, value);
+    return this;
+  }
+
+  public setRightBorder(value: string) {
+    this.style.addRule(StyleTag.BorderRight, value);
+    return this;
+  }
+
+  public setLeftBorder(value: string) {
+    this.style.addRule(StyleTag.BorderLeft, value);
+    return this;
+  }
+
+  public setBottomBorder(value: string) {
+    this.style.addRule(StyleTag.BorderBottom, value);
+    return this;
+  }
+
+  public setTopBorder(value: string) {
+    this.style.addRule(StyleTag.BorderTop, value);
+    return this;
+  }
+
+  public setRadius(radius: number) {
+    this.style.addRule(StyleTag.BorderRadius, `${radius}px`);
+    return this;
+  }
+
+  public setCursor(cursor: Cursor) {
+    this.style.addRule(StyleTag.Cursor, cursor);
+    return this;
+  }
+
+  // Layout Settings Methods
+  public setFlex(value: string): this {
+    // value 1 flex-grow 2 flex-shrink 3 flex-basis
+    this.style.addRule(StyleTag.Flex, value);
+    return this;
+  }
+
+  // Interface Getting Methods
+  public get width(): number | undefined {
+    return <number | undefined>this.style.values.width;
+  }
+
+  public get height(): number | undefined {
+    return <number | undefined>this.style.values.height;
+  }
+
+  public get hasHorizontalPadding(): boolean {
+    return <boolean>this.style.values.hasHorizontalPadding;
+  }
+}
