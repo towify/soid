@@ -15,9 +15,9 @@ export class Selection extends RelativeLayout {
   #dataList = new LinearLayout();
   #isOpening = false;
   #optionStyle = new Style();
-  #optionClickEvent: (value: string) => void;
   #optionSelectedColor: Color;
   #selectedOption: TextView;
+  #optionClickEvent: (value: string) => void;
 
   constructor() {
     super();
@@ -98,12 +98,12 @@ export class Selection extends RelativeLayout {
     return this;
   }
 
-  setSelectionTextType(type: TextType) {
+  public setSelectionTextType(type: TextType) {
     this.#selection.setTextType(type);
     return this;
   }
 
-  setOptionTextType(type: TextType) {
+  public setOptionTextType(type: TextType) {
     this.#optionStyle.addRule(StyleTag.FontSize, type);
   }
 
