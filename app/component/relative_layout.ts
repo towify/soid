@@ -6,6 +6,7 @@
 import { ViewGroup } from "../base/view_group";
 import { ViewPosition } from "../value/style";
 import { View } from "../base/view";
+import { DomFragment } from "../base/dom_fragment";
 
 export class RelativeLayout extends ViewGroup {
   constructor() {
@@ -13,8 +14,16 @@ export class RelativeLayout extends ViewGroup {
     this.setPosition(ViewPosition.Relative);
   }
 
-  addView(view: View) {
+  public addView(view: View) {
     view.setPosition(ViewPosition.Absolute);
     super.addView(view);
+  }
+
+  public addDomFragment(domFragment: DomFragment) {
+    domFragment._beforeAttached(view => {
+      view.setPosition(ViewPosition.Absolute);
+    }).then(_ => {
+      this._element.appendChild(domFragment.fragment);
+    });
   }
 }

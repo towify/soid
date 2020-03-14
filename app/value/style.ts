@@ -70,7 +70,13 @@ export class Style {
         break;
       }
       case StyleTag.MinHeight: {
+        if (!this.values.height) this.values["height"] = this.getValue(tag, true);
         this.values["minHeight"] = this.getValue(tag, true);
+        break;
+      }
+      case StyleTag.MinWidth: {
+        if (!this.values.width) this.values["width"] = this.getValue(tag, true);
+        this.values["minWidth"] = this.getValue(tag, true);
         break;
       }
     }

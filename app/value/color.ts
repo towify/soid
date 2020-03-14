@@ -6,6 +6,7 @@
 export class Color {
   public static white = new Color("#FFFFFF");
   public static black = new Color("#000000");
+  public static none = new Color("unset");
   private static names: { [key: string]: string } = {
     black: "#000000",
     white: "#FFFFFF",

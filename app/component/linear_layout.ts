@@ -39,6 +39,7 @@ export class LinearLayout extends ViewGroup {
         .setOverflowX("hidden")
         .setFlexDirection(FlexFlowType.Column);
     }
+    return this;
   }
 
   addView(view: View) {
