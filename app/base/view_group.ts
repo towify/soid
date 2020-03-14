@@ -4,6 +4,8 @@
  */
 
 import { View } from "./view";
+import { DomFragment } from "./dom_fragment";
+import { DisplayType, StyleTag } from "../value/style";
 
 export class ViewGroup extends View {
   readonly subviews: View[] = [];
@@ -13,10 +15,37 @@ export class ViewGroup extends View {
   }
 
   // Basic Dom Operation Methods
-  addView(view: View) {
+  public addView(view: View) {
     this.subviews.push(view);
     view._prepareLifeCycle().then(_ => {
       this._element.appendChild(view._element);
+    });
+  }
+
+  public setDisplay(type: DisplayType): this {
+    if (type === DisplayType.None) {
+      if (this.isDisplayNone !== undefined) this.onHide();
+      this.subviews.forEach(view => view.onHide());
+      this.isDisplayNone = true;
+    } else {
+      if (this.isDisplayNone) {
+        this.onShow();
+        this.subviews.forEach(view => view.onShow());
+        this.isDisplayNone = false;
+      }
+    }
+    this.style.addRule(StyleTag.Display, type);
+    return this;
+  }
+
+  public getSubviewByElement(element: HTMLDivElement) {
+    return this.subviews.find(view => view._element === element);
+  }
+
+  public addDomFragment(domFragment: DomFragment) {
+    domFragment._beforeAttached().then(_ => {
+      domFragment.hodViews.forEach(view => this.subviews.push(view));
+      this._element.appendChild(domFragment.fragment);
     });
   }
 

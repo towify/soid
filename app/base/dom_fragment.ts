@@ -7,15 +7,20 @@ import { View } from "./view";
 
 export class DomFragment {
   public readonly fragment = document.createDocumentFragment();
-  public holdView: View;
+  public hodViews: View[] = [];
 
   constructor() {
   }
 
   public addView<V extends View>(view: V) {
-    this.holdView = view;
-    view._prepareLifeCycle().then(_ => {
-      this.fragment.appendChild(view._element);
-    });
+    this.hodViews.push(view);
   };
+
+  public async _beforeAttached(hold?: (view: View) => void) {
+    for (const view of this.hodViews) {
+      if (typeof hold === "function") hold(view);
+      await view._prepareLifeCycle();
+      this.fragment.appendChild(view._element);
+    }
+  }
 }

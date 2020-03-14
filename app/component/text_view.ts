@@ -15,6 +15,7 @@ export class TextView extends View {
   constructor() {
     super();
     this.setDisplay(DisplayType.Flex);
+    this.style.addRule(StyleTag.AlignItems, "center");
     this.#spanStyle
       .addRule(StyleTag.PointerEvents, "none")
       .addRule(StyleTag.Display, DisplayType.InlineBlock)

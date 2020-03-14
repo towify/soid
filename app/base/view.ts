@@ -8,13 +8,15 @@ import { Cursor, DisplayType, Style, StyleTag, ViewPosition, WillChangeType } fr
 import { Color } from "../value/color";
 
 export abstract class View {
-  protected readonly style = new Style();
+  protected style = new Style();
   readonly _element = document.createElement("div");
   #_isEnable = true;
   #_isClickable = true;
   #_isFocusable = true;
-  #_isDisplayNone: boolean = false;
+  protected isDisplayNone: boolean;
   #_clickEvent: (event: MouseEvent) => void;
+  #_mouseoverEvent: (event: MouseEvent) => void;
+  #_mouseleaveEvent: (event: MouseEvent) => void;
 
   // Property Methods
   public setAttribute(qualifiedName: string, value: string) {
@@ -51,9 +53,14 @@ export abstract class View {
     return this.#_isFocusable;
   }
 
+  public resetStyle(style: Style) {
+    this.style = style;
+    return this;
+  }
+
   // Dom Node Methods
   public remove() {
-    !this.#_clickEvent || this._element.removeEventListener(ListenerType.Click, this.#_clickEvent);
+    this.clearEventListenerIfNeed();
     this._element.remove();
     this.onDetached();
   }
@@ -66,6 +73,30 @@ export abstract class View {
   // Behavior Operation Methods
   public setPointerEvent(value: string) {
     this.style.addRule(StyleTag.PointerEvents, value);
+    return this;
+  }
+
+  public onMouseover(action: (event: MouseEvent) => void) {
+    if (!this.#_mouseoverEvent && this.isEnable && this.isFocusable) {
+      this.#_mouseoverEvent = (event) => {
+        if (!this.isEnable || !this.isFocusable) return;
+        action(event);
+        event.stopPropagation();
+      };
+      this._element.addEventListener(ListenerType.Mouseover, this.#_mouseoverEvent);
+    }
+    return this;
+  }
+
+  public onMouseleave(action: (event: MouseEvent) => void) {
+    if (!this.#_mouseleaveEvent && this.isEnable && this.isFocusable) {
+      this.#_mouseleaveEvent = (event) => {
+        if (!this.isEnable || !this.isFocusable) return;
+        action(event);
+        event.stopPropagation();
+      };
+      this._element.addEventListener(ListenerType.Mouseleave, this.#_mouseleaveEvent);
+    }
     return this;
   }
 
@@ -88,24 +119,38 @@ export abstract class View {
   }
 
   // Life Cycle
-  public async beforeAttachedToParent() {}
+  public async beforeAttached() {}
 
-  public async onAttachedToParent() {}
+  public async onAttached() {}
 
-  public onShow() {
-    !this.#_clickEvent || this._element.addEventListener(ListenerType.Click, this.#_clickEvent);
+  public onShow(action?: () => void) {
+    this.recoveryEventListenerIfNeed();
+    !action || action();
   }
 
-  public onHide() {
+  public onHide(action?: () => void) {
+    this.clearEventListenerIfNeed();
+    !action || action();
+  }
+
+  private clearEventListenerIfNeed() {
     !this.#_clickEvent || this._element.removeEventListener(ListenerType.Click, this.#_clickEvent);
+    !this.#_mouseoverEvent || this._element.removeEventListener(ListenerType.Mouseover, this.#_mouseoverEvent);
+    !this.#_mouseleaveEvent || this._element.removeEventListener(ListenerType.Mouseleave, this.#_mouseleaveEvent);
+  }
+
+  private recoveryEventListenerIfNeed() {
+    !this.#_clickEvent || this._element.addEventListener(ListenerType.Click, this.#_clickEvent);
+    !this.#_mouseoverEvent || this._element.addEventListener(ListenerType.Mouseover, this.#_mouseoverEvent);
+    !this.#_mouseleaveEvent || this._element.addEventListener(ListenerType.Mouseleave, this.#_mouseleaveEvent);
   }
 
   public onDetached() {}
 
   async _prepareLifeCycle() {
-    await this.beforeAttachedToParent();
     this.style.setStyle(this);
-    await this.onAttachedToParent();
+    await this.beforeAttached();
+    await this.onAttached();
   }
 
   // Interface Settings Methods
@@ -125,12 +170,12 @@ export abstract class View {
 
   public setDisplay(type: DisplayType) {
     if (type === DisplayType.None) {
-      this.onHide();
-      this.#_isDisplayNone = true;
+      if (this.isDisplayNone !== undefined) this.onHide();
+      this.isDisplayNone = true;
     } else {
-      if (this.#_isDisplayNone) {
+      if (this.isDisplayNone) {
         this.onShow();
-        this.#_isDisplayNone = false;
+        this.isDisplayNone = false;
       }
     }
     this.style.addRule(StyleTag.Display, type);

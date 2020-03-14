@@ -54,7 +54,7 @@ export abstract class App {
 
   public async commit() {
     await this.beforeAttachedToBody();
-    document.body.appendChild(this.#domFragment.fragment);
+    document.body.addDomFragment(this.#domFragment);
   }
 
   private async beforeAttachedToBody() {

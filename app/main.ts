@@ -16,6 +16,7 @@ import { Rectangle } from "./component/rectangle";
 import { GridLayout } from "./component/grid_layout";
 import { IconButton } from "./component/button/icon_button";
 import { Input, InputType } from "./component/input/input";
+import { Selection } from "./component/selection/selection";
 
 export class Main extends App {
   constructor() {
@@ -113,8 +114,21 @@ class Text extends Fragment {
       .onChange(value => {
         console.log(value);
       });
+    const selection = new Selection()
+      .setWidth(150)
+      .setHeight(30)
+      .setTop(100)
+      .setBackgroundColor(Color.white)
+      .setOptionHeight(30)
+      .setHorizontalPadding(10)
+      .setOptionSelectedBackgroundColor(new Color("olive"))
+      .setData(["Jack Bos", "Hello Kitty", "Amazing Kiss"], 2)
+      .onClickOption(value => {
+        console.log(value, "value");
+      });
     gridLayout.addView(button, 0, 1);
     gridLayout.addView(input, 1, 1);
+    gridLayout.addView(selection, 1, 1);
     this.layout.addView(gridLayout);
     context.addView(this.layout);
   }

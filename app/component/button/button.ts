@@ -19,8 +19,8 @@ export class Button extends TextView {
       .setMinWidth(60);
   }
 
-  async beforeAttachedToParent(): Promise<any> {
-    super.beforeAttachedToParent();
+  async beforeAttached(): Promise<any> {
+    super.beforeAttached();
     this.setMinHeight(30);
   }
 
