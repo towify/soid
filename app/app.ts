@@ -52,9 +52,10 @@ export abstract class App {
     });
   }
 
-  public async commit() {
-    await this.beforeAttachedToBody();
-    document.body.addDomFragment(this.#domFragment);
+  public commit() {
+    this.beforeAttachedToBody().then(_ => {
+      document.body.addDomFragment(this.#domFragment);
+    });
   }
 
   private async beforeAttachedToBody() {

@@ -17,6 +17,12 @@ import { GridLayout } from "./component/grid_layout";
 import { IconButton } from "./component/button/icon_button";
 import { Input, InputType } from "./component/input/input";
 import { Selection } from "./component/selection/selection";
+import { RecyclerView } from "./component/recycler_view/recycler_view";
+import {
+  RecyclerViewAdapter,
+  RecyclerViewAdapterModel,
+  RecyclerViewHolder
+} from "./component/recycler_view/recycler_view_adapter";
 
 export class Main extends App {
   constructor() {
@@ -35,7 +41,6 @@ class Text extends Fragment {
   protected async onCreateView(context: ViewGroup): Promise<void> {
     this.layout
       .setWidth(900)
-      .setHeight(800)
       .setBorder("2px solid yellow")
       .setBackgroundColor(Color.black);
     let rect;
@@ -47,6 +52,11 @@ class Text extends Fragment {
         .setHeight(50 * index)
         .setBackgroundColor(Color.white)
         .setMargin("10px");
+      if (index === 1) {
+        rect
+          .setScale(1.2, 1.2)
+          .setRotate(10);
+      }
       textView = new TextView()
         .setText(`Hello ${index}`)
         .setTextColor(new Color("olive"))
@@ -75,7 +85,6 @@ class Text extends Fragment {
         .setBackgroundColor(new Color("red"));
       relativeLayout.addView(rectAngle);
     }
-    this.layout.addView(relativeLayout);
 
     const gridLayout = new GridLayout()
       .setWidth(800)
@@ -129,8 +138,83 @@ class Text extends Fragment {
     gridLayout.addView(button, 0, 1);
     gridLayout.addView(input, 1, 1);
     gridLayout.addView(selection, 1, 1);
+
+    const recyclerView = new MyRecyclerView();
+    recyclerView.adapter =
+      new MyRecyclerViewAdapter(
+        recyclerView,
+        [
+          new MyRecyclerViewModel("hello baby 1"),
+          new MyRecyclerViewModel("hello leo 2"),
+          new MyRecyclerViewModel("hello lily 3"),
+          new MyRecyclerViewModel("hello leo 4"),
+          new MyRecyclerViewModel("hello baby 5"),
+          new MyRecyclerViewModel("hello leo 6"),
+          new MyRecyclerViewModel("hello lily 7"),
+          new MyRecyclerViewModel("hello leo 8")
+        ]
+      );
+    this.layout.addView(relativeLayout);
     this.layout.addView(gridLayout);
+    this.layout.addView(recyclerView);
     context.addView(this.layout);
+  }
+}
+
+class MyRecyclerView extends RecyclerView<MyRecyclerViewCell, MyRecyclerViewModel> {
+  constructor() {
+    super();
+    this
+      .setWidth(900)
+      .setHeight(800)
+      .setBackgroundColor(Color.white);
+  }
+}
+
+class MyRecyclerViewAdapter extends RecyclerViewAdapter<MyRecyclerViewCell, MyRecyclerViewModel> {
+  constructor(
+    context: MyRecyclerView,
+    protected readonly data: MyRecyclerViewModel[]
+  ) {
+    super(context, data);
+  }
+
+  generateViewHolder(): MyRecyclerViewCell {
+    return new MyRecyclerViewCell();
+  }
+
+  onBindViewHolder(viewHolder: MyRecyclerViewCell, position: number): void {
+    viewHolder.model = this.data[position];
+  }
+}
+
+class MyRecyclerViewModel extends RecyclerViewAdapterModel {
+  constructor(public readonly value: string) {
+    super();
+  }
+}
+
+class MyRecyclerViewCell extends RecyclerViewHolder<MyRecyclerViewModel> {
+  #textView = new TextView();
+
+  constructor() {
+    super();
+    this
+      .setPercentWidth(100)
+      .setBorder("1px solid black")
+      .setBackgroundColor(new Color("gray"));
+    this.#textView
+      .setFullParent()
+      .setTextType(TextType.Inherit);
+    this.addView(this.#textView);
+  }
+
+  public getHeight(): number {
+    return 350;
+  }
+
+  protected onDidSetModel(model: MyRecyclerViewModel): void {
+    this.#textView.setText(model.value);
   }
 }
 

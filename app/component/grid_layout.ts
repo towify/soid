@@ -64,7 +64,7 @@ export class GridLayout extends View {
       if (row >= this.#rowCount || column >= this.#columnCount) {
         throw Error("invalid row number or column number");
       } else {
-        let targetIndex = Math.abs(row * this.#columnCount + column);
+        let targetIndex = row * this.#columnCount + column;
         this.subviews[targetIndex].addView(view);
       }
     }

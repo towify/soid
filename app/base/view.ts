@@ -9,11 +9,11 @@ import { Color } from "../value/color";
 
 export abstract class View {
   protected style = new Style();
+  protected isDisplayNone: boolean;
   readonly _element = document.createElement("div");
   #_isEnable = true;
   #_isClickable = true;
   #_isFocusable = true;
-  protected isDisplayNone: boolean;
   #_clickEvent: (event: MouseEvent) => void;
   #_mouseoverEvent: (event: MouseEvent) => void;
   #_mouseleaveEvent: (event: MouseEvent) => void;
@@ -378,6 +378,52 @@ export abstract class View {
 
   public setCursor(cursor: Cursor) {
     this.style.addRule(StyleTag.Cursor, cursor);
+    return this;
+  }
+
+  // Transform Styles
+  public setRotate(angle: number) {
+    this.style.transform.addRotate(angle);
+    return this;
+  }
+
+  public setTranslate(x: number, y: number) {
+    this.style.transform.addTranslate(x, y);
+    return this;
+  }
+
+  public setScale(widthRatio: number, heightRatio: number) {
+    this.style.transform.addScale(widthRatio, heightRatio);
+    return this;
+  }
+
+  public setScaleX(widthRatio: number) {
+    this.style.transform.addScaleX(widthRatio);
+    return this;
+  }
+
+  public setScaleY(heightRatio: number) {
+    this.style.transform.addScaleY(heightRatio);
+    return this;
+  }
+
+  public setSkewY(y: number) {
+    this.style.transform.addSkewY(y);
+    return this;
+  }
+
+  public setSkewX(x: number) {
+    this.style.transform.addSkewX(x);
+    return this;
+  }
+
+  public setSkew(x: number, y: number) {
+    this.style.transform.addSkew(x, y);
+    return this;
+  }
+
+  public setMatrix(a: number, b: number, c: number, d: number, e: number, f: number) {
+    this.style.transform.addMatrix(a, b, c, d, e, f);
     return this;
   }
 
