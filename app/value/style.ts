@@ -4,9 +4,11 @@
  */
 
 import { View } from "../base/view";
+import { Transform } from "./transform";
 
 export class Style {
   public readonly style: { [key: string]: string } = {};
+  public readonly transform = new Transform();
   public readonly values: { [key: string]: any } = {};
   public cssText: string;
 
@@ -21,15 +23,11 @@ export class Style {
     return result;
   }
 
-  public addRule(tag: StyleTag, value: string, isCumulative: boolean = false) {
+  public addRule(tag: StyleTag, value: string) {
     if (value.indexOf(";") > 0) {
       throw new Error("value contains invalid \";\" symbol");
     }
-    if (isCumulative && this.style[tag]) {
-      this.style[tag] += value;
-    } else {
-      this.style[tag] = value;
-    }
+    this.style[tag] = value;
     this.recordValue(tag);
     return this;
   }
@@ -48,10 +46,18 @@ export class Style {
 
   public generateCssText() {
     let newCssText = "";
+    if (this.transform.hasValue()) {
+      this.addRule(StyleTag.Transform, this.transform.serialize());
+    }
     Object.keys(this.style).forEach(key => !key || (newCssText += `${key}:${this.style[key]};`));
     return newCssText;
   }
 
+  /**
+   * @param tag Style Tag
+   * get computed style affects all the recalculated values backed up in
+   * memory. When used, it will not affect dom performance.
+   */
   private recordValue(tag: StyleTag) {
     switch (tag) {
       case StyleTag.Height:
@@ -67,6 +73,43 @@ export class Style {
         } else {
           this.values["paddingRight"] = this.getValue(tag, true);
         }
+        break;
+      }
+      case StyleTag.PaddingTop:
+      case StyleTag.PaddingBottom: {
+        this.values["hasVerticalPadding"] = this.getValue(tag) !== undefined;
+        if (tag === StyleTag.PaddingTop) {
+          this.values["paddingTop"] = this.getValue(tag, true);
+        } else {
+          this.values["paddingBottom"] = this.getValue(tag, true);
+        }
+        break;
+      }
+      case StyleTag.MarginLeft:
+      case StyleTag.MarginRight: {
+        this.values["hasHorizontalMargin"] = this.getValue(tag) !== undefined;
+        if (tag === StyleTag.MarginLeft) {
+          this.values["marginLeft"] = this.getValue(tag, true);
+        } else {
+          this.values["marginRight"] = this.getValue(tag, true);
+        }
+        break;
+      }
+      case StyleTag.MarginTop:
+      case StyleTag.MarginBottom: {
+        this.values["hasVerticalMargin"] = this.getValue(tag) !== undefined;
+        if (tag === StyleTag.MarginTop) {
+          this.values["marginTop"] = this.getValue(tag, true);
+        } else {
+          this.values["marginBottom"] = this.getValue(tag, true);
+        }
+        break;
+      }
+      case StyleTag.Top:
+      case StyleTag.Bottom:
+      case StyleTag.Left:
+      case StyleTag.Right: {
+        this.values[tag] = this.getValue(tag, true);
         break;
       }
       case StyleTag.MinHeight: {

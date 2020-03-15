@@ -9,7 +9,6 @@ import { BrowserService, BrowserServiceType } from "../service/browser_service";
 export abstract class Fragment {
   readonly contentView = new ViewGroup();
   #childFragments: Fragment[] = [];
-  // Event
   #visibilityEvent: (status: boolean) => void;
 
   protected async onAttach() {}
@@ -38,7 +37,7 @@ export abstract class Fragment {
   }
 
   public replaceFragment(newFragment: Fragment, oldFragment: Fragment) {
-
+    // ToDo
   }
 
   public async removeFragment(fragment: Fragment) {

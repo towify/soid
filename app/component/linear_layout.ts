@@ -9,7 +9,7 @@ import { View } from "../base/view";
 
 export class LinearLayout extends ViewGroup {
 
-  constructor(private readonly orientation?: Orientation) {
+  constructor(readonly orientation?: Orientation) {
     super();
     this
       .setDisplay(DisplayType.Flex)
