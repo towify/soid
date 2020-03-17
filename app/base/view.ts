@@ -10,13 +10,21 @@ import { Color } from "../value/color";
 export abstract class View {
   protected style = new Style();
   protected isDisplayNone: boolean;
-  readonly _element = document.createElement("div");
+  readonly _element: HTMLDivElement;
   #_isEnable = true;
   #_isClickable = true;
   #_isFocusable = true;
   #_clickEvent: (event: MouseEvent) => void;
   #_mouseoverEvent: (event: MouseEvent) => void;
   #_mouseleaveEvent: (event: MouseEvent) => void;
+
+  protected constructor(private element?: HTMLDivElement) {
+    if (this.element) {
+      this._element = this.element;
+    } else {
+      this._element = document.createElement("div");
+    }
+  }
 
   // Property Methods
   public setAttribute(qualifiedName: string, value: string) {
@@ -285,6 +293,11 @@ export abstract class View {
     return this;
   }
 
+  public setZIndex(value: number) {
+    this.style.addRule(StyleTag.ZIndex, `${value}`);
+    return this;
+  }
+
   public setTop(value: number): this {
     this.style.addRule(StyleTag.Top, `${value}px`);
     return this;
@@ -378,6 +391,13 @@ export abstract class View {
 
   public setCursor(cursor: Cursor) {
     this.style.addRule(StyleTag.Cursor, cursor);
+    return this;
+  }
+
+  // Filter Style
+
+  public setBackDropFilter(value: string) {
+    this.style.addRule(StyleTag.BackDropFilter, value);
     return this;
   }
 

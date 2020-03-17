@@ -166,6 +166,7 @@ enum StyleTag {
   BackgroundPosition = "background-position",
   BackgroundAttachment = "background-attachment",
   Filter = "filter",
+  BackDropFilter = "backdrop-filter",
   TextDecoration = "text-decoration",
   TextAlign = "text-align",
   FontWeight = "font-weight",
@@ -214,7 +215,8 @@ enum StyleTag {
   TransitionTimingFunction = "transition-timing-function",
   AnimationDelay = "animation-delay",
   AnimationIterationCount = "animation-iteration-count",
-  AnimationName = "animation-name"
+  AnimationName = "animation-name",
+  ScrollBehavior = "scroll-behavior"
 }
 
 enum WillChangeType {
