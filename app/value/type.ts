@@ -13,6 +13,7 @@ enum ListenerType {
   Focus = "focus",
   Blur = "blur",
   Scroll = "scroll",
+  Wheel = "wheel",
   Mousemove = "mousemove",
   Mouseover = "mouseover",
   Mouseleave = "mouseleave",

@@ -10,8 +10,8 @@ import { DisplayType, StyleTag } from "../value/style";
 export class ViewGroup extends View {
   readonly subviews: View[] = [];
 
-  constructor() {
-    super();
+  constructor(element?: HTMLDivElement) {
+    super(element);
   }
 
   // Basic Dom Operation Methods

@@ -18,11 +18,8 @@ import { IconButton } from "./component/button/icon_button";
 import { Input, InputType } from "./component/input/input";
 import { Selection } from "./component/selection/selection";
 import { RecyclerView } from "./component/recycler_view/recycler_view";
-import {
-  RecyclerViewAdapter,
-  RecyclerViewAdapterModel,
-  RecyclerViewHolder
-} from "./component/recycler_view/recycler_view_adapter";
+import { RecyclerViewAdapter, RecyclerViewHolder } from "./component/recycler_view/recycler_view_adapter";
+import { print } from "./service/print_service";
 
 export class Main extends App {
   constructor() {
@@ -43,6 +40,7 @@ class Text extends Fragment {
       .setWidth(900)
       .setBorder("2px solid yellow")
       .setBackgroundColor(Color.black);
+    print.register("board1").register("board2").mount(this.layout);
     let rect;
     let textView;
     let image;
@@ -143,16 +141,7 @@ class Text extends Fragment {
     recyclerView.adapter =
       new MyRecyclerViewAdapter(
         recyclerView,
-        [
-          new MyRecyclerViewModel("hello baby 1"),
-          new MyRecyclerViewModel("hello leo 2"),
-          new MyRecyclerViewModel("hello lily 3"),
-          new MyRecyclerViewModel("hello leo 4"),
-          new MyRecyclerViewModel("hello baby 5"),
-          new MyRecyclerViewModel("hello leo 6"),
-          new MyRecyclerViewModel("hello lily 7"),
-          new MyRecyclerViewModel("hello leo 8")
-        ]
+        ["Hello 1", "Hello 2", "Hello3", "Hello 4", "Hello 5", "Hello 6", "Hello 7", "Hello 8", "Hello 9"]
       );
     this.layout.addView(relativeLayout);
     this.layout.addView(gridLayout);
@@ -161,40 +150,48 @@ class Text extends Fragment {
   }
 }
 
-class MyRecyclerView extends RecyclerView<MyRecyclerViewCell, MyRecyclerViewModel> {
+class MyRecyclerView extends RecyclerView {
   constructor() {
     super();
     this
-      .setWidth(900)
+      .setWidth(400)
       .setHeight(800)
       .setBackgroundColor(Color.white);
   }
 }
 
-class MyRecyclerViewAdapter extends RecyclerViewAdapter<MyRecyclerViewCell, MyRecyclerViewModel> {
+class MyRecyclerViewAdapter extends RecyclerViewAdapter {
   constructor(
     context: MyRecyclerView,
-    protected readonly data: MyRecyclerViewModel[]
+    protected readonly data: string[]
   ) {
     super(context, data);
   }
 
-  generateViewHolder(): MyRecyclerViewCell {
+  public onCreateViewHolder(index: number): RecyclerViewHolder {
     return new MyRecyclerViewCell();
   }
 
-  onBindViewHolder(viewHolder: MyRecyclerViewCell, position: number): void {
+  public onBindViewHolder(viewHolder: MyRecyclerViewCell, position: number): void {
     viewHolder.model = this.data[position];
   }
-}
 
-class MyRecyclerViewModel extends RecyclerViewAdapterModel {
-  constructor(public readonly value: string) {
-    super();
+
+  public loadMore() {
+    super.loadMore();
+    this.prepareData(this.data);
+    this.notifyDataChanged();
+  }
+
+  private prepareData(data: string[]) {
+    const dataCount = 10;
+    dataCount.forEach(_ => {
+      data.push(`New Data ${Math.floor(Math.random() * 100000000)}`);
+    });
   }
 }
 
-class MyRecyclerViewCell extends RecyclerViewHolder<MyRecyclerViewModel> {
+class MyRecyclerViewCell extends RecyclerViewHolder {
   #textView = new TextView();
 
   constructor() {
@@ -209,12 +206,12 @@ class MyRecyclerViewCell extends RecyclerViewHolder<MyRecyclerViewModel> {
     this.addView(this.#textView);
   }
 
-  public getHeight(): number {
-    return 350;
+  set model(model: string) {
+    this.#textView.setText(model);
   }
 
-  protected onDidSetModel(model: MyRecyclerViewModel): void {
-    this.#textView.setText(model.value);
+  public getHeight(): number {
+    return 300;
   }
 }
 

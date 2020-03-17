@@ -15,6 +15,7 @@ export class LinearLayout extends ViewGroup {
       .setDisplay(DisplayType.Flex)
       .setFlexWrap(FlexWrap.NoWrap)
       .setOrientation(orientation ?? Orientation.Vertical);
+    this.style.addRule(StyleTag.ScrollBehavior, "smooth");
   }
 
   private setFlexDirection(flowType: FlexFlowType) {
