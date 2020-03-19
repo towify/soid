@@ -4,6 +4,6 @@
 *.DS_Store
 /dist
 /tmp
-**/node_modules/
+node_modules/
 /.tscache
 !.gitignore
