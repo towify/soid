@@ -35,6 +35,9 @@ export abstract class RecyclerViewAdapter {
   #displayedSpecialHoldersHeight = 0;
   #footer: RecyclerViewHolder;
 
+  #currentMovedPosition = 0;
+  #position = 0;
+
   protected constructor(
     private readonly context: RecyclerView,
     protected readonly data: any[]
@@ -124,9 +127,6 @@ export abstract class RecyclerViewAdapter {
    * @param value element scroll top
    * @param isScrollingToTop true means scroll to top
    */
-  #currentMovedPosition = 0;
-  #position = 0;
-
   public _onVerticalScroll(value: number, isScrollingToTop: boolean) {
     const offset = value - this.#displayedSpecialHoldersHeight;
     this.#invisibleCount = Math.floor((offset < 0 ? 0 : offset) / this.#normalHolderHeight);
