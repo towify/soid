@@ -21,16 +21,13 @@ export class Selection extends RelativeLayout {
 
   constructor() {
     super();
-    this.setBoxSizing("border-box");
     this.#selection
-      .setBoxSizing("border-box")
       .setMinHeight(30)
       .setText("Default")
       .setTextType(TextType.Small)
       .onClick(_ => this.switchDatalist());
     let preMouseoverOption: TextView;
     this.#dataList
-      .setBoxSizing("border-box")
       .setTop(this.#selection.height)
       .setDisplay(DisplayType.None)
       .setOrientation(Orientation.Vertical)

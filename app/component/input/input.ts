@@ -28,7 +28,6 @@ export class Input extends RelativeLayout {
       .setDisplay(DisplayType.Flex)
       .setMinHeight(30)
       .setOverflow("hidden")
-      .setBoxSizing("border-box")
       .setHorizontalPadding(15)
       .setBackgroundColor(Color.white);
     this.#clearButton

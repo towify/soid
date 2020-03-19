@@ -16,7 +16,6 @@ export abstract class RecyclerView extends ViewGroup {
   #isScrollingToTop = false;
   // For Debounce or Throttling
   #timeout: number = null;
-  #startTime = new Date().getMilliseconds();
   #scrollbar: Scrollbar;
   #scrollContent: ViewGroup;
   #scrollContentHeight: number;
@@ -52,16 +51,10 @@ export abstract class RecyclerView extends ViewGroup {
 
   set adapter(adapter: RecyclerViewAdapter) {
     this.#adapter = adapter;
-    // Because scrolling may trigger page turning and cause the content height
-    // to rise, Let the height of the scroll bar correspond to the change of the
-    // real-time scroll height of the content in real time
-    this.#adapter.getContentSize((pageSize) => {
-      this.#scrollbar.track.yAxis.update(this.#lastKnownScrollY, this.height, pageSize);
-    });
     // After the content was turned, you need to obtain the new content height to
     // update the height value corresponding to the scroll table and scroll area.
-    this.#adapter.afterDatasetChanged((pageSize) => {
-      this.#scrollContentHeight = pageSize;
+    this.#adapter.afterDatasetChanged(() => {
+      this.#scrollContentHeight = this.#adapter.getContentSize();
     });
   }
 
@@ -82,22 +75,10 @@ export abstract class RecyclerView extends ViewGroup {
   }
 
   private didScroll() {
+    // Because scrolling may trigger page turning and cause the content height
+    // to rise, Let the height of the scroll bar correspond to the change of the
+    // real-time scroll height of the content in real time
+    this.#scrollbar.track.yAxis.update(this.#lastKnownScrollY, this.height, this.#adapter.getContentSize());
     this.#adapter._onVerticalScroll(this.#lastKnownScrollY, this.#isScrollingToTop);
-  }
-
-  private debounce(action: () => void, time: number) {
-    if (this.#timeout !== null) window.clearTimeout(this.#timeout);
-    this.#timeout = window.setTimeout(action, time);
-  }
-
-  private throttling(action: () => void, wait: number, maxWait: number) {
-    if (this.#timeout !== null) window.clearTimeout(this.#timeout);
-    let curTime = new Date().getMilliseconds();
-    if (curTime - this.#startTime >= maxWait) {
-      action();
-      this.#startTime = curTime;
-    } else {
-      this.#timeout = window.setTimeout(action, wait);
-    }
   }
 }

@@ -46,7 +46,6 @@ class PrintService extends LinearLayout {
       .setTextType(TextType.Large)
       .setWhiteSpace(WhiteSpace.Pre)
       .setTextWeight("bold")
-      .setBoxSizing("border-box")
       .setBorder("2px solid rgba(255,255,255,0.15)")
       .setHorizontalPadding(30)
       .setMinHeight(300)
