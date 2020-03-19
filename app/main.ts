@@ -18,8 +18,13 @@ import { IconButton } from "./component/button/icon_button";
 import { Input, InputType } from "./component/input/input";
 import { Selection } from "./component/selection/selection";
 import { RecyclerView } from "./component/recycler_view/recycler_view";
-import { RecyclerViewAdapter, RecyclerViewHolder } from "./component/recycler_view/recycler_view_adapter";
+import { RecyclerViewAdapter } from "./component/recycler_view/recycler_view_adapter";
 import { print } from "./service/print_service";
+import {
+  RecyclerViewHolder,
+  RecyclerViewHolderPosition,
+  RecyclerViewHolderType
+} from "./component/recycler_view/recycler_view_holder";
 
 export class Main extends App {
   constructor() {
@@ -168,19 +173,59 @@ class MyRecyclerViewAdapter extends RecyclerViewAdapter {
     super(context, data);
   }
 
-  public onCreateViewHolder(index: number): RecyclerViewHolder {
-    return new MyRecyclerViewCell();
+  public getViewHoldersTypeWithPositions(): RecyclerViewHolderType[] {
+    return [
+      new RecyclerViewHolderType(MyRecyclerHeaderView, RecyclerViewHolderPosition.Header),
+      new RecyclerViewHolderType(MyRecyclerHeaderView, 2),
+      new RecyclerViewHolderType(MyRecyclerFooterView, 4),
+      new RecyclerViewHolderType(MyRecyclerHeaderView, 7),
+      new RecyclerViewHolderType(MyRecyclerViewCell),
+      new RecyclerViewHolderType(MyRecyclerHeaderView, RecyclerViewHolderPosition.Footer)
+    ];
   }
 
-  public onBindViewHolder(viewHolder: MyRecyclerViewCell, position: number): void {
-    viewHolder.model = this.data[position];
+  public onBindViewHolder(
+    viewHolder: MyRecyclerViewCell,
+    type: number,
+    dataIndex: number
+  ): void {
+    switch (type) {
+      case RecyclerViewHolderPosition.Header: {
+        viewHolder.model = "I Am a Header View";
+        break;
+      }
+      case 2: {
+        viewHolder.model = "shit you";
+        break;
+      }
+      case 4: {
+        viewHolder.model = "what happened";
+        break;
+      }
+      case 7: {
+        viewHolder.model = "66666";
+        break;
+      }
+      case RecyclerViewHolderPosition.Footer: {
+        viewHolder
+          .setBackgroundColor(new Color("teal"));
+        viewHolder.model = "I am a foot view";
+        break;
+      }
+      default: {
+        viewHolder.model = this.data[dataIndex];
+      }
+    }
   }
 
+  private pageCount = 2;
 
   public loadMore() {
+    if (!this.pageCount) return;
     super.loadMore();
     this.prepareData(this.data);
     this.notifyDataChanged();
+    this.pageCount -= 1;
   }
 
   private prepareData(data: string[]) {
@@ -211,7 +256,55 @@ class MyRecyclerViewCell extends RecyclerViewHolder {
   }
 
   public getHeight(): number {
-    return 300;
+    return 250;
+  }
+}
+
+class MyRecyclerHeaderView extends RecyclerViewHolder {
+  #textView = new TextView();
+
+  constructor() {
+    super();
+    this
+      .setPercentWidth(100)
+      .setBorder("1px solid red")
+      .setBackgroundColor(new Color("olive"));
+    this.#textView
+      .setFullParent()
+      .setTextType(TextType.Inherit);
+    this.addView(this.#textView);
+  }
+
+  set model(model: string) {
+    this.#textView.setText(model);
+  }
+
+  public getHeight(): number {
+    return 150;
+  }
+}
+
+class MyRecyclerFooterView extends RecyclerViewHolder {
+  #textView = new TextView();
+
+  constructor() {
+    super();
+    this
+      .setPercentWidth(100)
+      .setBorder("1px solid red")
+      .setBackgroundColor(new Color("yellow"));
+    this.#textView
+      .setFullParent()
+      .setTextType(TextType.Inherit);
+    this.addView(this.#textView);
+  }
+
+  set model(model: string) {
+    this.#textView.setText(model);
+  }
+
+  public getHeight(): number {
+    return 400;
   }
 }
 

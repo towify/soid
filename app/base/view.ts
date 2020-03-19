@@ -24,6 +24,10 @@ export abstract class View {
     } else {
       this._element = document.createElement("div");
     }
+    // default style without outline
+    this.style
+      .addRule(StyleTag.Outline, "none")
+      .addRule(StyleTag.BoxSizing, "border-box");
   }
 
   // Property Methods

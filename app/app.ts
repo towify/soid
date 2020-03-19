@@ -7,6 +7,7 @@ import "./extension/array_extension";
 import "./extension/html_element_extension";
 import "./extension/number_extension";
 import "./extension/string_extension";
+import "./extension/object_extension";
 import { DomFragment } from "./base/dom_fragment";
 import { BrowserService, BrowserServiceType } from "./service/browser_service";
 import { Fragment } from "./base/fragment";
