@@ -46,11 +46,14 @@ export class BrowserService {
     } else {
       this.#events[type].push(event);
     }
+    return this;
   }
 
   unregister<T>(type: BrowserServiceType, event: (value: T) => void) {
     let targetType = this.#events[type];
-    targetType.deleteItem(targetType.find(item => item === event));
+    const targetEvent = targetType.find(item => item === event);
+    !targetEvent || targetType.deleteItem(targetEvent);
+    return this;
   }
 
   destroy() {

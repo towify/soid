@@ -23,10 +23,10 @@ export abstract class RecyclerViewHolder extends ViewGroup {
 }
 
 
-export class RecyclerViewHolderType {
+export class RecyclerViewHolderModel {
   constructor(
     public holder: new () => RecyclerViewHolder,
-    public position: RecyclerViewHolderPosition | number = RecyclerViewHolderPosition.Default,
+    public position: RecyclerViewHolderType | number = RecyclerViewHolderType.Default,
     public height: number = 0,
     public y: number = 0
   ) {
@@ -34,7 +34,7 @@ export class RecyclerViewHolderType {
   }
 }
 
-export enum RecyclerViewHolderPosition {
+export enum RecyclerViewHolderType {
   Header = 0,
   Default = -1,
   Footer = -2

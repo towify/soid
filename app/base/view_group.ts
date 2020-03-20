@@ -56,4 +56,13 @@ export class ViewGroup extends View {
   public replaceView(newView: View, oldView: View) {
     this._element.replaceChild(newView._element, oldView._element);
   }
+
+  public clear(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.subviews.forEach(child => {
+        child.remove();
+      });
+      resolve();
+    });
+  }
 }

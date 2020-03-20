@@ -30,7 +30,7 @@ export abstract class App {
   protected async onStart() {
     // mount browser visibility status into visible fragment
     this.#childFragment.forEach(model => {
-      model.fragment.listenBrowserVisibility(model.visible);
+      model.fragment.listenBrowserEvents(model.visible);
     });
   }
 
@@ -47,6 +47,8 @@ export abstract class App {
   }
 
   public async removeFragment(fragment: Fragment) {
+    // Remove all of this fragment's listener events in browser service
+    fragment.listenBrowserEvents(false);
     await fragment._beforeDestroyed();
     this.getTargetChildFragmentBy(fragment).then(index => {
       this.#childFragment.splice(index, 1);

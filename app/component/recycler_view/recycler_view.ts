@@ -8,9 +8,10 @@ import { RelativeLayout } from "../relative_layout";
 import { View } from "../../base/view";
 import Scrollbar from "smooth-scrollbar";
 import { ViewGroup } from "../../base/view_group";
-import { BrowserService, BrowserServiceType } from "../../service/browser_service";
+import easingsFunctions from "../../animation/easing_functions";
+import { IRecyclerView } from "./recycler_view_interface";
 
-export abstract class RecyclerView extends ViewGroup {
+export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
   public readonly contentView = new RelativeLayout();
   #lastKnownScrollY = 0;
   #adapter: RecyclerViewAdapter;
@@ -18,18 +19,56 @@ export abstract class RecyclerView extends ViewGroup {
   #scrollbar: Scrollbar;
   #scrollContent: ViewGroup;
   #scrollContentHeight: number;
-  readonly #resizeEvent: (event: UIEvent) => void;
-  #onResizeEvent: (event: UIEvent) => void;
-  #afterResizedEvent: (event: UIEvent) => void;
-
-  #time: number;
-  #timeout = false;
-  #delta = 200;
+  #lastHeight: number;
 
   protected constructor() {
     super();
+    this.setOverflow("hidden");
     this.contentView.setFullParent();
-    this.#scrollbar = Scrollbar.init(this._element);
+    this.onCreate();
+  }
+
+  set adapter(adapter: RecyclerViewAdapter) {
+    this.#adapter = adapter;
+    // After the content was turned, you need to obtain the new content height to
+    // update the height value corresponding to the scroll table and scroll area.
+    this.#adapter.afterDatasetChanged(() => {
+      this.#scrollContentHeight = this.#adapter.getContentSize();
+    });
+  }
+
+  public scrollToTop() {
+    this.#scrollbar.scrollTo(0, 0, 200, {
+      callback: () => {
+        this.#scrollbar = undefined;
+        this.#scrollContent = undefined;
+        this.#lastKnownScrollY = 0;
+        this.#isScrollingToTop = false;
+        this.#scrollContentHeight = undefined;
+        this.#adapter.recoveryItemPosition().then(_ => this.onCreate());
+        this.onCreate();
+      },
+      easing: (percent) => easingsFunctions.easeInOutQuad(percent)
+    });
+  }
+
+  public setHeight(value: number): this {
+    if (this.#lastHeight && value !== this.#lastHeight) {
+      this.scrollToTop();
+    }
+    this.#lastHeight = value;
+    return super.setHeight(value);
+  }
+
+  public addView(view: View) {
+    this.contentView.addView(view);
+  }
+
+  private onCreate() {
+    this.#scrollbar = Scrollbar.init(this._element, {
+      alwaysShowTracks: false,
+      thumbMinSize: 150
+    });
     this.#scrollContent = new ViewGroup(this.#scrollbar.contentEl as HTMLDivElement);
     this.#scrollContent
       .setFullParent()
@@ -52,68 +91,6 @@ export abstract class RecyclerView extends ViewGroup {
         this.#scrollbar.update();
       }
     };
-
-    const resizeEnd = (event: UIEvent) => {
-      if (new Date().getTime() - this.#time < this.#delta) {
-        window.setTimeout(resizeEnd, this.#delta);
-      } else {
-        this.#timeout = false;
-        !this.#afterResizedEvent || this.#afterResizedEvent(event);
-      }
-    };
-    this.#resizeEvent = event => {
-      !this.#onResizeEvent || this.#onResizeEvent(event);
-      this.#time = new Date().getTime();
-      if (this.#timeout === false) {
-        this.#timeout = true;
-        window.setTimeout(resizeEnd, this.#delta);
-      }
-    };
-  }
-
-  set adapter(adapter: RecyclerViewAdapter) {
-    this.#adapter = adapter;
-    // After the content was turned, you need to obtain the new content height to
-    // update the height value corresponding to the scroll table and scroll area.
-    this.#adapter.afterDatasetChanged(() => {
-      this.#scrollContentHeight = this.#adapter.getContentSize();
-    });
-  }
-
-  public onResize(action: (event: UIEvent) => void) {
-    this.#onResizeEvent = action;
-    return this;
-  }
-
-  public afterResized(action: (event: UIEvent) => void) {
-    this.#afterResizedEvent = action;
-    return this;
-  }
-
-  public addView(view: View) {
-    this.contentView.addView(view);
-  }
-
-  public onHide(action?: () => void) {
-    super.onHide(action);
-  }
-
-  public onShow(action?: () => void) {
-    super.onShow(action);
-  }
-
-  public onDetached() {
-    super.onDetached();
-    BrowserService
-      .getInstance()
-      .register<UIEvent>(BrowserServiceType.Resize, this.#resizeEvent);
-  }
-
-  async onAttached(): Promise<any> {
-    super.onAttached();
-    BrowserService
-      .getInstance()
-      .register<UIEvent>(BrowserServiceType.Resize, this.#resizeEvent);
   }
 
   private didScroll() {
