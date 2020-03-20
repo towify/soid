@@ -7,20 +7,20 @@ import { RecyclerView } from "./recycler_view";
 import { DisplayType } from "../../value/style";
 import {
   RecyclerViewHolder,
-  RecyclerViewHolderPosition,
+  RecyclerViewHolderModel,
   RecyclerViewHolderType,
   SpecialViewHolderPosition
 } from "./recycler_view_holder";
-import { print } from "../../service/print_service";
+import { IRecyclerViewAdapter } from "./recycler_view_interface";
 
-export abstract class RecyclerViewAdapter {
+export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
   #visibleHeight = 0;
   #itemCount = 0;
   #data: any[] = [];
   #normalHolderHeight = 0;
   #visibleCount = 0;
   #viewHolders: RecyclerViewHolder[] = [];
-  #movedCount = 1;
+  #movedCount = 0;
   #invisibleCount: number;
   #viewPosition: number[];
   // how many count disappeared that the move engine will start to work
@@ -29,9 +29,9 @@ export abstract class RecyclerViewAdapter {
 
   #viewHolder: RecyclerViewHolder;
 
-  #holderTypes: RecyclerViewHolderType[];
+  #holderTypes: RecyclerViewHolderModel[];
   #normalHolder: new () => RecyclerViewHolder;
-  #specialHolderTypes: RecyclerViewHolderType[] = [];
+  #specialHolderTypes: RecyclerViewHolderModel[] = [];
   #contentHeight = 0;
   #displayedSpecialHoldersHeight = 0;
   #footer: RecyclerViewHolder;
@@ -44,6 +44,81 @@ export abstract class RecyclerViewAdapter {
     protected readonly data: any[]
   ) {
     this.onCreate();
+  }
+
+  public recoveryItemPosition(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.#movedCount = 1;
+      resolve();
+      this.#viewHolders.forEach((holder, index) => {
+        holder.setTranslate(0, this.#viewPosition[index]).updateStyle();
+        this.onBindViewHolder(holder, RecyclerViewHolderType.Default, index);
+      });
+    });
+  }
+
+  public getContentSize() {
+    return this.#viewPosition.last() + this.#normalHolderHeight + (this.#footer?.height || 0);
+  }
+
+  public afterDatasetChanged(action: () => void) {
+    this.#_afterDatasetChanged = action;
+    return this;
+  }
+
+  public loadMore() {}
+
+  public notifyDataChanged() {
+    this.#data = this.data;
+    this.#itemCount = this.#data.length;
+    this.calculateViewPositions(this.#itemCount, false);
+    // update scrollbar size
+    this.#contentHeight = this.getContentSize();
+    !this.#_afterDatasetChanged || this.#_afterDatasetChanged();
+    this.handleFooterHolder();
+  }
+
+  public abstract getViewHoldersTypeWithPositions(): RecyclerViewHolderModel[]
+
+  public abstract onBindViewHolder(
+    viewHolder: RecyclerViewHolder,
+    type: number,
+    dataIndex?: number
+  ): void
+
+  /**
+   * @param value element scroll top
+   * @param isScrollingToTop true means scroll to top
+   */
+  public _onVerticalScroll(value: number, isScrollingToTop: boolean) {
+    const offset = value - this.#displayedSpecialHoldersHeight;
+    this.#invisibleCount = Math.floor((offset < 0 ? 0 : offset) / this.#normalHolderHeight);
+    // dynamic update scrollbar size
+    if (this.#invisibleCount + this.#visibleCount === this.#itemCount - 1) {
+      this.loadMore();
+    }
+    if (
+      this.#invisibleCount > this.#movedCount &&
+      this.#itemCount > this.#visibleCount &&
+      !isScrollingToTop
+    ) {
+      this.#position = this.#invisibleCount + this.#visibleCount - this.#beginPassCount;
+      this.handleMovedItem(this.#position);
+      this.#movedCount += 1;
+    } else {
+      if (isScrollingToTop) {
+        if (
+          this.#invisibleCount < this.#movedCount &&
+          (value / this.#normalHolderHeight) > this.#currentMovedPosition &&
+          this.#invisibleCount > 0
+        ) {
+          this.#position = this.#invisibleCount - 1;
+          this.handleMovedItem(this.#position);
+          this.#movedCount -= 1;
+          this.#currentMovedPosition = this.#position;
+        }
+      }
+    }
   }
 
   /**
@@ -80,7 +155,6 @@ export abstract class RecyclerViewAdapter {
         this.#visibleCount += 1;
         specialHolderHeight = this.#specialHolderTypes
           .firstOfOrNull(special => special.position === index)?.height || 0;
-        this.#visibleHeight += specialHolderHeight;
         this.#displayedSpecialHoldersHeight += specialHolderHeight;
         displayHeight += this.#normalHolderHeight;
         temporaryHolder = new this.#normalHolder();
@@ -92,6 +166,8 @@ export abstract class RecyclerViewAdapter {
           moreCount === this.#beginPassCount
         ) {
           isMaxVisibleCount = true;
+        } else {
+          this.#visibleHeight += specialHolderHeight;
         }
       }
     });
@@ -99,78 +175,11 @@ export abstract class RecyclerViewAdapter {
     this.handleFooterHolder();
   }
 
-  public getContentSize() {
-    return this.#viewPosition.last() + this.#normalHolderHeight + (this.#footer?.height || 0);
-  }
-
-  public afterDatasetChanged(action: () => void) {
-    this.#_afterDatasetChanged = action;
-    return this;
-  }
-
-  public loadMore() {}
-
-  public notifyDataChanged() {
-    this.#data = this.data;
-    this.#itemCount = this.#data.length;
-    this.calculateViewPositions(this.#itemCount, false);
-    // update scrollbar size
-    this.#contentHeight = this.getContentSize();
-    !this.#_afterDatasetChanged || this.#_afterDatasetChanged();
-    this.handleFooterHolder();
-  }
-
-  public abstract getViewHoldersTypeWithPositions(): RecyclerViewHolderType[]
-
-  public abstract onBindViewHolder(viewHolder: RecyclerViewHolder, type: number, dataIndex?: number): void
-
-  /**
-   * @param value element scroll top
-   * @param isScrollingToTop true means scroll to top
-   */
-  public _onVerticalScroll(value: number, isScrollingToTop: boolean) {
-    const offset = value - this.#displayedSpecialHoldersHeight;
-    this.#invisibleCount = Math.floor((offset < 0 ? 0 : offset) / this.#normalHolderHeight);
-    // dynamic update scrollbar size
-    if (this.#invisibleCount + this.#visibleCount === this.#itemCount - (this.#footer ? 0 : 1)) {
-      this.loadMore();
-    }
-    print.display("board1", {
-      invisible: this.#invisibleCount,
-      move: this.#movedCount,
-      visible: this.#visibleCount,
-      offset: offset,
-      itemCount: this.#itemCount
-    });
-    if (
-      this.#invisibleCount > this.#movedCount &&
-      this.#itemCount > this.#visibleCount &&
-      !isScrollingToTop
-    ) {
-      this.#position = this.#invisibleCount + this.#visibleCount - this.#beginPassCount;
-      this.handleMovedItem(this.#position);
-      this.#movedCount += 1;
-    } else {
-      if (isScrollingToTop) {
-        if (
-          this.#invisibleCount < this.#movedCount &&
-          (value / this.#normalHolderHeight) > this.#currentMovedPosition &&
-          this.#invisibleCount > 0
-        ) {
-          this.#position = this.#invisibleCount - 1;
-          this.handleMovedItem(this.#position);
-          this.#movedCount -= 1;
-          this.#currentMovedPosition = this.#position;
-        }
-      }
-    }
-  }
-
   private handleMovedItem(position: number) {
     this.#viewHolder = this.#viewHolders[position % this.#visibleCount]
       .setDisplay(DisplayType.None)
       .setTranslate(0, this.#viewPosition[position]);
-    this.onBindViewHolder(this.#viewHolder, -1, position);
+    this.onBindViewHolder(this.#viewHolder, RecyclerViewHolderType.Default, position);
     this.#viewHolder
       .setDisplay(DisplayType.Block)
       .updateStyle();
@@ -185,11 +194,11 @@ export abstract class RecyclerViewAdapter {
       .forEach((special, index) => {
         // Handle footer when all holders have been processed
         specialHolder = new special.holder();
-        if (special.position === RecyclerViewHolderPosition.Footer) {
+        if (special.position === RecyclerViewHolderType.Footer) {
           this.#footer = specialHolder;
           this.#footer.setDisplay(DisplayType.None);
         } else {
-          if (special.position === RecyclerViewHolderPosition.Header) {
+          if (special.position === RecyclerViewHolderType.Header) {
             special.y = 0;
           } else {
             const preHolderType = this.#specialHolderTypes[index - 1];
@@ -228,7 +237,7 @@ export abstract class RecyclerViewAdapter {
     // If it is a position-connected Item, you need to recursively calculate their
     // cumulative height and mark the position of this connection. You do not
     // need to add the Ignore Position tag of the Normal Item.
-    const recursionConnectedHeight = (special: RecyclerViewHolderType) => {
+    const recursionConnectedHeight = (special: RecyclerViewHolderModel) => {
       const nextSpecial = this.#specialHolderTypes.firstOfOrNull(item => item.position === (special.position + 1));
       if (nextSpecial) {
         ignorePosition = nextSpecial.position;
@@ -239,7 +248,7 @@ export abstract class RecyclerViewAdapter {
         return positionY;
       }
     };
-    let special: RecyclerViewHolderType;
+    let special: RecyclerViewHolderModel;
     const markSpecialPositionIfNeed = (index: number) => {
       special = this.#specialHolderTypes.firstOfOrNull(item => {
         return (item.position - markedSpecialPositionCount) === index;

@@ -18,6 +18,8 @@ enum ListenerType {
   Mouseover = "mouseover",
   Mouseleave = "mouseleave",
   Mouseout = "mouseout",
+  Mousedown = "mousedown",
+  Mouseup = "mouseup",
   DOMNodeRemoved = "DOMNodeRemoved",
   DOMNodeInserted = "DOMNodeInserted",
   Animationend = "animationend",

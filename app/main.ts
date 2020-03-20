@@ -22,8 +22,8 @@ import { RecyclerViewAdapter } from "./component/recycler_view/recycler_view_ada
 import { print } from "./service/print_service";
 import {
   RecyclerViewHolder,
-  RecyclerViewHolderPosition,
-  RecyclerViewHolderType
+  RecyclerViewHolderType,
+  RecyclerViewHolderModel
 } from "./component/recycler_view/recycler_view_holder";
 
 export class Main extends App {
@@ -143,15 +143,24 @@ class Text extends Fragment {
     gridLayout.addView(selection, 1, 1);
 
     const recyclerView = new MyRecyclerView();
-    recyclerView.adapter =
-      new MyRecyclerViewAdapter(
-        recyclerView,
-        ["Hello 1", "Hello 2", "Hello3", "Hello 4", "Hello 5", "Hello 6", "Hello 7", "Hello 8", "Hello 9"]
-      );
+    recyclerView.adapter = new MyRecyclerViewAdapter(
+      recyclerView,
+      ["Hello 1", "Hello 2", "Hello3", "Hello 4", "Hello 5", "Hello 6", "Hello 7", "Hello 8", "Hello 9"]
+    );
     this.layout.addView(relativeLayout);
     this.layout.addView(gridLayout);
     this.layout.addView(recyclerView);
     context.addView(this.layout);
+
+    this.onResize(event => {
+      console.log("on resize fragment");
+      console.log("after resized fragment");
+    });
+
+    this.afterResized(event => {
+      const innerHeight = (event.target as Window).innerHeight;
+      recyclerView.setHeight(800).updateStyle();
+    });
   }
 }
 
@@ -160,7 +169,7 @@ class MyRecyclerView extends RecyclerView {
     super();
     this
       .setWidth(400)
-      .setHeight(800)
+      .setHeight(600)
       .setBackgroundColor(Color.white);
   }
 }
@@ -173,14 +182,14 @@ class MyRecyclerViewAdapter extends RecyclerViewAdapter {
     super(context, data);
   }
 
-  public getViewHoldersTypeWithPositions(): RecyclerViewHolderType[] {
+  public getViewHoldersTypeWithPositions(): RecyclerViewHolderModel[] {
     return [
-      new RecyclerViewHolderType(MyRecyclerHeaderView, RecyclerViewHolderPosition.Header),
-      new RecyclerViewHolderType(MyRecyclerHeaderView, 2),
-      new RecyclerViewHolderType(MyRecyclerFooterView, 4),
-      new RecyclerViewHolderType(MyRecyclerHeaderView, 7),
-      new RecyclerViewHolderType(MyRecyclerViewCell),
-      new RecyclerViewHolderType(MyRecyclerHeaderView, RecyclerViewHolderPosition.Footer)
+      new RecyclerViewHolderModel(MyRecyclerHeaderView, RecyclerViewHolderType.Header),
+      new RecyclerViewHolderModel(MyRecyclerHeaderView, 2),
+      new RecyclerViewHolderModel(MyRecyclerFooterView, 4),
+      new RecyclerViewHolderModel(MyRecyclerHeaderView, 7),
+      new RecyclerViewHolderModel(MyRecyclerViewCell),
+      new RecyclerViewHolderModel(MyRecyclerHeaderView, RecyclerViewHolderType.Footer)
     ];
   }
 
@@ -190,7 +199,7 @@ class MyRecyclerViewAdapter extends RecyclerViewAdapter {
     dataIndex: number
   ): void {
     switch (type) {
-      case RecyclerViewHolderPosition.Header: {
+      case RecyclerViewHolderType.Header: {
         viewHolder.model = "I Am a Header View";
         break;
       }
@@ -206,7 +215,7 @@ class MyRecyclerViewAdapter extends RecyclerViewAdapter {
         viewHolder.model = "66666";
         break;
       }
-      case RecyclerViewHolderPosition.Footer: {
+      case RecyclerViewHolderType.Footer: {
         viewHolder
           .setBackgroundColor(new Color("teal"));
         viewHolder.model = "I am a foot view";
@@ -256,7 +265,7 @@ class MyRecyclerViewCell extends RecyclerViewHolder {
   }
 
   public getHeight(): number {
-    return 250;
+    return 240;
   }
 }
 
