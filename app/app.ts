@@ -64,7 +64,7 @@ export abstract class App {
     await this.onStart();
     BrowserService
       .getInstance()
-      .register(BrowserServiceType.VisibilityChange, this.#visibilityEvent);
+      .register<boolean>(BrowserServiceType.VisibilityChange, this.#visibilityEvent);
   }
 
   private getTargetChildFragmentBy(fragment: Fragment): Promise<number> {

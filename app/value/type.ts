@@ -23,7 +23,8 @@ enum ListenerType {
   Animationend = "animationend",
   AnimationStart = "animationstart",
   VisibilityChange = "visibilitychange",
-  BeforeUnload = "beforeunload"
+  BeforeUnload = "beforeunload",
+  Resize = "resize",
 }
 
 export {

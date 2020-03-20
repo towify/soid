@@ -8,8 +8,8 @@ import { BrowserService, BrowserServiceType } from "../service/browser_service";
 
 export abstract class Fragment {
   readonly contentView = new ViewGroup();
+  readonly #visibilityEvent: (status: boolean) => void;
   #childFragments: Fragment[] = [];
-  #visibilityEvent: (status: boolean) => void;
 
   protected async onAttach() {}
 
@@ -58,11 +58,11 @@ export abstract class Fragment {
     if (needListen) {
       BrowserService
         .getInstance()
-        .register(BrowserServiceType.VisibilityChange, this.#visibilityEvent);
+        .register<boolean>(BrowserServiceType.VisibilityChange, this.#visibilityEvent);
     } else {
       BrowserService
         .getInstance()
-        .unregister(BrowserServiceType.VisibilityChange, this.#visibilityEvent);
+        .unregister<boolean>(BrowserServiceType.VisibilityChange, this.#visibilityEvent);
     }
   }
 
