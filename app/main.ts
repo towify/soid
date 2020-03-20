@@ -265,7 +265,7 @@ class MyRecyclerViewCell extends RecyclerViewHolder {
   }
 
   public getHeight(): number {
-    return 250;
+    return 240;
   }
 }
 

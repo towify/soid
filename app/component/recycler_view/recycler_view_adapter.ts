@@ -11,7 +11,6 @@ import {
   RecyclerViewHolderType,
   SpecialViewHolderPosition
 } from "./recycler_view_holder";
-import { print } from "../../service/print_service";
 import { IRecyclerViewAdapter } from "./recycler_view_interface";
 
 export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
@@ -98,13 +97,6 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
     if (this.#invisibleCount + this.#visibleCount === this.#itemCount - 1) {
       this.loadMore();
     }
-    print.display("board1", {
-      invisible: this.#invisibleCount,
-      move: this.#movedCount,
-      visible: this.#visibleCount,
-      offset: offset,
-      itemCount: this.#itemCount
-    });
     if (
       this.#invisibleCount > this.#movedCount &&
       this.#itemCount > this.#visibleCount &&
@@ -163,7 +155,6 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
         this.#visibleCount += 1;
         specialHolderHeight = this.#specialHolderTypes
           .firstOfOrNull(special => special.position === index)?.height || 0;
-        this.#visibleHeight += specialHolderHeight;
         this.#displayedSpecialHoldersHeight += specialHolderHeight;
         displayHeight += this.#normalHolderHeight;
         temporaryHolder = new this.#normalHolder();
@@ -175,6 +166,8 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
           moreCount === this.#beginPassCount
         ) {
           isMaxVisibleCount = true;
+        } else {
+          this.#visibleHeight += specialHolderHeight;
         }
       }
     });
