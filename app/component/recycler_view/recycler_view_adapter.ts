@@ -11,6 +11,7 @@ import {
   RecyclerViewHolderType,
   SpecialViewHolderPosition
 } from "./recycler_view_holder";
+import { print } from "../../service/print_service";
 
 export abstract class RecyclerViewAdapter {
   #visibleHeight = 0;
@@ -55,7 +56,7 @@ export abstract class RecyclerViewAdapter {
     this.#visibleHeight = this.context.height;
     this.#data = this.#data.concat(this.data);
     this.#itemCount = this.#data.length;
-    let isVisibleCount = false;
+    let isMaxVisibleCount = false;
     let moreCount = 2;
     let displayHeight = 0;
     let temporaryHolder: RecyclerViewHolder;
@@ -74,7 +75,7 @@ export abstract class RecyclerViewAdapter {
     this.handleSpecialHolders();
     // Ready to initialize the first screen of data
     this.#itemCount.forEach(index => {
-      if (!isVisibleCount || moreCount) {
+      if (!isMaxVisibleCount || moreCount) {
         // Not calculated if there is a HeaderView display area
         this.#visibleCount += 1;
         specialHolderHeight = this.#specialHolderTypes
@@ -84,13 +85,13 @@ export abstract class RecyclerViewAdapter {
         displayHeight += this.#normalHolderHeight;
         temporaryHolder = new this.#normalHolder();
         this.#viewHolders.push(temporaryHolder);
-        if (isVisibleCount) {
+        if (isMaxVisibleCount) {
           moreCount -= 1;
         } else if (
           displayHeight >= this.#visibleHeight &&
           moreCount === this.#beginPassCount
         ) {
-          isVisibleCount = true;
+          isMaxVisibleCount = true;
         }
       }
     });
@@ -121,7 +122,7 @@ export abstract class RecyclerViewAdapter {
 
   public abstract getViewHoldersTypeWithPositions(): RecyclerViewHolderType[]
 
-  abstract onBindViewHolder(viewHolder: RecyclerViewHolder, type: number, dataIndex?: number): void
+  public abstract onBindViewHolder(viewHolder: RecyclerViewHolder, type: number, dataIndex?: number): void
 
   /**
    * @param value element scroll top
@@ -131,9 +132,16 @@ export abstract class RecyclerViewAdapter {
     const offset = value - this.#displayedSpecialHoldersHeight;
     this.#invisibleCount = Math.floor((offset < 0 ? 0 : offset) / this.#normalHolderHeight);
     // dynamic update scrollbar size
-    if (this.#invisibleCount + this.#visibleCount === this.#itemCount) {
+    if (this.#invisibleCount + this.#visibleCount === this.#itemCount - (this.#footer ? 0 : 1)) {
       this.loadMore();
     }
+    print.display("board1", {
+      invisible: this.#invisibleCount,
+      move: this.#movedCount,
+      visible: this.#visibleCount,
+      offset: offset,
+      itemCount: this.#itemCount
+    });
     if (
       this.#invisibleCount > this.#movedCount &&
       this.#itemCount > this.#visibleCount &&
@@ -197,7 +205,7 @@ export abstract class RecyclerViewAdapter {
   }
 
   private handleFooterHolder() {
-    if (!this.#footer && !this.#viewPosition.length) return;
+    if (!this.#footer || !this.#viewPosition.length) return;
     this.#footer
       .setTranslate(0, this.#viewPosition.last() + this.#normalHolderHeight)
       .setDisplay(DisplayType.Block)

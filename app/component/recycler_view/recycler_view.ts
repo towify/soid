@@ -8,22 +8,27 @@ import { RelativeLayout } from "../relative_layout";
 import { View } from "../../base/view";
 import Scrollbar from "smooth-scrollbar";
 import { ViewGroup } from "../../base/view_group";
+import { BrowserService, BrowserServiceType } from "../../service/browser_service";
 
 export abstract class RecyclerView extends ViewGroup {
   public readonly contentView = new RelativeLayout();
   #lastKnownScrollY = 0;
   #adapter: RecyclerViewAdapter;
   #isScrollingToTop = false;
-  // For Debounce or Throttling
-  #timeout: number = null;
   #scrollbar: Scrollbar;
   #scrollContent: ViewGroup;
   #scrollContentHeight: number;
+  readonly #resizeEvent: (event: UIEvent) => void;
+  #onResizeEvent: (event: UIEvent) => void;
+  #afterResizedEvent: (event: UIEvent) => void;
+
+  #time: number;
+  #timeout = false;
+  #delta = 200;
 
   protected constructor() {
     super();
-    this.contentView
-      .setFullParent();
+    this.contentView.setFullParent();
     this.#scrollbar = Scrollbar.init(this._element);
     this.#scrollContent = new ViewGroup(this.#scrollbar.contentEl as HTMLDivElement);
     this.#scrollContent
@@ -47,6 +52,23 @@ export abstract class RecyclerView extends ViewGroup {
         this.#scrollbar.update();
       }
     };
+
+    const resizeEnd = (event: UIEvent) => {
+      if (new Date().getTime() - this.#time < this.#delta) {
+        window.setTimeout(resizeEnd, this.#delta);
+      } else {
+        this.#timeout = false;
+        !this.#afterResizedEvent || this.#afterResizedEvent(event);
+      }
+    };
+    this.#resizeEvent = event => {
+      !this.#onResizeEvent || this.#onResizeEvent(event);
+      this.#time = new Date().getTime();
+      if (this.#timeout === false) {
+        this.#timeout = true;
+        window.setTimeout(resizeEnd, this.#delta);
+      }
+    };
   }
 
   set adapter(adapter: RecyclerViewAdapter) {
@@ -56,6 +78,16 @@ export abstract class RecyclerView extends ViewGroup {
     this.#adapter.afterDatasetChanged(() => {
       this.#scrollContentHeight = this.#adapter.getContentSize();
     });
+  }
+
+  public onResize(action: (event: UIEvent) => void) {
+    this.#onResizeEvent = action;
+    return this;
+  }
+
+  public afterResized(action: (event: UIEvent) => void) {
+    this.#afterResizedEvent = action;
+    return this;
   }
 
   public addView(view: View) {
@@ -72,6 +104,16 @@ export abstract class RecyclerView extends ViewGroup {
 
   public onDetached() {
     super.onDetached();
+    BrowserService
+      .getInstance()
+      .register<UIEvent>(BrowserServiceType.Resize, this.#resizeEvent);
+  }
+
+  async onAttached(): Promise<any> {
+    super.onAttached();
+    BrowserService
+      .getInstance()
+      .register<UIEvent>(BrowserServiceType.Resize, this.#resizeEvent);
   }
 
   private didScroll() {
