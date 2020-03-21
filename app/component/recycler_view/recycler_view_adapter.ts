@@ -22,7 +22,7 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
   #normalHolderArea = 0;
   #visibleCount = 0;
   #viewHolders: RecyclerViewHolder[] = [];
-  #movedCount = 0;
+  #movedCount = 1;
   #invisibleCount: number;
   #viewPosition: number[];
   // how many count disappeared that the move engine will start to work
@@ -86,6 +86,7 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
     willUpdateCount.forEach(value => {
       this.handleMovedItem(this.#invisibleCount + value);
     });
+    this.#movedCount = this.#invisibleCount;
     // update scrollbar size
     this.#contentArea = this.getContentSize();
     !this.#_afterDatasetChanged || this.#_afterDatasetChanged();
@@ -124,7 +125,7 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
     ) {
       this.#position = this.#invisibleCount + this.#visibleCount - this.#beginPassCount;
       this.handleMovedItem(this.#position);
-      this.#movedCount += 1;
+      this.#movedCount = this.#invisibleCount;
     } else {
       if (isScrollingToMore) {
         if (
