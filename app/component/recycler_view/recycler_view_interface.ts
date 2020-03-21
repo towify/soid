@@ -9,7 +9,7 @@ import { RecyclerViewHolder } from "./recycler_view_holder";
 export interface IRecyclerView {
   adapter: RecyclerViewAdapter
 
-  scrollToTop(): void
+  scrollToStart(): void
 }
 
 export interface IRecyclerViewAdapter {
