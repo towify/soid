@@ -5,13 +5,15 @@
 
 import { ViewGroup } from "../../base/view_group";
 import { WillChangeType } from "../../value/style";
+import { Size } from "../../value/value";
 
 export abstract class RecyclerViewHolder extends ViewGroup {
 
   protected constructor() {
     super();
     this
-      .setHeight(this.getHeight())
+      .setHeight(this.getSize().height)
+      .setWidth(this.getSize().width)
       .setWillChange(WillChangeType.Transform);
   }
 
@@ -19,7 +21,7 @@ export abstract class RecyclerViewHolder extends ViewGroup {
     return this.constructor.name;
   }
 
-  public abstract getHeight(): number;
+  public abstract getSize(): Size;
 }
 
 
@@ -28,7 +30,9 @@ export class RecyclerViewHolderModel {
     public holder: new () => RecyclerViewHolder,
     public position: RecyclerViewHolderType | number = RecyclerViewHolderType.Default,
     public height: number = 0,
-    public y: number = 0
+    public width: number = 0,
+    public y: number = 0,
+    public x: number = 0
   ) {
 
   }

@@ -4,7 +4,7 @@
  */
 
 import { RecyclerView } from "./recycler_view";
-import { DisplayType } from "../../value/style";
+import { DisplayType, Orientation } from "../../value/style";
 import {
   RecyclerViewHolder,
   RecyclerViewHolderModel,
@@ -12,12 +12,14 @@ import {
   SpecialViewHolderPosition
 } from "./recycler_view_holder";
 import { IRecyclerViewAdapter } from "./recycler_view_interface";
+import { View } from "../../base/view";
+import { print } from "../../service/print_service";
 
 export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
-  #visibleHeight = 0;
+  #visibleArea = 0;
   #itemCount = 0;
   #data: any[] = [];
-  #normalHolderHeight = 0;
+  #normalHolderArea = 0;
   #visibleCount = 0;
   #viewHolders: RecyclerViewHolder[] = [];
   #movedCount = 0;
@@ -32,33 +34,39 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
   #holderTypes: RecyclerViewHolderModel[];
   #normalHolder: new () => RecyclerViewHolder;
   #specialHolderTypes: RecyclerViewHolderModel[] = [];
-  #contentHeight = 0;
-  #displayedSpecialHoldersHeight = 0;
+  #contentArea = 0;
+  #displayedSpecialHoldersArea = 0;
+  #firstScreenSpecialHolderCount = 0;
   #footer: RecyclerViewHolder;
 
   #currentMovedPosition = 0;
   #position = 0;
 
-  protected constructor(
+  constructor(
     private readonly context: RecyclerView,
-    protected readonly data: any[]
+    protected readonly data: any[],
+    public readonly orientation: Orientation = Orientation.Vertical
   ) {
     this.onCreate();
   }
 
   public recoveryItemPosition(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve, _) => {
       this.#movedCount = 1;
       resolve();
       this.#viewHolders.forEach((holder, index) => {
-        holder.setTranslate(0, this.#viewPosition[index]).updateStyle();
+        if (this.orientation === Orientation.Vertical) {
+          holder.setTranslate(0, this.#viewPosition[index]).updateStyle();
+        } else {
+          holder.setTranslate(this.#viewPosition[index], 0).updateStyle();
+        }
         this.onBindViewHolder(holder, RecyclerViewHolderType.Default, index);
       });
     });
   }
 
   public getContentSize() {
-    return this.#viewPosition.last() + this.#normalHolderHeight + (this.#footer?.height || 0);
+    return this.#viewPosition.last() + this.#normalHolderArea + this.getArea(this.#footer);
   }
 
   public afterDatasetChanged(action: () => void) {
@@ -66,14 +74,20 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
     return this;
   }
 
-  public loadMore() {}
+  public loadMore() {
+
+  }
 
   public notifyDataChanged() {
     this.#data = this.data;
     this.#itemCount = this.#data.length;
     this.calculateViewPositions(this.#itemCount, false);
+    const willUpdateCount = this.#visibleCount - this.#beginPassCount + 1;
+    willUpdateCount.forEach(value => {
+      this.handleMovedItem(this.#invisibleCount + value);
+    });
     // update scrollbar size
-    this.#contentHeight = this.getContentSize();
+    this.#contentArea = this.getContentSize();
     !this.#_afterDatasetChanged || this.#_afterDatasetChanged();
     this.handleFooterHolder();
   }
@@ -87,29 +101,35 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
   ): void
 
   /**
-   * @param value element scroll top
-   * @param isScrollingToTop true means scroll to top
+   * @param offset element scroll top
+   * @param isScrollingToMore true means scroll to top
    */
-  public _onVerticalScroll(value: number, isScrollingToTop: boolean) {
-    const offset = value - this.#displayedSpecialHoldersHeight;
-    this.#invisibleCount = Math.floor((offset < 0 ? 0 : offset) / this.#normalHolderHeight);
+  public _onVerticalScroll(offset: number, isScrollingToMore: boolean) {
+    const fixedOffset = offset - this.#displayedSpecialHoldersArea;
+    this.#invisibleCount = Math.floor((fixedOffset < 0 ? 0 : fixedOffset) / this.#normalHolderArea);
     // dynamic update scrollbar size
-    if (this.#invisibleCount + this.#visibleCount === this.#itemCount - 1) {
+    if (this.#invisibleCount + (this.#visibleCount - this.#firstScreenSpecialHolderCount + this.#beginPassCount) === this.#itemCount - 1) {
       this.loadMore();
     }
+    print.display("board1", {
+      invisible: this.#invisibleCount,
+      move: this.#movedCount,
+      itemCount: this.#itemCount,
+      visibleCount: this.#visibleCount
+    });
     if (
       this.#invisibleCount > this.#movedCount &&
       this.#itemCount > this.#visibleCount &&
-      !isScrollingToTop
+      !isScrollingToMore
     ) {
       this.#position = this.#invisibleCount + this.#visibleCount - this.#beginPassCount;
       this.handleMovedItem(this.#position);
       this.#movedCount += 1;
     } else {
-      if (isScrollingToTop) {
+      if (isScrollingToMore) {
         if (
           this.#invisibleCount < this.#movedCount &&
-          (value / this.#normalHolderHeight) > this.#currentMovedPosition &&
+          (fixedOffset / this.#normalHolderArea) > this.#currentMovedPosition &&
           this.#invisibleCount > 0
         ) {
           this.#position = this.#invisibleCount - 1;
@@ -128,22 +148,22 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
    */
   private onCreate() {
     this.#holderTypes = this.getViewHoldersTypeWithPositions();
-    this.#visibleHeight = this.context.height;
+    this.#visibleArea = this.getArea(this.context);
     this.#data = this.#data.concat(this.data);
     this.#itemCount = this.#data.length;
     let isMaxVisibleCount = false;
     let moreCount = 2;
-    let displayHeight = 0;
+    let displayArea = 0;
     let temporaryHolder: RecyclerViewHolder;
-    let specialHolderHeight: number;
+    let specialHolderArea: number;
     // Prepare data for Special and Normal Holder
     this.#holderTypes.forEach(type => {
       if (type.position > 0 || SpecialViewHolderPosition.includes(type.position)) {
         this.#specialHolderTypes.push(type);
       } else {
         this.#normalHolder = type.holder;
-        if (!this.#normalHolderHeight) {
-          this.#normalHolderHeight = new type.holder().height;
+        if (!this.#normalHolderArea) {
+          this.#normalHolderArea = this.getArea(new type.holder());
         }
       }
     });
@@ -151,23 +171,25 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
     // Ready to initialize the first screen of data
     this.#itemCount.forEach(index => {
       if (!isMaxVisibleCount || moreCount) {
-        // Not calculated if there is a HeaderView display area
         this.#visibleCount += 1;
-        specialHolderHeight = this.#specialHolderTypes
-          .firstOfOrNull(special => special.position === index)?.height || 0;
-        this.#displayedSpecialHoldersHeight += specialHolderHeight;
-        displayHeight += this.#normalHolderHeight;
+        specialHolderArea =
+          this.getArea(this.#specialHolderTypes.firstOfOrNull(special => special.position === index));
+        if (specialHolderArea) {
+          this.#firstScreenSpecialHolderCount += 1;
+        }
+        this.#displayedSpecialHoldersArea += specialHolderArea;
+        displayArea += this.#normalHolderArea;
         temporaryHolder = new this.#normalHolder();
         this.#viewHolders.push(temporaryHolder);
         if (isMaxVisibleCount) {
           moreCount -= 1;
         } else if (
-          displayHeight >= this.#visibleHeight &&
+          displayArea >= this.#visibleArea &&
           moreCount === this.#beginPassCount
         ) {
           isMaxVisibleCount = true;
         } else {
-          this.#visibleHeight += specialHolderHeight;
+          this.#visibleArea += specialHolderArea;
         }
       }
     });
@@ -176,9 +198,15 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
   }
 
   private handleMovedItem(position: number) {
-    this.#viewHolder = this.#viewHolders[position % this.#visibleCount]
+    this.#viewHolder = this.#viewHolders[position % this.#visibleCount];
+    this.#viewHolder
       .setDisplay(DisplayType.None)
-      .setTranslate(0, this.#viewPosition[position]);
+      .updateStyle();
+    if (this.orientation === Orientation.Vertical) {
+      this.#viewHolder.setTranslate(0, this.#viewPosition[position]);
+    } else {
+      this.#viewHolder.setTranslate(this.#viewPosition[position], 0);
+    }
     this.onBindViewHolder(this.#viewHolder, RecyclerViewHolderType.Default, position);
     this.#viewHolder
       .setDisplay(DisplayType.Block)
@@ -200,13 +228,24 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
         } else {
           if (special.position === RecyclerViewHolderType.Header) {
             special.y = 0;
+            special.x = 0;
           } else {
             const preHolderType = this.#specialHolderTypes[index - 1];
-            special.y = preHolderType.y + preHolderType.height +
-              (special.position - preHolderType.position - 1) * this.#normalHolderHeight;
+            if (this.orientation === Orientation.Vertical) {
+              special.y = preHolderType.y + preHolderType.height +
+                (special.position - preHolderType.position - 1) * this.#normalHolderArea;
+            } else {
+              special.x = preHolderType.x + preHolderType.width +
+                (special.position - preHolderType.position - 1) * this.#normalHolderArea;
+            }
           }
           special.height = specialHolder.height;
-          specialHolder.setTranslate(0, special.y);
+          special.width = specialHolder.width;
+          if (this.orientation === Orientation.Vertical) {
+            specialHolder.setTranslate(0, special.y);
+          } else {
+            specialHolder.setTranslate(special.x, 0);
+          }
         }
         this.onBindViewHolder(specialHolder, special.position);
         this.context.addView(specialHolder);
@@ -215,10 +254,12 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
 
   private handleFooterHolder() {
     if (!this.#footer || !this.#viewPosition.length) return;
-    this.#footer
-      .setTranslate(0, this.#viewPosition.last() + this.#normalHolderHeight)
-      .setDisplay(DisplayType.Block)
-      .updateStyle();
+    if (this.orientation === Orientation.Vertical) {
+      this.#footer.setTranslate(0, this.#viewPosition.last() + this.#normalHolderArea);
+    } else {
+      this.#footer.setTranslate(this.#viewPosition.last() + this.#normalHolderArea, 0);
+    }
+    this.#footer.setDisplay(DisplayType.Block).updateStyle();
   }
 
   private calculateViewPositions(itemCount: number, isInitial: boolean) {
@@ -226,63 +267,78 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
     const prepareNormalHolderEvent = (index: number) => {
       const targetHolder = this.#viewHolders[index % this.#visibleCount];
       if (isInitial) {
-        targetHolder.setTranslate(0, this.#viewPosition[index]);
+        if (this.orientation === Orientation.Vertical) {
+          targetHolder.setTranslate(0, this.#viewPosition[index]);
+        } else {
+          targetHolder.setTranslate(this.#viewPosition[index], 0);
+        }
         this.onBindViewHolder(targetHolder, -1, index);
         this.context.addView(targetHolder);
       }
     };
 
-    let positionY: number;
+    let positionArea: number;
     let ignorePosition: number;
     // If it is a position-connected Item, you need to recursively calculate their
     // cumulative height and mark the position of this connection. You do not
     // need to add the Ignore Position tag of the Normal Item.
-    const recursionConnectedHeight = (special: RecyclerViewHolderModel) => {
+    const recursionConnectedArea = (special: RecyclerViewHolderModel) => {
       const nextSpecial = this.#specialHolderTypes.firstOfOrNull(item => item.position === (special.position + 1));
       if (nextSpecial) {
         ignorePosition = nextSpecial.position;
-        positionY = recursionConnectedHeight(nextSpecial);
-        return positionY;
+        positionArea = recursionConnectedArea(nextSpecial);
+        return positionArea;
       } else {
-        positionY = special.y + special.height;
-        return positionY;
+        positionArea = this.orientation === Orientation.Vertical ?
+          special.y + special.height :
+          special.x + special.width;
+        return positionArea;
       }
     };
     let special: RecyclerViewHolderModel;
-    const markSpecialPositionIfNeed = (index: number) => {
+    const markSpecialPositionIfNeed = (index: number, isIgnore: boolean = false) => {
       special = this.#specialHolderTypes.firstOfOrNull(item => {
         return (item.position - markedSpecialPositionCount) === index;
       });
       if (special) {
-        targetY = recursionConnectedHeight(special);
-        this.#viewPosition.push(targetY);
+        targetArea = recursionConnectedArea(special);
+        this.#viewPosition.push(targetArea);
         markedSpecialPositionCount += 1;
       } else {
-        this.#viewPosition.push((this.#viewPosition.last() || 0) + this.#normalHolderHeight);
+        this.#viewPosition.push((this.#viewPosition.last() || 0) + this.#normalHolderArea);
       }
     };
 
-    let targetY: number;
+    let targetArea: number;
     let markedSpecialPositionCount = 0;
     itemCount.forEach(index => {
       if (index === 0) {
         special = this.#specialHolderTypes.firstOfOrNull(item => item.position === index);
         if (special) {
           markedSpecialPositionCount += 1;
-          targetY = recursionConnectedHeight(special);
-          this.#viewPosition.push(targetY);
+          targetArea = recursionConnectedArea(special);
+          this.#viewPosition.push(targetArea);
         } else {
           this.#viewPosition.push(0);
         }
       } else {
         if (ignorePosition && ignorePosition >= index) {
           markedSpecialPositionCount += 1;
-          markSpecialPositionIfNeed(index);
+          markSpecialPositionIfNeed(index, true);
+          ignorePosition = undefined;
         } else {
           markSpecialPositionIfNeed(index);
         }
       }
       prepareNormalHolderEvent(index);
     });
+  }
+
+  private getArea(target?: View | RecyclerViewHolderModel) {
+    if (this.orientation === Orientation.Vertical) {
+      return target?.height || 0;
+    } else {
+      return target?.width || 0;
+    }
   }
 }

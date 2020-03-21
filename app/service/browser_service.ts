@@ -20,7 +20,7 @@ export class BrowserService {
   }
 
   constructor() {
-    // 浏览器 tab 切换监听事件
+    // browser tab switching event listener
     this.#visibilityListener = (event) => {
       if (document.visibilityState == "visible") {
         this.#events[BrowserServiceType.VisibilityChange]

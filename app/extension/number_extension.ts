@@ -27,7 +27,7 @@ Number.prototype.reverseForEach = function (hold: (index: number) => void) {
 
 Number.prototype.map = function () {
   const result = [];
-  for (let index = 0; index < this; index++) {
+  for (let index = 0; index <= this; index++) {
     result.push(index);
   }
   return result;

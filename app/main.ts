@@ -22,9 +22,11 @@ import { RecyclerViewAdapter } from "./component/recycler_view/recycler_view_ada
 import { print } from "./service/print_service";
 import {
   RecyclerViewHolder,
-  RecyclerViewHolderType,
-  RecyclerViewHolderModel
+  RecyclerViewHolderModel,
+  RecyclerViewHolderType
 } from "./component/recycler_view/recycler_view_holder";
+
+const cellWidth = 200;
 
 export class Main extends App {
   constructor() {
@@ -142,23 +144,25 @@ class Text extends Fragment {
     gridLayout.addView(input, 1, 1);
     gridLayout.addView(selection, 1, 1);
 
-    const recyclerView = new MyRecyclerView();
+    const recyclerView = new MyRecyclerView().setWidth(cellWidth);
     recyclerView.adapter = new MyRecyclerViewAdapter(
       recyclerView,
       ["Hello 1", "Hello 2", "Hello3", "Hello 4", "Hello 5", "Hello 6", "Hello 7", "Hello 8", "Hello 9"]
     );
+
+    const horizontalRecyclerView = new MyRecyclerView().setWidth(400);
+    horizontalRecyclerView.adapter = new MyRecyclerViewAdapter(
+      horizontalRecyclerView,
+      ["Hello 1", "Hello 2", "Hello3", "Hello 4", "Hello 5", "Hello 6", "Hello 7", "Hello 8", "Hello 9"],
+      Orientation.Horizontal
+    );
     this.layout.addView(relativeLayout);
     this.layout.addView(gridLayout);
     this.layout.addView(recyclerView);
+    this.layout.addView(horizontalRecyclerView);
     context.addView(this.layout);
 
-    this.onResize(event => {
-      console.log("on resize fragment");
-      console.log("after resized fragment");
-    });
-
     this.afterResized(event => {
-      const innerHeight = (event.target as Window).innerHeight;
       recyclerView.setHeight(800).updateStyle();
     });
   }
@@ -167,20 +171,11 @@ class Text extends Fragment {
 class MyRecyclerView extends RecyclerView {
   constructor() {
     super();
-    this
-      .setWidth(400)
-      .setHeight(600)
-      .setBackgroundColor(Color.white);
+    this.setHeight(600);
   }
 }
 
 class MyRecyclerViewAdapter extends RecyclerViewAdapter {
-  constructor(
-    context: MyRecyclerView,
-    protected readonly data: string[]
-  ) {
-    super(context, data);
-  }
 
   public getViewHoldersTypeWithPositions(): RecyclerViewHolderModel[] {
     return [
@@ -227,14 +222,17 @@ class MyRecyclerViewAdapter extends RecyclerViewAdapter {
     }
   }
 
-  private pageCount = 2;
+  private hasLoadPage = false;
 
   public loadMore() {
-    if (!this.pageCount) return;
+    if (this.hasLoadPage) return;
+    this.hasLoadPage = true;
     super.loadMore();
-    this.prepareData(this.data);
-    this.notifyDataChanged();
-    this.pageCount -= 1;
+    setTimeout(() => {
+      this.prepareData(this.data);
+      this.notifyDataChanged();
+      this.hasLoadPage = false;
+    }, 3000);
   }
 
   private prepareData(data: string[]) {
@@ -251,7 +249,6 @@ class MyRecyclerViewCell extends RecyclerViewHolder {
   constructor() {
     super();
     this
-      .setPercentWidth(100)
       .setBorder("1px solid black")
       .setBackgroundColor(new Color("gray"));
     this.#textView
@@ -264,8 +261,8 @@ class MyRecyclerViewCell extends RecyclerViewHolder {
     this.#textView.setText(model);
   }
 
-  public getHeight(): number {
-    return 240;
+  public getSize() {
+    return {width: cellWidth, height: 180};
   }
 }
 
@@ -275,7 +272,6 @@ class MyRecyclerHeaderView extends RecyclerViewHolder {
   constructor() {
     super();
     this
-      .setPercentWidth(100)
       .setBorder("1px solid red")
       .setBackgroundColor(new Color("olive"));
     this.#textView
@@ -288,8 +284,8 @@ class MyRecyclerHeaderView extends RecyclerViewHolder {
     this.#textView.setText(model);
   }
 
-  public getHeight(): number {
-    return 150;
+  public getSize() {
+    return {width: cellWidth, height: 200};
   }
 }
 
@@ -299,7 +295,6 @@ class MyRecyclerFooterView extends RecyclerViewHolder {
   constructor() {
     super();
     this
-      .setPercentWidth(100)
       .setBorder("1px solid red")
       .setBackgroundColor(new Color("yellow"));
     this.#textView
@@ -312,8 +307,8 @@ class MyRecyclerFooterView extends RecyclerViewHolder {
     this.#textView.setText(model);
   }
 
-  public getHeight(): number {
-    return 400;
+  public getSize() {
+    return {width: cellWidth, height: 280};
   }
 }
 
