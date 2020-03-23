@@ -25,6 +25,7 @@ import {
   RecyclerViewHolderModel,
   RecyclerViewHolderType
 } from "./component/recycler_view/recycler_view_holder";
+import { Swiper } from "./component/swiper/swiper";
 
 const cellWidth = 200;
 
@@ -156,10 +157,26 @@ class Text extends Fragment {
       ["Hello 1", "Hello 2", "Hello3", "Hello 4", "Hello 5", "Hello 6", "Hello 7", "Hello 8", "Hello 9"],
       Orientation.Horizontal
     );
+
+    const swiper = new Swiper<TextView>()
+      .setWidth(400)
+      .setHeight(250)
+      .setBackgroundColor(new Color("purple"))
+      .setSliderType(TextView)
+      .setData<string>(
+        ["Hello 1", "Hello 2", "Hello 3"],
+        (slider, model) => {
+          slider.setText(model);
+          slider.onClick(() => {
+            console.log(model);
+          });
+        });
+
     this.layout.addView(relativeLayout);
     this.layout.addView(gridLayout);
     this.layout.addView(recyclerView);
     this.layout.addView(horizontalRecyclerView);
+    this.layout.addView(swiper);
     context.addView(this.layout);
 
     this.afterResized(event => {
@@ -223,12 +240,16 @@ class MyRecyclerViewAdapter extends RecyclerViewAdapter {
   }
 
   private hasLoadPage = false;
+  private pageCount = 2;
 
   public loadMore() {
-    if (this.hasLoadPage) return;
+    if (this.hasLoadPage || !this.pageCount) return;
     this.hasLoadPage = true;
     super.loadMore();
+    this.getViewByPosition<MyRecyclerFooterView>(RecyclerViewHolderType.Footer).model = "loading now";
     setTimeout(() => {
+      this.pageCount -= 1;
+      this.getViewByPosition<MyRecyclerFooterView>(RecyclerViewHolderType.Footer).model = "footer view";
       this.prepareData(this.data);
       this.notifyDataChanged();
       this.hasLoadPage = false;
