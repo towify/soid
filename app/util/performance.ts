@@ -12,3 +12,7 @@ export function debounce<Params extends any[]>(
     timer = window.setTimeout(() => action(...args), timeout);
   };
 }
+
+export function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

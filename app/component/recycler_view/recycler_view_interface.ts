@@ -30,4 +30,6 @@ export interface IRecyclerViewAdapter {
     type: number,
     dataIndex?: number
   ): void
+
+  getViewByPosition(position: number): RecyclerViewHolder
 }

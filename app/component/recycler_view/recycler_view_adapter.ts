@@ -42,12 +42,27 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
   #currentMovedPosition = 0;
   #position = 0;
 
+  #specialHolders: { position: number, holder: RecyclerViewHolder }[] = [];
+
   constructor(
     private readonly context: RecyclerView,
     protected readonly data: any[],
     public readonly orientation: Orientation = Orientation.Vertical
   ) {
     this.onCreate();
+  }
+
+  getViewByPosition<T extends RecyclerViewHolder>(position: number): T {
+    let holder: RecyclerViewHolder;
+    if (this.#specialHolders.length) {
+      holder = this.#specialHolders.firstOfOrNull(holder => holder.position === position).holder;
+      if (!holder) {
+        holder = this.#viewHolders[this.#position % this.#invisibleCount];
+      }
+    } else {
+      holder = this.#viewHolders[this.#position % this.#invisibleCount];
+    }
+    return holder as T;
   }
 
   public recoveryItemPosition(): Promise<void> {
@@ -223,6 +238,8 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
       .forEach((special, index) => {
         // Handle footer when all holders have been processed
         specialHolder = new special.holder();
+        // Store it for getting holder by position method
+        this.#specialHolders.push({position: special.position, holder: specialHolder});
         if (special.position === RecyclerViewHolderType.Footer) {
           this.#footer = specialHolder;
           this.#footer.setDisplay(DisplayType.None);
