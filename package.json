@@ -53,5 +53,5 @@
     "watch:build": "webpack --watch",
     "watch:server": "nodemon \"./build/bundle.js\" --watch \"./build\" "
   },
-  "version": "1.0.0"
+  "version": "1.0.1"
 }

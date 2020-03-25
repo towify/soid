@@ -1,3 +1,6 @@
+<p>
+<img alt="npm" src="https://img.shields.io/npm/v/soidjs?style=for-the-badge">
+</p>
 # SOID
 a Scripted and object-oriented interface development languag
 
