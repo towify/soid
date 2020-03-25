@@ -14,6 +14,7 @@ export class AnimationManager implements AnimationManagerInterface {
   #startValue: number;
   #endValue: number;
   #type: AnimationType;
+  #easingFunction: (percent: number) => number = easingsFunctions.easeInOutCubic;
 
   constructor(public readonly holst: View) {}
 
@@ -38,6 +39,11 @@ export class AnimationManager implements AnimationManagerInterface {
     return this;
   }
 
+  public setEasingFunction(action: (percent: number) => number) {
+    this.#easingFunction = action;
+    return this;
+  }
+
   public run(callback?: () => void, immediately: boolean = true) {
     if (this.#type === undefined) {
       throw new Error("you have to set animation type first");
@@ -46,6 +52,9 @@ export class AnimationManager implements AnimationManagerInterface {
     let start: number = null;
     let end: number = null;
     let animationFrame: number;
+    let percent: number;
+    let modulus: number;
+    let moveValue: number;
     (async () => {
       const startAnim = (timeStamp: number) => {
         start = timeStamp;
@@ -60,16 +69,16 @@ export class AnimationManager implements AnimationManagerInterface {
           return;
         }
         if (now - start >= this.#duration) stop = true;
-        let per = (now - start) / this.#duration;
-        const modulus = easingsFunctions.easeInOutCubic(per);
-        let value = this.#startValue + (this.#endValue - this.#startValue) * modulus;
+        percent = (now - start) / this.#duration;
+        modulus = this.#easingFunction(percent);
+        moveValue = this.#startValue + (this.#endValue - this.#startValue) * modulus;
         switch (this.#type) {
           case AnimationType.TranslateX: {
-            this.holst.setTranslate(value, 0).updateStyle();
+            this.holst.setTranslate(moveValue, 0).updateStyle();
             break;
           }
           case AnimationType.TranslateY: {
-            this.holst.setTranslate(0, value).updateStyle();
+            this.holst.setTranslate(0, moveValue).updateStyle();
             break;
           }
           case AnimationType.Opacity: {
