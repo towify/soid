@@ -4,7 +4,7 @@
  */
 
 import { RecyclerView } from "./recycler_view";
-import { DisplayType, Orientation } from "../../value/style";
+import { DisplayType, Orientation } from "../../value/style/style";
 import {
   RecyclerViewHolder,
   RecyclerViewHolderModel,
@@ -13,7 +13,6 @@ import {
 } from "./recycler_view_holder";
 import { IRecyclerViewAdapter } from "./recycler_view_interface";
 import { View } from "../../base/view";
-import { print } from "../../service/print_service";
 
 export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
   #visibleArea = 0;
@@ -52,7 +51,7 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
     this.onCreate();
   }
 
-  getViewByPosition<T extends RecyclerViewHolder>(position: number): T {
+  public getViewByPosition<T extends RecyclerViewHolder>(position: number): T {
     let holder: RecyclerViewHolder;
     if (this.#specialHolders.length) {
       holder = this.#specialHolders.firstOfOrNull(holder => holder.position === position).holder;
@@ -127,12 +126,6 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
     if (this.#invisibleCount + (this.#visibleCount - this.#firstScreenSpecialHolderCount + this.#beginPassCount) === this.#itemCount - 1) {
       this.loadMore();
     }
-    print.display("board1", {
-      invisible: this.#invisibleCount,
-      move: this.#movedCount,
-      itemCount: this.#itemCount,
-      visibleCount: this.#visibleCount
-    });
     if (
       this.#invisibleCount > this.#movedCount &&
       this.#itemCount > this.#visibleCount &&

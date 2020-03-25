@@ -8,10 +8,14 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "*": ["node_modules/*"]
+      "*": [
+        "node_modules/*"
+      ]
     }
   },
-  "include": ["app/**/*.ts"],
+  "include": [
+    "app/**/*.ts"
+  ],
   "exclude": [
     "../app",
     "node_modules/*"

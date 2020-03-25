@@ -10,8 +10,9 @@ import "./extension/string_extension";
 import "./extension/object_extension";
 import { DomFragment } from "./base/dom_fragment";
 import { BrowserService, BrowserServiceType } from "./service/browser_service";
-import { Fragment } from "./base/fragment";
+import { Fragment } from "./base/fragment/fragment";
 import { ListenerType } from "./value/type";
+import { GlobalStyle } from "./value/style/global_style";
 
 export abstract class App {
   #childFragment: ChildFragmentModel[] = [];
@@ -67,6 +68,9 @@ export abstract class App {
     BrowserService
       .getInstance()
       .register<boolean>(BrowserServiceType.VisibilityChange, this.#visibilityEvent);
+    GlobalStyle
+      .getInstance()
+      .attachStyle();
   }
 
   private getTargetChildFragmentBy(fragment: Fragment): Promise<number> {

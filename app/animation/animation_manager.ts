@@ -6,16 +6,16 @@
 import { View } from "../base/view";
 import easingsFunctions from "./easing_functions";
 import { delay } from "../util/performance";
+import { AnimationManagerInterface } from "./animation_manager_interface";
 
-export class AnimationManager {
+export class AnimationManager implements AnimationManagerInterface {
   #duration = 3000;
   #intervalDuration = 3000;
   #startValue: number;
   #endValue: number;
   #type: AnimationType;
 
-  constructor(public readonly holst: View) {
-  }
+  constructor(public readonly holst: View) {}
 
   public setDuration(duration: number) {
     this.#duration = duration;
@@ -55,7 +55,7 @@ export class AnimationManager {
 
       const draw = (now: number) => {
         if (stop) {
-          callback();
+          !callback || callback();
           window.cancelAnimationFrame(animationFrame);
           return;
         }

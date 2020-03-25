@@ -3,10 +3,11 @@
  * @date 2020/3/11 15:11
  */
 
-import { View } from "../base/view";
-import { Transform } from "./transform";
+import { View } from "../../base/view";
+import { Transform } from "../transform";
+import { StyleInterface } from "./style_interface";
 
-export class Style {
+export class Style implements StyleInterface {
   public readonly style: { [key: string]: string } = {};
   public readonly transform = new Transform();
   public readonly values: { [key: string]: any } = {};
@@ -14,7 +15,7 @@ export class Style {
 
   constructor() {}
 
-  public getValue(tag: StyleTag, isNumber?: boolean): string | number | undefined {
+  getValue(tag: StyleTag, isNumber?: boolean): string | number | undefined {
     let result: string | number;
     result = this.style[tag];
     if (result && isNumber) {
@@ -23,7 +24,7 @@ export class Style {
     return result;
   }
 
-  public addRule(tag: StyleTag, value: string) {
+  addRule(tag: StyleTag, value: string) {
     if (value.indexOf(";") > 0) {
       throw new Error("value contains invalid \";\" symbol");
     }
@@ -42,9 +43,10 @@ export class Style {
         view.setAttribute("style", cssText);
       }
     }
+    return this;
   }
 
-  public generateCssText() {
+  generateCssText() {
     let newCssText = "";
     if (this.transform.hasValue()) {
       this.addRule(StyleTag.Transform, this.transform.serialize());
@@ -298,7 +300,7 @@ enum FlexWrap {
   Inherit = "inherit"
 }
 
-enum DisplayAlign {
+enum JustifyContent {
   SpaceBetween = "space-between",
   SpaceAround = "space-around",
   Center = "center",
@@ -308,7 +310,7 @@ enum DisplayAlign {
 }
 
 export {
-  DisplayAlign,
+  JustifyContent,
   FlexWrap,
   FlexFlowType,
   Align,

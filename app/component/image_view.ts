@@ -4,7 +4,7 @@
  */
 
 import { View } from "../base/view";
-import { StyleTag } from "../value/style";
+import { StyleTag } from "../value/style/style";
 import { ValueChecker } from "../util/value_checker";
 
 export class ImageView extends View {

@@ -5,7 +5,7 @@
 
 import { View } from "./view";
 import { DomFragment } from "./dom_fragment";
-import { DisplayType, StyleTag } from "../value/style";
+import { DisplayType, StyleTag } from "../value/style/style";
 
 export class ViewGroup extends View {
   readonly subviews: View[] = [];
@@ -23,6 +23,9 @@ export class ViewGroup extends View {
   }
 
   public setDisplay(type: DisplayType): this {
+    if (!this.initialDisplayType) {
+      this.initialDisplayType = type;
+    }
     if (type === DisplayType.None) {
       if (this.isDisplayNone !== undefined) this.onHide();
       this.subviews.forEach(view => view.onHide());

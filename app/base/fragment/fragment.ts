@@ -3,8 +3,8 @@
  * @date 2020/3/11 00:01
  */
 
-import { ViewGroup } from "./view_group";
-import { BrowserService, BrowserServiceType } from "../service/browser_service";
+import { ViewGroup } from "../view_group";
+import { BrowserService, BrowserServiceType } from "../../service/browser_service";
 import { IFragment } from "./fragment_interface";
 
 export abstract class Fragment implements IFragment {

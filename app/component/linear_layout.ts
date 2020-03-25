@@ -4,8 +4,9 @@
  */
 
 import { ViewGroup } from "../base/view_group";
-import { DisplayType, FlexFlowType, FlexWrap, Orientation, StyleTag } from "../value/style";
+import { DisplayType, FlexFlowType, FlexWrap, Orientation, StyleTag } from "../value/style/style";
 import { View } from "../base/view";
+import { GlobalStyle } from "../value/style/global_style";
 
 export class LinearLayout extends ViewGroup {
 
@@ -16,16 +17,6 @@ export class LinearLayout extends ViewGroup {
       .setFlexWrap(FlexWrap.NoWrap)
       .setOrientation(orientation ?? Orientation.Vertical);
     this.style.addRule(StyleTag.ScrollBehavior, "smooth");
-  }
-
-  private setFlexDirection(flowType: FlexFlowType) {
-    this.style.addRule(StyleTag.FlexDirection, flowType);
-    return this;
-  }
-
-  private setFlexWrap(value: FlexWrap) {
-    this.style.addRule(StyleTag.FlexWrap, value);
-    return this;
   }
 
   public setOrientation(direction: Orientation) {
@@ -42,6 +33,27 @@ export class LinearLayout extends ViewGroup {
     }
     return this;
   }
+
+  hideScrollbar() {
+    const className = `linear-layout-${new Date().getTime()}`;
+    this._element.classList.add(className);
+    GlobalStyle
+      .getInstance()
+      .addTag(`.${className}::-webkit-scrollbar`, style => {
+        style.addRule(StyleTag.Display, DisplayType.None);
+      });
+  }
+
+  private setFlexDirection(flowType: FlexFlowType) {
+    this.style.addRule(StyleTag.FlexDirection, flowType);
+    return this;
+  }
+
+  private setFlexWrap(value: FlexWrap) {
+    this.style.addRule(StyleTag.FlexWrap, value);
+    return this;
+  }
+
 
   addView(view: View) {
     view.setFlex("0 0 auto");

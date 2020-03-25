@@ -10,6 +10,10 @@ export interface IRecyclerView {
   adapter: RecyclerViewAdapter
 
   scrollToStart(): void
+
+  setHeight(value: number): this
+
+  setWidth(value: number): this
 }
 
 export interface IRecyclerViewAdapter {
@@ -31,5 +35,5 @@ export interface IRecyclerViewAdapter {
     dataIndex?: number
   ): void
 
-  getViewByPosition(position: number): RecyclerViewHolder
+  getViewByPosition<T extends RecyclerViewHolder>(position: number): T
 }

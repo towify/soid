@@ -4,7 +4,7 @@
  */
 
 import { ViewGroup } from "../../base/view_group";
-import { WillChangeType } from "../../value/style";
+import { WillChangeType } from "../../value/style/style";
 import { Size } from "../../value/value";
 
 export abstract class RecyclerViewHolder extends ViewGroup {

@@ -4,7 +4,7 @@
  */
 
 import { TextType, TextView } from "../text_view";
-import { Align, Cursor } from "../../value/style";
+import { Align, Cursor } from "../../value/style/style";
 
 export class Button extends TextView {
 
