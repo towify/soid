@@ -9,7 +9,7 @@ export interface ISwiper<Slider extends View> {
 
   setIntervalTime(timestamp: number): this
 
-  setSliderType(slider: { new(): Slider }): this
+  setItemType(slider: { new(): Slider }): this
 
   setData<M>(models: M[], onBind: (slider: Slider, model: M) => void): void
 

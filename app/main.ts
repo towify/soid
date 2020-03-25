@@ -3,11 +3,11 @@
  * @date 2020/3/11 12:33
  */
 
-import { Fragment } from "./base/fragment";
+import { Fragment } from "./base/fragment/fragment";
 import { Color } from "./value/color";
 import { LinearLayout } from "./component/linear_layout";
 import { ViewGroup } from "./base/view_group";
-import { Orientation } from "./value/style";
+import { Align, Orientation } from "./value/style/style";
 import { App, ChildFragmentModel } from "./app";
 import { TextType, TextView } from "./component/text_view";
 import { ImageMode, ImageView } from "./component/image_view";
@@ -26,6 +26,7 @@ import {
   RecyclerViewHolderType
 } from "./component/recycler_view/recycler_view_holder";
 import { Swiper } from "./component/swiper/swiper";
+import { Segment, TabsType } from "./component/segment/segment";
 
 const cellWidth = 200;
 
@@ -162,21 +163,46 @@ class Text extends Fragment {
       .setWidth(400)
       .setHeight(250)
       .setBackgroundColor(new Color("purple"))
-      .setSliderType(TextView)
-      .setData<string>(
-        ["Hello 1", "Hello 2", "Hello 3"],
+      .setItemType(TextView)
+      .setData<Color>(
+        [new Color("red"), new Color("olive"), new Color("purple"), new Color("blue")],
         (slider, model) => {
-          slider.setText(model);
-          slider.onClick(() => {
-            console.log(model);
-          });
+          slider
+            .setBackgroundColor(model)
+            .onClick(() => {
+              console.log(model);
+            });
         });
+
+    const segment = new Segment<TextView>(TabsType.LeftScrollable)
+      .setBackgroundColor(Color.white)
+      .setItemContainerSize(100)
+      .setWidth(500)
+      .setHeight(800)
+      .setItemType(TextView)
+      .setData(
+        [
+          {item: "Left", page: LinearLayout},
+          {item: "Center", page: LinearLayout},
+          {item: "Right", page: LinearLayout}
+        ],
+        (item, model, position) => {
+          item
+            .setBorder("1px solid #000")
+            .setTextAlign(Align.Center)
+            .setText(model)
+            .onClick(_ => {
+              segment.showContentByPosition(position);
+            });
+        }
+      );
 
     this.layout.addView(relativeLayout);
     this.layout.addView(gridLayout);
     this.layout.addView(recyclerView);
     this.layout.addView(horizontalRecyclerView);
     this.layout.addView(swiper);
+    this.layout.addView(segment);
     context.addView(this.layout);
 
     this.afterResized(event => {

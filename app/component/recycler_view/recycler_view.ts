@@ -10,7 +10,7 @@ import Scrollbar from "smooth-scrollbar";
 import { ViewGroup } from "../../base/view_group";
 import easingsFunctions from "../../animation/easing_functions";
 import { IRecyclerView } from "./recycler_view_interface";
-import { Orientation } from "../../value/style";
+import { Orientation } from "../../value/style/style";
 
 export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
   public readonly contentView = new RelativeLayout();

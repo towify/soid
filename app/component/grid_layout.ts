@@ -3,7 +3,7 @@
  * @date 2020/3/12 19:58
  */
 
-import { DisplayType, StyleTag } from "../value/style";
+import { DisplayType, StyleTag } from "../value/style/style";
 import { View } from "../base/view";
 import { RelativeLayout } from "./relative_layout";
 

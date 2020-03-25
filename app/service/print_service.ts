@@ -5,7 +5,7 @@
 
 import { LinearLayout } from "../component/linear_layout";
 import { TextType, TextView, WhiteSpace } from "../component/text_view";
-import { DisplayType, ViewPosition } from "../value/style";
+import { DisplayType, ViewPosition } from "../value/style/style";
 import { Color, RGBA } from "../value/color";
 import { ViewGroup } from "../base/view_group";
 

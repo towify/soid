@@ -3,14 +3,15 @@
  * @date 2020/3/13 16:06
  */
 
-import { Align, Cursor, DisplayType, Style, StyleTag, ViewPosition } from "../../value/style";
+import { Align, Cursor, DisplayType, Style, StyleTag, ViewPosition } from "../../value/style/style";
 import { RelativeLayout } from "../relative_layout";
 import { TextOverflow, TextType, TextView, WhiteSpace } from "../text_view";
 import { Color } from "../../value/color";
 import { ListenerType } from "../../value/type";
 import { ImageMode, ImageView } from "../image_view";
+import { InputInterface } from "./input_interface";
 
-export class Input extends RelativeLayout {
+export class Input extends RelativeLayout implements InputInterface {
   #placeHolder = new TextView();
   #input = document.createElement("input");
   #clearButton = new ImageView();
@@ -104,6 +105,7 @@ export class Input extends RelativeLayout {
     !this.#focusEvent || this.#input.addEventListener(ListenerType.Focus, this.#focusEvent);
     !this.#blurEvent || this.#input.addEventListener(ListenerType.Blur, this.#blurEvent);
     !this.#changeEvent || this.#input.addEventListener(ListenerType.Input, this.#changeEvent);
+    return this;
   }
 
   public onHide() {
@@ -111,6 +113,7 @@ export class Input extends RelativeLayout {
     !this.#focusEvent || this.#input.removeEventListener(ListenerType.Focus, this.#focusEvent);
     !this.#blurEvent || this.#input.removeEventListener(ListenerType.Blur, this.#blurEvent);
     !this.#changeEvent || this.#input.removeEventListener(ListenerType.Input, this.#changeEvent);
+    return this;
   }
 
   public onFocus(action: () => void) {
@@ -173,6 +176,7 @@ export class Input extends RelativeLayout {
 
   public setTextWeight(value: string) {
     this.#inputStyle.addRule(StyleTag.FontWeight, value);
+    return this;
   }
 
   public setTextType(type: TextType) {

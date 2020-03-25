@@ -19,7 +19,7 @@ export class Swiper<Slider extends View> extends RelativeLayout implements ISwip
     this.setOverflow("hidden");
   }
 
-  public setSliderType(slider: { new(): Slider }) {
+  public setItemType(slider: { new(): Slider }) {
     this.#sliderType = slider;
     return this;
   }
@@ -31,6 +31,7 @@ export class Swiper<Slider extends View> extends RelativeLayout implements ISwip
 
   public setData<M>(models: M[], onBind: (slider: Slider, model: M) => void) {
     let slider: Slider;
+    let animationManagers: AnimationManager[] = [];
     models.forEach((model, index) => {
       slider = new this.#sliderType()
         .setFullParent()
@@ -38,15 +39,19 @@ export class Swiper<Slider extends View> extends RelativeLayout implements ISwip
         .setBackgroundColor(new Color("olive"));
       onBind(slider, model);
       this.addView(slider);
+      animationManagers.push(new AnimationManager(slider));
     });
+    this.handleSliderAnimation(animationManagers);
+    return this;
+  }
+
+  private handleSliderAnimation(managers: AnimationManager[]) {
     let index = 0;
-    let item: Slider;
     let animation: AnimationManager;
     let length = this.subviews.length;
     let isInitial = true;
-    const sequence = async () => {
-      item = this.subviews[index] as Slider;
-      animation = new AnimationManager(item)
+    const sequence = () => {
+      animation = managers[index]
         .setIntervalDuration(this.#intervalTime)
         .setAnimationType(AnimationType.TranslateX);
       if (isInitial) {
@@ -57,9 +62,7 @@ export class Swiper<Slider extends View> extends RelativeLayout implements ISwip
       animation.run(() => {
         animation
           .setAnimation(0, this.width)
-          .run(() => {
-            item.setTranslate(-this.width, 0);
-          });
+          .run();
         if (index === length - 1) {
           index = 0;
         } else {
@@ -68,7 +71,6 @@ export class Swiper<Slider extends View> extends RelativeLayout implements ISwip
         sequence();
       });
     };
-    sequence().then();
-    return this;
+    sequence();
   }
 }

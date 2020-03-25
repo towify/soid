@@ -4,7 +4,7 @@
  */
 
 import { View } from "../base/view";
-import { Align, DisplayType, Style, StyleTag } from "../value/style";
+import { Align, DisplayType, Style, StyleTag } from "../value/style/style";
 import { Color } from "../value/color";
 
 export class TextView extends View {

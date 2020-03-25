@@ -4,7 +4,15 @@
  */
 
 import { ListenerType, Platform } from "../value/type";
-import { Cursor, DisplayType, Style, StyleTag, ViewPosition, WillChangeType } from "../value/style";
+import {
+  Cursor,
+  DisplayType,
+  JustifyContent,
+  Style,
+  StyleTag,
+  ViewPosition,
+  WillChangeType
+} from "../value/style/style";
 import { Color } from "../value/color";
 
 export abstract class View {
@@ -17,6 +25,7 @@ export abstract class View {
   #_clickEvent: (event: MouseEvent) => void;
   #_mouseoverEvent: (event: MouseEvent) => void;
   #_mouseleaveEvent: (event: MouseEvent) => void;
+  protected initialDisplayType: DisplayType;
 
   protected constructor(private element?: HTMLDivElement) {
     if (this.element) {
@@ -138,11 +147,13 @@ export abstract class View {
   public onShow(action?: () => void) {
     this.recoveryEventListenerIfNeed();
     !action || action();
+    return this;
   }
 
   public onHide(action?: () => void) {
     this.clearEventListenerIfNeed();
     !action || action();
+    return this;
   }
 
   private clearEventListenerIfNeed() {
@@ -181,6 +192,9 @@ export abstract class View {
   }
 
   public setDisplay(type: DisplayType) {
+    if (!this.initialDisplayType) {
+      this.initialDisplayType = type;
+    }
     if (type === DisplayType.None) {
       if (this.isDisplayNone !== undefined) this.onHide();
       this.isDisplayNone = true;
@@ -458,6 +472,11 @@ export abstract class View {
     return this;
   }
 
+  public setJustifyContent(value: JustifyContent) {
+    this.style.addRule(StyleTag.JustifyContent, value);
+    return this;
+  }
+
   // Interface Getting Methods
   public get width(): number | undefined {
     return <number | undefined>this.style.values.width;
@@ -477,5 +496,9 @@ export abstract class View {
 
   public get hasHorizontalPadding(): boolean {
     return <boolean>this.style.values.hasHorizontalPadding;
+  }
+
+  public get displayType(): DisplayType {
+    return this.initialDisplayType;
   }
 }

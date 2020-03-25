@@ -4,7 +4,7 @@
  */
 
 import { ViewGroup } from "../base/view_group";
-import { ViewPosition } from "../value/style";
+import { ViewPosition } from "../value/style/style";
 import { View } from "../base/view";
 import { DomFragment } from "../base/dom_fragment";
 
