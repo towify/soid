@@ -61,6 +61,6 @@ export class Transform {
   }
 
   serialize() {
-    return Object.values(this.#properties).join(" ");
+    return Object.keys(this.#properties).map(item => this.#properties[item]).join(" ");
   }
 }

@@ -16,9 +16,9 @@ export class Selection extends RelativeLayout implements SelectionInterface {
   #dataList = new LinearLayout();
   #isOpening = false;
   #optionStyle = new Style();
-  #optionSelectedColor: Color;
-  #selectedOption: TextView;
-  #optionClickEvent: (value: string) => void;
+  #optionSelectedColor?: Color;
+  #selectedOption?: TextView;
+  #optionClickEvent?: (value: string) => void;
 
   constructor() {
     super();
@@ -29,7 +29,7 @@ export class Selection extends RelativeLayout implements SelectionInterface {
       .onClick(_ => this.switchDatalist());
     let preMouseoverOption: TextView;
     this.#dataList
-      .setTop(this.#selection.height)
+      .setTop(this.#selection.height!)
       .setDisplay(DisplayType.None)
       .setOrientation(Orientation.Vertical)
       .onMouseover(event => {
@@ -58,10 +58,10 @@ export class Selection extends RelativeLayout implements SelectionInterface {
         if (this.#optionClickEvent) {
           const currentOption
             = <TextView>this.#dataList.getSubviewByElement(event.target as HTMLDivElement);
-          this.#optionClickEvent(currentOption?.textContent);
-          this.#selection.setText(currentOption?.textContent);
+          this.#optionClickEvent(currentOption?.textContent!);
+          this.#selection.setText(currentOption?.textContent!);
           if (this.#selectedOption !== currentOption) {
-            this.#selectedOption
+            this.#selectedOption!
               .setBackgroundColor(Color.white)
               .updateStyle();
             this.#selectedOption = currentOption;
@@ -138,7 +138,7 @@ export class Selection extends RelativeLayout implements SelectionInterface {
           this.#selectedOption = option;
           domFragment._beforeAttached(view => {
             if (view === option) {
-              view.setBackgroundColor(this.#optionSelectedColor);
+              view.setBackgroundColor(this.#optionSelectedColor!);
             }
           });
         }

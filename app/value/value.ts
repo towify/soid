@@ -4,6 +4,6 @@
  */
 
 export type Size = {
-  width: number,
-  height: number
+  width?: number,
+  height?: number
 }

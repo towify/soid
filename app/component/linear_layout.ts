@@ -42,6 +42,7 @@ export class LinearLayout extends ViewGroup {
       .addTag(`.${className}::-webkit-scrollbar`, style => {
         style.addRule(StyleTag.Display, DisplayType.None);
       });
+    return this;
   }
 
   private setFlexDirection(flowType: FlexFlowType) {

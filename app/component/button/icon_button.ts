@@ -10,7 +10,7 @@ import { Align, DisplayType, StyleTag } from "../../value/style/style";
 export class IconButton extends Button {
   #icon = new ImageView();
   #isLeft = true;
-  #iconSize: number;
+  #iconSize?: number;
 
   constructor() {
     super();

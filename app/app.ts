@@ -15,10 +15,11 @@ import { ListenerType } from "./value/type";
 import { GlobalStyle } from "./value/style/global_style";
 
 export abstract class App {
-  #childFragment: ChildFragmentModel[] = [];
+  readonly childFragment: ChildFragmentModel[] = [];
   #domFragment = new DomFragment();
   #visibilityEvent = async (status: boolean) =>
     status ? await this.onResume() : await this.onPause();
+  #hasCommitted = false;
 
   protected constructor() {
     window.addEventListener(ListenerType.BeforeUnload, async () => {
@@ -30,7 +31,7 @@ export abstract class App {
 
   protected async onStart() {
     // mount browser visibility status into visible fragment
-    this.#childFragment.forEach(model => {
+    this.childFragment.forEach(model => {
       model.fragment.listenBrowserEvents(model.visible);
     });
   }
@@ -43,21 +44,47 @@ export abstract class App {
 
   protected async addFragment(model: ChildFragmentModel) {
     await model.fragment._beforeAttached();
-    this.#childFragment.push(model);
-    this.#domFragment.addView(model.fragment.contentView);
+    this.childFragment.push(model);
+    if (this.#hasCommitted) {
+      document.body.addView(model.fragment.contentView);
+    } else {
+      this.#domFragment.addView(model.fragment.contentView);
+    }
+  }
+
+  public async replaceFragment(newFragment: Fragment, oldFragment: Fragment) {
+    const targetPosition = this.getTargetChildFragmentPosition(oldFragment);
+    if (targetPosition) {
+      const target = this.childFragment[targetPosition];
+      this.childFragment[targetPosition] = new ChildFragmentModel(newFragment, target.visible);
+    }
+    const children = document.body.children;
+    const length = document.body.children.length;
+    for (let index = 0; index < length; index++) {
+      if (children.item(index) === oldFragment.contentView._element) {
+        await oldFragment._beforeDestroyed();
+        await newFragment._beforeAttached();
+        await newFragment.contentView._prepareLifeCycle();
+        document.body.replaceChild(newFragment.contentView._element, oldFragment.contentView._element);
+      }
+    }
   }
 
   public async removeFragment(fragment: Fragment) {
     // Remove all of this fragment's listener events in browser service
     fragment.listenBrowserEvents(false);
     await fragment._beforeDestroyed();
-    this.getTargetChildFragmentBy(fragment).then(index => {
-      this.#childFragment.splice(index, 1);
-    });
+    const targetPosition = this.getTargetChildFragmentPosition(fragment);
+    if (targetPosition) {
+      this.childFragment.splice(targetPosition, 1);
+    }
   }
 
   public commit() {
+    this.#hasCommitted = true;
     this.beforeAttachedToBody().then(_ => {
+      systemInfo.windowWidth = window.innerWidth;
+      systemInfo.windowHeight = window.innerHeight;
       document.body.addDomFragment(this.#domFragment);
     });
   }
@@ -73,14 +100,15 @@ export abstract class App {
       .attachStyle();
   }
 
-  private getTargetChildFragmentBy(fragment: Fragment): Promise<number> {
-    return new Promise<number>((resolve, reject) => {
-      const result = this.#childFragment
-        .find((model, index) => {
-          if (model.fragment === fragment) resolve(index);
-        });
-      if (!result) reject();
-    });
+  private getTargetChildFragmentPosition(fragment: Fragment): number | undefined {
+    let position: number | undefined;
+    this.childFragment
+      .find((model, index) => {
+        if (model.fragment === fragment) {
+          position = index;
+        }
+      });
+    return position;
   }
 }
 
@@ -90,3 +118,8 @@ export class ChildFragmentModel {
     public readonly visible: boolean
   ) {}
 }
+
+export const systemInfo = {
+  windowWidth: 0,
+  windowHeight: 0
+};

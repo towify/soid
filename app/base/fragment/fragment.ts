@@ -8,15 +8,15 @@ import { BrowserService, BrowserServiceType } from "../../service/browser_servic
 import { IFragment } from "./fragment_interface";
 
 export abstract class Fragment implements IFragment {
+  readonly childFragments: Fragment[] = [];
   readonly contentView = new ViewGroup();
   readonly #visibilityEvent: (status: boolean) => void;
   readonly #resizeEvent: (event: UIEvent) => void;
-  #childFragments: Fragment[] = [];
-  #onResizeEvent: (event: UIEvent) => void;
-  #afterResizedEvent: (event: UIEvent) => void;
+  #onResizeEvent?: (event: UIEvent) => void;
+  #afterResizedEvent?: (event: UIEvent) => void;
 
   // For Resizing Event
-  #time: number;
+  #time?: number;
   #timeout = false;
   #delta = 300;
 
@@ -37,9 +37,10 @@ export abstract class Fragment implements IFragment {
   protected async onDetached() {}
 
   constructor() {
+    this.contentView.setFullParent();
     this.#visibilityEvent = status => status ? this.onResume() : this.onPause();
     const resizeEnd = (event: UIEvent) => {
-      if (new Date().getTime() - this.#time < this.#delta) {
+      if (new Date().getTime() - this.#time! < this.#delta) {
         window.setTimeout(() => resizeEnd(event), this.#delta);
       } else {
         this.#timeout = false;
@@ -49,7 +50,7 @@ export abstract class Fragment implements IFragment {
     this.#resizeEvent = event => {
       !this.#onResizeEvent || this.#onResizeEvent(event);
       this.#time = new Date().getTime();
-      if (this.#timeout === false) {
+      if (!this.#timeout) {
         this.#timeout = true;
         window.setTimeout(() => resizeEnd(event), this.#delta);
       }
@@ -67,20 +68,31 @@ export abstract class Fragment implements IFragment {
   }
 
   public async addFragment(fragment: Fragment) {
+    this.childFragments.push(fragment);
     await fragment._beforeAttached();
-    this.#childFragments.push(fragment);
+    this.contentView.addView(fragment.contentView);
   }
 
-  public replaceFragment(newFragment: Fragment, oldFragment: Fragment) {
-    // ToDo
+  public async replaceFragment(newFragment: Fragment, oldFragment: Fragment) {
+    this.childFragments[this.childFragments.indexOf(oldFragment)] = newFragment;
+    const children = this.contentView._element.children;
+    const length = children.length;
+    for (let index = 0; index < length; index++) {
+      if (children.item(index) === oldFragment.contentView._element) {
+        await oldFragment._beforeDestroyed();
+        await newFragment._beforeAttached();
+        await newFragment.contentView._prepareLifeCycle();
+        this.contentView._element.replaceChild(newFragment.contentView._element, oldFragment.contentView._element);
+      }
+    }
   }
 
   public async removeFragment(fragment: Fragment) {
     fragment.listenBrowserEvents(false);
     await fragment._beforeDestroyed();
-    const target = this.#childFragments.find(item => item === fragment);
-    this.#childFragments.deleteItem(target);
-    target.contentView.remove();
+    const target = this.childFragments.find(item => item === fragment);
+    this.childFragments.deleteItem(target!);
+    target?.contentView.remove();
   }
 
   public listenBrowserEvents(needListen: boolean) {
@@ -106,10 +118,10 @@ export abstract class Fragment implements IFragment {
 
   public async _beforeDestroyed() {
     await this.onDestroy();
-    this.#childFragments.forEach(child => {
+    this.childFragments.forEach(child => {
       child._beforeDestroyed();
     });
-    this.#childFragments = undefined;
+    this.childFragments.slice(0, this.childFragments.length);
     await this.onDetached();
   }
 }

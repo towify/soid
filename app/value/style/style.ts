@@ -11,12 +11,12 @@ export class Style implements StyleInterface {
   public readonly style: { [key: string]: string } = {};
   public readonly transform = new Transform();
   public readonly values: { [key: string]: any } = {};
-  public cssText: string;
+  public cssText: string | undefined;
 
   constructor() {}
 
   getValue(tag: StyleTag, isNumber?: boolean): string | number | undefined {
-    let result: string | number;
+    let result: string | number | undefined;
     result = this.style[tag];
     if (result && isNumber) {
       result = isNumber ? result.pickNumber() : result;
@@ -191,6 +191,8 @@ enum StyleTag {
   GridTemplateColumns = "grid-template-columns",
   GridRowEnd = "grid-row-end",
   GridTemplateRows = "grid-template-rows",
+  GridTemplateAreas = "grid-template-areas",
+  GridArea = "grid-area",
   JustifyItems = "justify-items",
   JustifyContent = "justify-content",
   AlignItems = "align-items",

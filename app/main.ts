@@ -7,7 +7,7 @@ import { Fragment } from "./base/fragment/fragment";
 import { Color } from "./value/color";
 import { LinearLayout } from "./component/linear_layout";
 import { ViewGroup } from "./base/view_group";
-import { Align, Orientation } from "./value/style/style";
+import { Align, Orientation, StyleTag } from "./value/style/style";
 import { App, ChildFragmentModel } from "./app";
 import { TextType, TextView } from "./component/text_view";
 import { ImageMode, ImageView } from "./component/image_view";
@@ -26,7 +26,8 @@ import {
   RecyclerViewHolderType
 } from "./component/recycler_view/recycler_view_holder";
 import { Swiper } from "./component/swiper/swiper";
-import { Segment, TabsType } from "./component/segment/segment";
+import { SegmentContainer, TabsType } from "./component/segment/segment_container";
+import { SegmentMenu } from "./component/segment/segment_menu";
 
 const cellWidth = 200;
 
@@ -65,7 +66,13 @@ class Text extends Fragment {
           .setRotate(10);
       }
       textView = new TextView()
-        .setText(`Hello ${index}`)
+        .setText(`Hello ${index}`, {
+          start: 2,
+          end: 5,
+          hold: style => {
+            style.addRule(StyleTag.Color, "red");
+          }
+        })
         .setTextColor(new Color("olive"))
         .setTextType(TextType.Large);
       image = new ImageView()
@@ -81,6 +88,7 @@ class Text extends Fragment {
     const relativeLayout = new RelativeLayout()
       .setWidth(300)
       .setHeight(300)
+      .setClass("test")
       .setBackgroundColor(new Color("yellow"));
     for (let index = 0; index < 2; index++) {
       const rectAngle = new Rectangle()
@@ -112,6 +120,7 @@ class Text extends Fragment {
       .setIconSize(26)
       .setImage("resource/image/right_arrow_icon.svg")
       .setTextColor(Color.white);
+
     const input = new Input()
       .setPlaceholder("enter you email address")
       .setTextType(TextType.Small)
@@ -120,6 +129,8 @@ class Text extends Fragment {
       .setPlaceholderColor(new Color("gray"))
       .setWidth(150)
       .setHeight(30)
+      .resetClearButton(button => {
+      })
       .setType(InputType.Password)
       .onFocus(() => {
         console.log("focus");
@@ -152,12 +163,27 @@ class Text extends Fragment {
       ["Hello 1", "Hello 2", "Hello3", "Hello 4", "Hello 5", "Hello 6", "Hello 7", "Hello 8", "Hello 9"]
     );
 
-    const horizontalRecyclerView = new MyRecyclerView().setWidth(400);
-    horizontalRecyclerView.adapter = new MyRecyclerViewAdapter(
-      horizontalRecyclerView,
-      ["Hello 1", "Hello 2", "Hello3", "Hello 4", "Hello 5", "Hello 6", "Hello 7", "Hello 8", "Hello 9"],
-      Orientation.Horizontal
-    );
+    // const horizontalRecyclerView = new MyRecyclerView().setWidth(400);
+    // horizontalRecyclerView.adapter = new MyRecyclerViewAdapter(
+    //   horizontalRecyclerView,
+    //   ["Hello 1", "Hello 2", "Hello3", "Hello 4", "Hello 5", "Hello 6", "Hello 7", "Hello 8", "Hello 9"],
+    //   Orientation.Horizontal
+    // );
+
+    let hasLoadPage = false;
+    let pageCount = 2;
+    recyclerView.onReachedEnd(() => {
+      if (hasLoadPage || !pageCount) return;
+      hasLoadPage = true;
+      recyclerView.adapter.getViewByPosition<MyRecyclerFooterView>(RecyclerViewHolderType.Footer).model = "loading now";
+      setTimeout(async () => {
+        pageCount -= 1;
+        recyclerView.adapter.getViewByPosition<MyRecyclerFooterView>(RecyclerViewHolderType.Footer).model = "footer view";
+        recyclerView.adapter.updateData(await this.prepareData());
+        recyclerView.adapter.notifyDataChanged();
+        hasLoadPage = false;
+      }, 3000);
+    });
 
     const swiper = new Swiper<TextView>()
       .setWidth(400)
@@ -174,47 +200,71 @@ class Text extends Fragment {
             });
         });
 
-    const segment = new Segment<TextView>(TabsType.LeftScrollable)
+    const data = [
+      {data: "Left", page: LinearLayout},
+      {data: "Center", page: LinearLayout},
+      {data: "Right", page: LinearLayout}
+    ];
+    const segment = new SegmentContainer<TextView>(TabsType.TopFixed)
       .setBackgroundColor(Color.white)
       .setItemContainerSize(100)
       .setWidth(500)
       .setHeight(800)
       .setItemType(TextView)
-      .setData(
-        [
-          {item: "Left", page: LinearLayout},
-          {item: "Center", page: LinearLayout},
-          {item: "Right", page: LinearLayout}
-        ],
-        (item, model, position) => {
+      .setData(data,
+        (item, position) => {
           item
             .setBorder("1px solid #000")
             .setTextAlign(Align.Center)
-            .setText(model)
+            .setText(data[position].data)
             .onClick(_ => {
-              segment.showContentByPosition(position);
+              segment.showPageByPosition(position);
             });
         }
       );
 
+    const menu = ["Page 1", "Page 2"];
+    const segmentMenu = new SegmentMenu<TextView>(TabsType.TopFixed)
+      .setWidth(200)
+      .setHeight(100)
+      .setItemType(TextView)
+      .setData(menu, ((item, position) => {
+        item
+          .setBackgroundColor(Color.white)
+          .setText(menu[position])
+          .onClick(_ => {
+            console.log(item.textContent);
+          });
+      }));
+
     this.layout.addView(relativeLayout);
     this.layout.addView(gridLayout);
     this.layout.addView(recyclerView);
-    this.layout.addView(horizontalRecyclerView);
+    // this.layout.addView(horizontalRecyclerView);
     this.layout.addView(swiper);
     this.layout.addView(segment);
+    this.layout.addView(segmentMenu);
     context.addView(this.layout);
 
     this.afterResized(event => {
-      recyclerView.setHeight(800).updateStyle();
+      recyclerView.setHeight(1000).updateStyle();
     });
+  }
+
+  private async prepareData(): Promise<any[]> {
+    const dataCount = 10;
+    const result: any[] = [];
+    dataCount.forEach(_ => {
+      result.push(`New Data ${Math.floor(Math.random() * 100000000)}`);
+    });
+    return result;
   }
 }
 
 class MyRecyclerView extends RecyclerView {
   constructor() {
     super();
-    this.setHeight(600);
+    this.setHeight(700);
   }
 }
 
@@ -223,11 +273,11 @@ class MyRecyclerViewAdapter extends RecyclerViewAdapter {
   public getViewHoldersTypeWithPositions(): RecyclerViewHolderModel[] {
     return [
       new RecyclerViewHolderModel(MyRecyclerHeaderView, RecyclerViewHolderType.Header),
-      new RecyclerViewHolderModel(MyRecyclerHeaderView, 2),
-      new RecyclerViewHolderModel(MyRecyclerFooterView, 4),
-      new RecyclerViewHolderModel(MyRecyclerHeaderView, 7),
+      // new RecyclerViewHolderModel(MyRecyclerHeaderView, 2),
+      // new RecyclerViewHolderModel(MyRecyclerFooterView, 4),
+      // new RecyclerViewHolderModel(MyRecyclerHeaderView, 7),
       new RecyclerViewHolderModel(MyRecyclerViewCell),
-      new RecyclerViewHolderModel(MyRecyclerHeaderView, RecyclerViewHolderType.Footer)
+      new RecyclerViewHolderModel(MyRecyclerFooterView, RecyclerViewHolderType.Footer)
     ];
   }
 
@@ -264,30 +314,6 @@ class MyRecyclerViewAdapter extends RecyclerViewAdapter {
       }
     }
   }
-
-  private hasLoadPage = false;
-  private pageCount = 2;
-
-  public loadMore() {
-    if (this.hasLoadPage || !this.pageCount) return;
-    this.hasLoadPage = true;
-    super.loadMore();
-    this.getViewByPosition<MyRecyclerFooterView>(RecyclerViewHolderType.Footer).model = "loading now";
-    setTimeout(() => {
-      this.pageCount -= 1;
-      this.getViewByPosition<MyRecyclerFooterView>(RecyclerViewHolderType.Footer).model = "footer view";
-      this.prepareData(this.data);
-      this.notifyDataChanged();
-      this.hasLoadPage = false;
-    }, 3000);
-  }
-
-  private prepareData(data: string[]) {
-    const dataCount = 10;
-    dataCount.forEach(_ => {
-      data.push(`New Data ${Math.floor(Math.random() * 100000000)}`);
-    });
-  }
 }
 
 class MyRecyclerViewCell extends RecyclerViewHolder {
@@ -309,7 +335,7 @@ class MyRecyclerViewCell extends RecyclerViewHolder {
   }
 
   public getSize() {
-    return {width: cellWidth, height: 180};
+    return {width: cellWidth, height: 50};
   }
 }
 
@@ -332,7 +358,7 @@ class MyRecyclerHeaderView extends RecyclerViewHolder {
   }
 
   public getSize() {
-    return {width: cellWidth, height: 200};
+    return {width: cellWidth, height: 300};
   }
 }
 
@@ -355,7 +381,7 @@ class MyRecyclerFooterView extends RecyclerViewHolder {
   }
 
   public getSize() {
-    return {width: cellWidth, height: 280};
+    return {width: cellWidth, height: 100};
   }
 }
 

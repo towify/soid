@@ -28,30 +28,32 @@
   },
   "bundleDependencies": false,
   "dependencies": {
-    "@babel/polyfill": "^7.8.7",
-    "core-js": "3.6.4",
-    "smooth-scrollbar": "^8.5.1"
+    "@babel/runtime-corejs3": "^7.9.2",
+    "core-js": "^3.6.4",
+    "smooth-scrollbar": "^8.5.2"
   },
   "deprecated": false,
   "description": "",
   "devDependencies": {
-    "@babel/core": "^7.8.7",
-    "@babel/preset-env": "^7.8.7",
-    "babel-loader": "^8.0.6",
-    "ts-loader": "^6.2.1",
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "babel-loader": "^8.1.0",
+    "ts-loader": "^6.2.2",
     "typescript": "^3.8.3",
-    "webpack": "^4.42.0",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "webpack": "^4.42.1",
     "webpack-cli": "^3.3.10"
   },
   "license": "ISC",
-  "main": "app/main.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "name": "soidjs",
   "scripts": {
+    "tsc": "tsc",
     "build": "webpack",
     "start": "npm-run-all --parallel watch:server watch:build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch:build": "webpack --watch",
-    "watch:server": "nodemon \"./build/bundle.js\" --watch \"./build\" "
+    "watch:build": "webpack --watch"
   },
-  "version": "1.0.1"
+  "version": "1.0.68"
 }

@@ -8,7 +8,7 @@ import { StyleTag } from "../value/style/style";
 import { ValueChecker } from "../util/value_checker";
 
 export class ImageView extends View {
-  #imagePath: string;
+  #imagePath?: string;
 
   constructor() {
     super();
@@ -36,7 +36,7 @@ export class ImageView extends View {
         break;
       }
       case ImageMode.AspectFill: {
-        this.getImageSize(this.#imagePath, (width, height) => {
+        this.getImageSize(this.#imagePath!, (width, height) => {
           if (width < height) {
             const ratio = Math.round(height / width * 10000) / 100;
             this.style.addRule(StyleTag.BackgroundSize, `100% ${ratio}%`);

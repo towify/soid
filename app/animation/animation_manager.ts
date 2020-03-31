@@ -11,9 +11,9 @@ import { AnimationManagerInterface } from "./animation_manager_interface";
 export class AnimationManager implements AnimationManagerInterface {
   #duration = 3000;
   #intervalDuration = 3000;
-  #startValue: number;
-  #endValue: number;
-  #type: AnimationType;
+  #startValue?: number;
+  #endValue?: number;
+  #type?: AnimationType;
   #easingFunction: (percent: number) => number = easingsFunctions.easeInOutCubic;
 
   constructor(public readonly holst: View) {}
@@ -49,8 +49,8 @@ export class AnimationManager implements AnimationManagerInterface {
       throw new Error("you have to set animation type first");
     }
     let stop = false;
-    let start: number = null;
-    let end: number = null;
+    let start: number | null = null;
+    let end: number | null = null;
     let animationFrame: number;
     let percent: number;
     let modulus: number;
@@ -68,10 +68,10 @@ export class AnimationManager implements AnimationManagerInterface {
           window.cancelAnimationFrame(animationFrame);
           return;
         }
-        if (now - start >= this.#duration) stop = true;
-        percent = (now - start) / this.#duration;
+        if (now - start! >= this.#duration) stop = true;
+        percent = (now - start!) / this.#duration;
         modulus = this.#easingFunction(percent);
-        moveValue = this.#startValue + (this.#endValue - this.#startValue) * modulus;
+        moveValue = this.#startValue! + (this.#endValue! - this.#startValue!) * modulus;
         switch (this.#type) {
           case AnimationType.TranslateX: {
             this.holst.setTranslate(moveValue, 0).updateStyle();
