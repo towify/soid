@@ -56,7 +56,7 @@ class PrintService extends LinearLayout {
     return this;
   }
 
-  public mount(parent: ViewGroup) {
+  public mount<V extends ViewGroup>(parent: V) {
     parent.addView(this);
   }
 
@@ -66,7 +66,7 @@ class PrintService extends LinearLayout {
       this.#hasDisplayed = true;
     }
     const validKey = key.replace(/\s+/g, "");
-    const target = this.#dashboards.find(item => item[validKey])[validKey];
+    const target = this.#dashboards?.find(item => item[validKey])![validKey];
     if (target) {
       let result = `${key} \n\n`;
       Object.keys(args).forEach(key => {

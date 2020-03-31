@@ -20,8 +20,8 @@ Number.prototype.forEach = function (hold: (index: number) => void) {
 };
 
 Number.prototype.reverseForEach = function (hold: (index: number) => void) {
-  for (let index = this; index >= 0; index--) {
-    hold(index);
+  for (let index = this; index >= 0; (index as number)--) {
+    hold(index as number);
   }
 };
 

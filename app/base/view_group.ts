@@ -6,9 +6,11 @@
 import { View } from "./view";
 import { DomFragment } from "./dom_fragment";
 import { DisplayType, StyleTag } from "../value/style/style";
+import { SequenceTaskManager } from "../manager/sequence_task_manager";
 
 export class ViewGroup extends View {
   readonly subviews: View[] = [];
+  #sequenceManager = new SequenceTaskManager();
 
   constructor(element?: HTMLDivElement) {
     super(element);
@@ -17,9 +19,10 @@ export class ViewGroup extends View {
   // Basic Dom Operation Methods
   public addView(view: View) {
     this.subviews.push(view);
-    view._prepareLifeCycle().then(_ => {
+    this.#sequenceManager.addTask((async () => {
+      await view._prepareLifeCycle();
       this._element.appendChild(view._element);
-    });
+    })).run();
   }
 
   public setDisplay(type: DisplayType): this {

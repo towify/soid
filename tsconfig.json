@@ -1,11 +1,19 @@
 {
   "compilerOptions": {
+    "strict": true,
     "target": "es6",
-    "module": "commonjs",
+    "lib": ["es2017", "es7", "es6", "dom"],
     "moduleResolution": "node",
+    "declaration": true,
     "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "sourceMap": false,
     "outDir": "dist",
+    "typeRoots": [
+      "node_modules/@types",
+      "types"
+    ],
     "baseUrl": ".",
     "paths": {
       "*": [
@@ -18,6 +26,7 @@
   ],
   "exclude": [
     "../app",
+    "dist",
     "node_modules/*"
   ]
 }

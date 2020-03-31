@@ -5,6 +5,7 @@
 
 import { ListenerType } from "../value/type";
 import { debounce } from "../util/performance";
+import { systemInfo } from "../app";
 
 export class BrowserService {
   private static service: BrowserService | undefined;
@@ -21,7 +22,7 @@ export class BrowserService {
 
   constructor() {
     // browser tab switching event listener
-    this.#visibilityListener = (event) => {
+    this.#visibilityListener = (_) => {
       if (document.visibilityState == "visible") {
         this.#events[BrowserServiceType.VisibilityChange]
           .forEach(item => item(true));
@@ -30,7 +31,9 @@ export class BrowserService {
           .forEach(item => item(false));
       }
     };
-    this.#resizeListener = (event) => {
+    this.#resizeListener = (event: UIEvent) => {
+      systemInfo.windowHeight = (event.target as Window)?.innerHeight || 0;
+      systemInfo.windowWidth = (event.target as Window)?.innerWidth || 0;
       this.#events[BrowserServiceType.Resize]
         .forEach(item => item(event));
     };

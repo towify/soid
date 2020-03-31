@@ -16,9 +16,9 @@ export class Input extends RelativeLayout implements InputInterface {
   #input = document.createElement("input");
   #clearButton = new ImageView();
   #inputStyle = new Style();
-  #focusEvent: (event: FocusEvent) => void;
-  #blurEvent: (event: FocusEvent) => void;
-  #changeEvent: (event: FocusEvent) => void;
+  #focusEvent?: (event: FocusEvent) => void;
+  #blurEvent?: (event: FocusEvent) => void;
+  #changeEvent?: (event: Event) => void;
   #_hasClearButton = true;
   #_hasDisplayedClearButton = false;
   #clearButtonSize = 12;
@@ -195,9 +195,14 @@ export class Input extends RelativeLayout implements InputInterface {
     return this;
   }
 
+  public resetClearButton(hold: (button: ImageView) => void) {
+    hold(this.#clearButton);
+    return this;
+  }
+
   public onDetached() {
-    this.#input.removeEventListener(ListenerType.Focus, this.#focusEvent);
-    this.#input.removeEventListener(ListenerType.Blur, this.#focusEvent);
+    !this.#focusEvent || this.#input.removeEventListener(ListenerType.Focus, this.#focusEvent);
+    !this.#focusEvent || this.#input.removeEventListener(ListenerType.Blur, this.#focusEvent);
     super.onDetached();
   }
 

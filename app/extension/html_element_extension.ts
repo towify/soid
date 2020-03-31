@@ -5,10 +5,13 @@
 
 
 import { DomFragment } from "../base/dom_fragment";
+import { View } from "../base/view";
 
 declare global {
   interface HTMLElement {
     addDomFragment(domFragment: DomFragment): void
+
+    addView(view: View): void
   }
 }
 
@@ -17,5 +20,9 @@ HTMLElement.prototype.addDomFragment = function (domFragment) {
     this.appendChild(domFragment.fragment);
   });
 };
-
+HTMLElement.prototype.addView = function (view) {
+  view._prepareLifeCycle().then(_ => {
+    this.appendChild(view._element);
+  });
+};
 export {};

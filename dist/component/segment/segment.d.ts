@@ -1,0 +1,31 @@
+import { View } from "../../base/view";
+import { ISegment } from "./segment_interface";
+import { ViewGroup } from "../../base/view_group";
+import { Color } from "../../value/color";
+export declare class Segment<Item extends View> extends ViewGroup implements ISegment<Item> {
+    #private;
+    readonly type: TabsType;
+    constructor(type: TabsType);
+    setItemType(tab: {
+        new (): Item;
+    }): this;
+    setItemContainerBackgroundColor(color: Color): this;
+    setItemContainerSize(value: number): this;
+    setData<M extends SegmentModel>(models: M[], onBind: (item: Item, position: number) => void): this;
+    showContentByPosition(position: number): void;
+    private onCreate;
+    beforeAttached(): Promise<any>;
+}
+export declare abstract class SegmentModel {
+    readonly page: {
+        new (): View;
+    };
+    protected constructor(page: {
+        new (): View;
+    });
+}
+export declare enum TabsType {
+    TopFixed = 0,
+    TopScrollable = 1,
+    LeftScrollable = 2
+}

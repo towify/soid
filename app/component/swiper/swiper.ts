@@ -12,9 +12,9 @@ import easingsFunctions from "../../animation/easing_functions";
 
 export class Swiper<Slider extends View> extends RelativeLayout implements ISwiper<Slider> {
 
-  #sliderType: { new(): Slider };
+  #sliderType?: { new(): Slider };
   #intervalTime = 3000;
-  #easingFunction: (percent: number) => number;
+  #easingFunction?: (percent: number) => number;
 
   constructor() {
     super();
@@ -40,9 +40,9 @@ export class Swiper<Slider extends View> extends RelativeLayout implements ISwip
     let slider: Slider;
     let animationManagers: AnimationManager[] = [];
     models.forEach((model, index) => {
-      slider = new this.#sliderType()
+      slider = new this.#sliderType!()
         .setFullParent()
-        .setTranslate(index === 0 ? 0 : -this.width, 0)
+        .setTranslate(index === 0 ? 0 : -this.width!, 0)
         .setBackgroundColor(new Color("olive"));
       onBind(slider, model);
       this.addView(slider);
@@ -65,11 +65,11 @@ export class Swiper<Slider extends View> extends RelativeLayout implements ISwip
       if (isInitial) {
         isInitial = false;
       } else {
-        animation.setAnimation(-this.width, 0);
+        animation.setAnimation(-this.width!, 0);
       }
       animation.run(() => {
         animation
-          .setAnimation(0, this.width)
+          .setAnimation(0, this.width!)
           .run();
         if (index === length - 1) {
           index = 0;

@@ -17,15 +17,16 @@ import { Color } from "../value/color";
 
 export abstract class View {
   protected style = new Style();
-  protected isDisplayNone: boolean;
+  protected isDisplayNone?: boolean;
   readonly _element: HTMLDivElement;
   #_isEnable = true;
   #_isClickable = true;
   #_isFocusable = true;
-  #_clickEvent: (event: MouseEvent) => void;
-  #_mouseoverEvent: (event: MouseEvent) => void;
-  #_mouseleaveEvent: (event: MouseEvent) => void;
-  protected initialDisplayType: DisplayType;
+  #_clickEvent?: (event: MouseEvent) => void;
+  #_mouseoverEvent?: (event: MouseEvent) => void;
+  #_mouseleaveEvent?: (event: MouseEvent) => void;
+  protected initialDisplayType?: DisplayType;
+  protected hasAttached = false;
 
   protected constructor(private element?: HTMLDivElement) {
     if (this.element) {
@@ -142,7 +143,9 @@ export abstract class View {
   // Life Cycle
   public async beforeAttached() {}
 
-  public async onAttached() {}
+  public async onAttached() {
+    this.hasAttached = true;
+  }
 
   public onShow(action?: () => void) {
     this.recoveryEventListenerIfNeed();
@@ -188,6 +191,12 @@ export abstract class View {
 
   public setCssText(cssText: string) {
     this.style.cssText = cssText;
+    return this;
+  }
+
+  public setClass(className: string) {
+    this._element.classList.add(className);
+
     return this;
   }
 
@@ -301,8 +310,28 @@ export abstract class View {
     return this;
   }
 
+  public setMarginTopAuto() {
+    this.style.addRule(StyleTag.MarginTop, "auto");
+    return this;
+  }
+
+  public setMarginLeftAuto() {
+    this.style.addRule(StyleTag.MarginLeft, "auto");
+    return this;
+  }
+
   public setMarginBottom(value: number) {
     this.style.addRule(StyleTag.MarginBottom, `${value}px`);
+    return this;
+  }
+
+  public setMarginLeft(value: number) {
+    this.style.addRule(StyleTag.MarginLeft, `${value}px`);
+    return this;
+  }
+
+  public setMarginRight(value: number) {
+    this.style.addRule(StyleTag.MarginRight, `${value}px`);
     return this;
   }
 
@@ -338,6 +367,11 @@ export abstract class View {
 
   public setBackgroundColor(color: Color): this {
     this.style.addRule(StyleTag.BackgroundColor, `${color.value}`);
+    return this;
+  }
+
+  public setBackground(value: string): this {
+    this.style.addRule(StyleTag.Background, value);
     return this;
   }
 
@@ -407,6 +441,11 @@ export abstract class View {
     return this;
   }
 
+  public setShadow(value: string) {
+    this.style.addRule(StyleTag.BoxShadow, value);
+    return this;
+  }
+
   public setCursor(cursor: Cursor) {
     this.style.addRule(StyleTag.Cursor, cursor);
     return this;
@@ -472,8 +511,23 @@ export abstract class View {
     return this;
   }
 
+  public setGridArea(value: string) {
+    this.style.addRule(StyleTag.GridArea, value);
+    return this;
+  }
+
   public setJustifyContent(value: JustifyContent) {
     this.style.addRule(StyleTag.JustifyContent, value);
+    return this;
+  }
+
+  public setJustifyItem(value: JustifyContent) {
+    this.style.addRule(StyleTag.JustifyItems, value);
+    return this;
+  }
+
+  public setAlignItem(value: JustifyContent) {
+    this.style.addRule(StyleTag.AlignItems, value);
     return this;
   }
 
@@ -498,7 +552,7 @@ export abstract class View {
     return <boolean>this.style.values.hasHorizontalPadding;
   }
 
-  public get displayType(): DisplayType {
+  public get displayType(): DisplayType | undefined {
     return this.initialDisplayType;
   }
 }

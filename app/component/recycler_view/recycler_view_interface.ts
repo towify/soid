@@ -14,6 +14,8 @@ export interface IRecyclerView {
   setHeight(value: number): this
 
   setWidth(value: number): this
+
+  onReachedEnd(action: () => void): this
 }
 
 export interface IRecyclerViewAdapter {
@@ -22,8 +24,6 @@ export interface IRecyclerViewAdapter {
   getContentSize(): number
 
   afterDatasetChanged(action: () => void): void
-
-  loadMore(): void
 
   notifyDataChanged(): void
 

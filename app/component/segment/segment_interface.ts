@@ -4,11 +4,12 @@
  */
 
 import { View } from "../../base/view";
+import { SegmentModel } from "./segment_container";
 
 export interface ISegment<Item extends View> {
-  setData<M>(models: { item: M, page: { new(): View } }[], onBind: (tab: Item, model: M) => void): this
+  setData<M extends SegmentModel>(models: M[], onBind: (tab: Item, position: number) => void): this
 
   setItemType(tab: { new(): Item }): this;
 
-  showContentByPosition(position: number): void
+  showPageByPosition(position: number): void
 }

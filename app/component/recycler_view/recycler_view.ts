@@ -6,23 +6,24 @@
 import { RecyclerViewAdapter } from "./recycler_view_adapter";
 import { RelativeLayout } from "../relative_layout";
 import { View } from "../../base/view";
-import Scrollbar from "smooth-scrollbar";
+import Scrollbar, { ScrollbarPlugin } from "smooth-scrollbar";
 import { ViewGroup } from "../../base/view_group";
 import easingsFunctions from "../../animation/easing_functions";
 import { IRecyclerView } from "./recycler_view_interface";
 import { Orientation } from "../../value/style/style";
+import { throttle } from "../../util/performance";
 
 export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
   public readonly contentView = new RelativeLayout();
   #lastKnownScrollValue = 0;
-  #adapter: RecyclerViewAdapter;
-  #isScrollingToMore = false;
-  #scrollbar: Scrollbar;
-  #scrollContent: ViewGroup;
-  #scrollContentHeight: number;
-  #lastHeight: number;
-  #lastWidth: number;
+  #adapter?: RecyclerViewAdapter;
+  #isScrollingToPast?: boolean;
+  #scrollbar?: Scrollbar;
+  #scrollContent?: ViewGroup;
+  #lastHeight?: number;
+  #lastWidth?: number;
   #_orientation: Orientation = Orientation.Vertical;
+  #_onReachedEnd?: () => void;
 
   protected constructor() {
     super();
@@ -37,19 +38,24 @@ export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
     // After the content was turned, you need to obtain the new content height to
     // update the height value corresponding to the scroll table and scroll area.
     this.#adapter.afterDatasetChanged(() => {
-      this.#scrollContentHeight = this.#adapter.getContentSize();
+      this.contentView
+        ?.setHeight(this.#adapter?.getContentSize() || 0)
+        ?.updateStyle();
     });
   }
 
+  get adapter(): RecyclerViewAdapter {
+    return this.#adapter!;
+  }
+
   public scrollToStart() {
-    this.#scrollbar.scrollTo(0, 0, 200, {
+    this.#scrollbar?.scrollTo(0, 0, 200, {
       callback: () => {
         this.#scrollbar = undefined;
         this.#scrollContent = undefined;
         this.#lastKnownScrollValue = 0;
-        this.#isScrollingToMore = false;
-        this.#scrollContentHeight = undefined;
-        this.#adapter.recoveryItemPosition().then(_ => this.onCreate());
+        this.#isScrollingToPast = false;
+        this.#adapter?.recoveryItemPosition().then();
         this.onCreate();
       },
       easing: (percent) => easingsFunctions.easeInOutQuad(percent)
@@ -82,7 +88,28 @@ export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
     this.contentView.addView(view);
   }
 
+  public async reset() {
+    await this.contentView.clear();
+    return this;
+  }
+
   private onCreate() {
+    // Control Scroll Speed For Recycler View
+    class ScalePlugin extends ScrollbarPlugin {
+      static pluginName = "scale";
+      static defaultOptions = {
+        speed: 1,
+      };
+
+      transformDelta(delta: any) {
+        return {
+          x: delta.x * 0.5,
+          y: delta.y * 0.5,
+        };
+      }
+    }
+
+    Scrollbar.use(ScalePlugin);
     this.#scrollbar = Scrollbar.init(this._element, {
       alwaysShowTracks: false,
       thumbMinSize: 150,
@@ -93,16 +120,45 @@ export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
       .setFullParent()
       .updateStyle()
       .addView(this.contentView);
-    this.#scrollbar.track.update = () => {
-      if (this.#_orientation === Orientation.Vertical) {
-        this.#isScrollingToMore = this.#scrollbar.scrollTop < this.#lastKnownScrollValue;
-        this.#lastKnownScrollValue = this.#scrollbar.scrollTop;
+
+    let preContentArea = 0;
+    let currentContentArea = 0;
+    const calculateReachedEndValue = (orientation: Orientation) => {
+      currentContentArea = (this.#scrollbar?.size?.container[orientation === Orientation.Vertical ? "height" : "width"] || 0) +
+        (this.#scrollbar?.offset?.[orientation === Orientation.Vertical ? "y" : "x"] || 0);
+      if (preContentArea === currentContentArea) {
+        return undefined;
       } else {
-        this.#isScrollingToMore = this.#scrollbar.scrollLeft < this.#lastKnownScrollValue;
-        this.#lastKnownScrollValue = this.#scrollbar.scrollLeft;
+        return currentContentArea === this.#scrollbar?.size?.content[orientation === Orientation.Vertical ? "height" : "width"] &&
+          this.#isScrollingToPast === false;
       }
-      this.didScroll();
     };
+    this.#scrollbar!.track.update = () => {
+      if (this.#scrollbar?.scrollTop) {
+        if (calculateReachedEndValue(this.#_orientation)) {
+          preContentArea = this.#scrollbar?.size?.content[this.#_orientation === Orientation.Vertical ? "height" : "width"];
+          !this.#_onReachedEnd || this.#_onReachedEnd();
+        }
+        if (this.#_orientation === Orientation.Vertical) {
+          this.#isScrollingToPast = this.#scrollbar?.scrollTop! < this.#lastKnownScrollValue;
+          this.#lastKnownScrollValue = this.#scrollbar?.scrollTop!;
+        } else {
+          this.#isScrollingToPast = this.#scrollbar?.scrollLeft! < this.#lastKnownScrollValue;
+          this.#lastKnownScrollValue = this.#scrollbar?.scrollLeft!;
+        }
+        this.didScroll();
+      }
+    };
+  }
+
+  public onReachedEnd(action: () => void) {
+    this.#_onReachedEnd = throttle(() => {
+      action();
+      this.contentView
+        ?.setHeight(this.#scrollbar?.size?.content[this.#_orientation === Orientation.Vertical ? "height" : "width"] || 0)
+        ?.updateStyle();
+    }, 500);
+    return this;
   }
 
   private didScroll() {
@@ -110,10 +166,10 @@ export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
     // to rise, Let the height of the scroll bar correspond to the change of the
     // real-time scroll height of the content in real time
     if (this.#_orientation === Orientation.Vertical) {
-      this.#scrollbar.track.yAxis.update(this.#lastKnownScrollValue, this.height, this.#adapter.getContentSize());
+      this.#scrollbar?.track.yAxis.update(this.#lastKnownScrollValue, this.height!, this.#adapter?.getContentSize()!);
     } else {
-      this.#scrollbar.track.xAxis.update(this.#lastKnownScrollValue, this.width, this.#adapter.getContentSize());
+      this.#scrollbar?.track.xAxis.update(this.#lastKnownScrollValue, this.width!, this.#adapter?.getContentSize()!);
     }
-    this.#adapter._onVerticalScroll(this.#lastKnownScrollValue, this.#isScrollingToMore);
+    this.#adapter?._onVerticalScroll(this.#lastKnownScrollValue, this.#isScrollingToPast === undefined ? false : this.#isScrollingToPast);
   }
 }

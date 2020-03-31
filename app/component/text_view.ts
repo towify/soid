@@ -10,7 +10,7 @@ import { Color } from "../value/color";
 export class TextView extends View {
   #span = document.createElement("span");
   #spanStyle = new Style();
-  #_textContent: string;
+  #_textContent?: string;
 
   constructor() {
     super();
@@ -20,7 +20,6 @@ export class TextView extends View {
       .addRule(StyleTag.PointerEvents, "none")
       .addRule(StyleTag.Display, DisplayType.InlineBlock)
       .addRule(StyleTag.Width, "100%");
-    this.setFont("Circular,-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif !important");
   }
 
   get textContent() {
@@ -82,9 +81,16 @@ export class TextView extends View {
     return this;
   }
 
-  public setText(text: string) {
-    this.#span.textContent = text;
+  public setText(text: string, specificStyle?: { start: number, end: number, hold: (style: Style) => void }) {
     this.#_textContent = text;
+    if (specificStyle) {
+      const style = new Style();
+      style.addRule(StyleTag.Display, DisplayType.InlineBlock);
+      specificStyle.hold(style);
+      this.#span.innerHTML = this.#_textContent?.substr(0, specificStyle.start) + `<span style=${style.generateCssText()}>${text.substr(specificStyle.start, specificStyle.end)}</span>`;
+    } else {
+      this.#span.textContent = this.#_textContent;
+    }
     return this;
   }
 

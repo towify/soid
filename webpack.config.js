@@ -1,15 +1,17 @@
 // webpack.config.js
 const path = require('path');
 module.exports = {
-  mode:"production",
+  mode: "production",
   entry: {
     app: './app/main.ts',
   },
+  devtool: "source-map",
   output: {
-    filename: '[name].bundle.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
-    library: "MA",
-    libraryTarget: "umd"
+    library: "SOID",
+    libraryTarget: "umd",
+    globalObject: "this"
   },
   module: {
     rules: [
@@ -19,6 +21,14 @@ module.exports = {
         exclude: [path.resolve(__dirname, "node_modules")]
       },
     ]
+  },
+  externals: {
+    lodash: {
+      commonjs: 'lodash',
+      commonjs2: 'lodash',
+      amd: 'lodash',
+      root: '_'
+    }
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js"]
