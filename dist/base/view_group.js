@@ -65,18 +65,28 @@ export class ViewGroup extends View {
         });
     }
     insertBefore(newView, oldView) {
-        this._element.insertBefore(newView._element, oldView._element);
+        newView.beforeAttached().then(() => {
+            newView._prepareLifeCycle().then(() => {
+                this._element.insertBefore(newView._element, oldView._element);
+            });
+        });
     }
     replaceView(newView, oldView) {
-        this._element.replaceChild(newView._element, oldView._element);
+        oldView.onDetached();
+        newView.beforeAttached().then(() => {
+            newView._prepareLifeCycle().then(() => {
+                this._element.replaceChild(newView._element, oldView._element);
+            });
+        });
     }
     clear() {
-        return new Promise((resolve, reject) => {
-            this.subviews.forEach(child => {
-                child.remove();
-            });
-            resolve();
+        this.subviews.forEach(child => {
+            if (child instanceof ViewGroup) {
+                child.clear();
+            }
+            child.remove();
         });
+        this.subviews = [];
     }
 }
 _sequenceManager = new WeakMap();

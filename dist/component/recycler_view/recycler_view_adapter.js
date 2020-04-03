@@ -2,12 +2,6 @@
  * @author kaysaith
  * @date 2020/3/15 18:10
  */
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
-    if (!privateMap.has(receiver)) {
-        throw new TypeError("attempted to get private field on non-instance");
-    }
-    return privateMap.get(receiver);
-};
 var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
     if (!privateMap.has(receiver)) {
         throw new TypeError("attempted to set private field on non-instance");
@@ -15,7 +9,13 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
     privateMap.set(receiver, value);
     return value;
 };
-var _visibleArea, _itemCount, _possibleCount, _normalHolderArea, _visibleCount, _viewHolders, _movedCount, _invisibleCount, _viewPosition, _beginPassCount, __afterDatasetChanged, _viewHolder, _holderTypes, _normalHolder, _specialHolderTypes, _contentArea, _displayedSpecialHoldersArea, _firstScreenSpecialHolderCount, _footer, _normalHolderDisplayType, _position, _specialHolders, _flipPageCount, _fixedOffset;
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
+    if (!privateMap.has(receiver)) {
+        throw new TypeError("attempted to get private field on non-instance");
+    }
+    return privateMap.get(receiver);
+};
+var _itemCount, _possibleCount, _normalHolderArea, _viewHolders, _movedCount, _invisibleCount, _viewPosition, _beginPassCount, __afterDatasetChanged, _viewHolder, _holderTypes, _normalHolder, _specialHolderTypes, _contentArea, _displayedSpecialHoldersArea, _firstScreenSpecialHolderCount, _footer, _normalHolderDisplayType, _headerSpecialHoldersHeight, _position, _specialHolders, _flipPageCount, _fixedOffset;
 import { DisplayType, Orientation } from "../../value/style/style";
 import { RecyclerViewHolderType, SpecialViewHolderPosition } from "./recycler_view_holder";
 export class RecyclerViewAdapter {
@@ -24,11 +24,9 @@ export class RecyclerViewAdapter {
         this.initialData = initialData;
         this.orientation = orientation;
         this.data = [];
-        _visibleArea.set(this, 0);
         _itemCount.set(this, 0);
         _possibleCount.set(this, 0);
         _normalHolderArea.set(this, 0);
-        _visibleCount.set(this, 0);
         _viewHolders.set(this, []);
         _movedCount.set(this, 1);
         _invisibleCount.set(this, void 0);
@@ -45,6 +43,7 @@ export class RecyclerViewAdapter {
         _firstScreenSpecialHolderCount.set(this, 0);
         _footer.set(this, void 0);
         _normalHolderDisplayType.set(this, void 0);
+        _headerSpecialHoldersHeight.set(this, 0);
         _position.set(this, 0);
         _specialHolders.set(this, []);
         /**
@@ -54,6 +53,21 @@ export class RecyclerViewAdapter {
         _flipPageCount.set(this, 0);
         _fixedOffset.set(this, 0);
         this.onCreate();
+    }
+    reset() {
+        __classPrivateFieldSet(this, _footer, undefined);
+        __classPrivateFieldSet(this, _headerSpecialHoldersHeight, 0);
+        __classPrivateFieldSet(this, _firstScreenSpecialHolderCount, 0);
+        __classPrivateFieldSet(this, _displayedSpecialHoldersArea, 0);
+        __classPrivateFieldSet(this, _contentArea, 0);
+        __classPrivateFieldSet(this, _specialHolderTypes, []);
+        __classPrivateFieldSet(this, _viewHolders, []);
+        __classPrivateFieldSet(this, _normalHolder, undefined);
+        __classPrivateFieldSet(this, _holderTypes, undefined);
+        __classPrivateFieldSet(this, _viewPosition, []);
+        __classPrivateFieldSet(this, _invisibleCount, undefined);
+        __classPrivateFieldSet(this, _specialHolders, []);
+        this.data = [];
     }
     getViewByPosition(position) {
         var _a, _b;
@@ -70,19 +84,17 @@ export class RecyclerViewAdapter {
         return holder;
     }
     recoveryItemPosition() {
-        return new Promise((resolve, _) => {
-            __classPrivateFieldSet(this, _movedCount, 1);
-            resolve();
-            __classPrivateFieldGet(this, _viewHolders).forEach((holder, index) => {
-                if (this.orientation === Orientation.Vertical) {
-                    holder.setTranslate(0, __classPrivateFieldGet(this, _viewPosition)[index]).updateStyle();
-                }
-                else {
-                    holder.setTranslate(__classPrivateFieldGet(this, _viewPosition)[index], 0).updateStyle();
-                }
-                this.onBindViewHolder(holder, RecyclerViewHolderType.Default, index);
-            });
+        __classPrivateFieldSet(this, _movedCount, 1);
+        __classPrivateFieldGet(this, _viewHolders).forEach((holder, index) => {
+            if (this.orientation === Orientation.Vertical) {
+                holder.setTranslate(0, __classPrivateFieldGet(this, _viewPosition)[index]).updateStyle();
+            }
+            else {
+                holder.setTranslate(__classPrivateFieldGet(this, _viewPosition)[index], 0).updateStyle();
+            }
+            this.onBindViewHolder(holder, RecyclerViewHolderType.Default, index);
         });
+        return this;
     }
     getContentSize() {
         if (__classPrivateFieldGet(this, _itemCount) < __classPrivateFieldGet(this, _possibleCount)) {
@@ -99,7 +111,7 @@ export class RecyclerViewAdapter {
     notifyDataChanged() {
         __classPrivateFieldSet(this, _itemCount, this.data.length);
         this.calculateViewPositions(__classPrivateFieldGet(this, _itemCount), false);
-        const willUpdateCount = __classPrivateFieldGet(this, _visibleCount) - __classPrivateFieldGet(this, _beginPassCount) + 1;
+        const willUpdateCount = __classPrivateFieldGet(this, _possibleCount);
         willUpdateCount.forEach(value => {
             this.handleMovedItem(__classPrivateFieldGet(this, _invisibleCount) + value);
         });
@@ -109,30 +121,59 @@ export class RecyclerViewAdapter {
         !__classPrivateFieldGet(this, __afterDatasetChanged) || __classPrivateFieldGet(this, __afterDatasetChanged).call(this);
         this.handleFooterHolder();
     }
+    updateItemCountIfNeed() {
+        const newPossible = Math.ceil(this.getArea(this.context) / __classPrivateFieldGet(this, _normalHolderArea)) + __classPrivateFieldGet(this, _beginPassCount);
+        const newCount = newPossible - __classPrivateFieldGet(this, _possibleCount);
+        if (newCount > 0) {
+            let temporary;
+            let position;
+            newCount.forEach(index => {
+                position = __classPrivateFieldGet(this, _viewPosition)[__classPrivateFieldGet(this, _possibleCount) + index];
+                temporary = new (__classPrivateFieldGet(this, _normalHolder))();
+                if (position) {
+                    if (this.orientation === Orientation.Vertical) {
+                        temporary.setTranslate(0, position);
+                    }
+                    else {
+                        temporary.setTranslate(position, 0);
+                    }
+                }
+                else {
+                    temporary.setDisplay(DisplayType.None);
+                }
+                __classPrivateFieldGet(this, _viewHolders).push(temporary);
+                this.context.addView(temporary);
+            });
+            __classPrivateFieldSet(this, _possibleCount, newPossible);
+        }
+    }
     updateData(newData) {
         this.data = this.data.concat(newData);
         return this;
     }
-    _onVerticalScroll(offset, isScrollingToTop) {
+    onScroll(offset, isScrollingToPast) {
         __classPrivateFieldSet(this, _fixedOffset, offset - __classPrivateFieldGet(this, _displayedSpecialHoldersArea));
         __classPrivateFieldSet(this, _invisibleCount, Math.floor((__classPrivateFieldGet(this, _fixedOffset) < 0 ? 0 : __classPrivateFieldGet(this, _fixedOffset)) / __classPrivateFieldGet(this, _normalHolderArea)));
-        __classPrivateFieldSet(this, _flipPageCount, __classPrivateFieldGet(this, _invisibleCount) + (__classPrivateFieldGet(this, _visibleCount) - __classPrivateFieldGet(this, _firstScreenSpecialHolderCount)));
+        __classPrivateFieldSet(this, _flipPageCount, __classPrivateFieldGet(this, _invisibleCount) + (__classPrivateFieldGet(this, _possibleCount) - __classPrivateFieldGet(this, _firstScreenSpecialHolderCount)));
         if (__classPrivateFieldGet(this, _invisibleCount) > __classPrivateFieldGet(this, _movedCount) &&
-            __classPrivateFieldGet(this, _itemCount) > __classPrivateFieldGet(this, _visibleCount) &&
-            !isScrollingToTop) {
-            __classPrivateFieldSet(this, _position, __classPrivateFieldGet(this, _invisibleCount) + __classPrivateFieldGet(this, _visibleCount) - __classPrivateFieldGet(this, _beginPassCount));
+            __classPrivateFieldGet(this, _itemCount) > __classPrivateFieldGet(this, _possibleCount) &&
+            !isScrollingToPast) {
+            __classPrivateFieldSet(this, _position, __classPrivateFieldGet(this, _invisibleCount) + __classPrivateFieldGet(this, _possibleCount) - __classPrivateFieldGet(this, _beginPassCount));
             if (__classPrivateFieldGet(this, _position) < __classPrivateFieldGet(this, _itemCount)) {
                 this.handleMovedItem(__classPrivateFieldGet(this, _position));
                 __classPrivateFieldSet(this, _movedCount, __classPrivateFieldGet(this, _invisibleCount));
             }
         }
         else {
-            if (isScrollingToTop) {
+            if (isScrollingToPast) {
                 if (__classPrivateFieldGet(this, _invisibleCount) < __classPrivateFieldGet(this, _movedCount) &&
                     __classPrivateFieldGet(this, _invisibleCount) > 0) {
-                    __classPrivateFieldSet(this, _position, __classPrivateFieldGet(this, _invisibleCount) - 1);
+                    __classPrivateFieldSet(this, _position, __classPrivateFieldGet(this, _invisibleCount));
                     this.handleMovedItem(__classPrivateFieldGet(this, _position));
                     __classPrivateFieldSet(this, _movedCount, __classPrivateFieldGet(this, _position));
+                }
+                if (offset < __classPrivateFieldGet(this, _normalHolderArea) + __classPrivateFieldGet(this, _headerSpecialHoldersHeight)) {
+                    this.handleMovedItem(0);
                 }
             }
         }
@@ -144,12 +185,8 @@ export class RecyclerViewAdapter {
      */
     onCreate() {
         __classPrivateFieldSet(this, _holderTypes, this.getViewHoldersTypeWithPositions());
-        __classPrivateFieldSet(this, _visibleArea, this.getArea(this.context));
         this.data = this.data.concat(this.initialData);
         __classPrivateFieldSet(this, _itemCount, this.data.length);
-        let isMaxVisibleCount = false;
-        let moreCount = 2;
-        let displayArea = 0;
         let temporaryHolder;
         let specialHolderArea;
         // Prepare data for Special and Normal Holder
@@ -170,44 +207,33 @@ export class RecyclerViewAdapter {
         this.handleSpecialHolders();
         // The number of multiplexed cells is the maximum number of normal cells
         // that can be displayed in the display area, and an additional 2 are added.
-        __classPrivateFieldSet(this, _possibleCount, Math.ceil(__classPrivateFieldGet(this, _visibleArea) / __classPrivateFieldGet(this, _normalHolderArea)) + __classPrivateFieldGet(this, _beginPassCount));
+        __classPrivateFieldSet(this, _possibleCount, Math.ceil(this.getArea(this.context) / __classPrivateFieldGet(this, _normalHolderArea)) + __classPrivateFieldGet(this, _beginPassCount));
         // Ready to initialize the first screen of data
         __classPrivateFieldGet(this, _possibleCount).forEach(index => {
             var _a;
-            if (!isMaxVisibleCount || moreCount) {
-                __classPrivateFieldSet(this, _visibleCount, __classPrivateFieldGet(this, _visibleCount) + 1);
-                specialHolderArea =
-                    this.getArea((_a = __classPrivateFieldGet(this, _specialHolderTypes)) === null || _a === void 0 ? void 0 : _a.firstOfOrNull(special => special.position === index));
-                if (specialHolderArea) {
-                    __classPrivateFieldSet(this, _firstScreenSpecialHolderCount, __classPrivateFieldGet(this, _firstScreenSpecialHolderCount) + 1);
+            specialHolderArea =
+                this.getArea((_a = __classPrivateFieldGet(this, _specialHolderTypes)) === null || _a === void 0 ? void 0 : _a.firstOfOrNull(special => special.position === index));
+            if (specialHolderArea) {
+                if (index <= 1) {
+                    __classPrivateFieldSet(this, _headerSpecialHoldersHeight, __classPrivateFieldGet(this, _headerSpecialHoldersHeight) + specialHolderArea);
                 }
+                __classPrivateFieldSet(this, _firstScreenSpecialHolderCount, __classPrivateFieldGet(this, _firstScreenSpecialHolderCount) + 1);
                 __classPrivateFieldSet(this, _displayedSpecialHoldersArea, __classPrivateFieldGet(this, _displayedSpecialHoldersArea) + specialHolderArea);
-                displayArea += __classPrivateFieldGet(this, _normalHolderArea);
-                temporaryHolder = new (__classPrivateFieldGet(this, _normalHolder))();
-                // If the number of cells on the first page is not realistic enough, then the
-                // created cells will be temporarily hidden and displayed when new data is
-                // updated.
-                if (index >= __classPrivateFieldGet(this, _itemCount)) {
-                    temporaryHolder.setDisplay(DisplayType.None);
-                }
-                __classPrivateFieldGet(this, _viewHolders).push(temporaryHolder);
-                if (isMaxVisibleCount) {
-                    moreCount -= 1;
-                }
-                else if (displayArea >= __classPrivateFieldGet(this, _visibleArea) &&
-                    moreCount === __classPrivateFieldGet(this, _beginPassCount)) {
-                    isMaxVisibleCount = true;
-                }
-                else {
-                    __classPrivateFieldSet(this, _visibleArea, __classPrivateFieldGet(this, _visibleArea) + specialHolderArea);
-                }
             }
+            temporaryHolder = new (__classPrivateFieldGet(this, _normalHolder))();
+            // If the number of cells on the first page is not realistic enough, then the
+            // created cells will be temporarily hidden and displayed when new data is
+            // updated.
+            if (index >= __classPrivateFieldGet(this, _itemCount)) {
+                temporaryHolder.setDisplay(DisplayType.None);
+            }
+            __classPrivateFieldGet(this, _viewHolders).push(temporaryHolder);
         });
-        this.calculateViewPositions(__classPrivateFieldGet(this, _visibleCount), true);
+        this.calculateViewPositions(__classPrivateFieldGet(this, _possibleCount), true);
         this.handleFooterHolder();
     }
     handleMovedItem(position) {
-        __classPrivateFieldSet(this, _viewHolder, __classPrivateFieldGet(this, _viewHolders)[position % __classPrivateFieldGet(this, _visibleCount)]);
+        __classPrivateFieldSet(this, _viewHolder, __classPrivateFieldGet(this, _viewHolders)[position % __classPrivateFieldGet(this, _possibleCount)]);
         __classPrivateFieldGet(this, _viewHolder).setDisplay(DisplayType.None)
             .updateStyle();
         if (this.orientation === Orientation.Vertical) {
@@ -286,17 +312,15 @@ export class RecyclerViewAdapter {
     calculateViewPositions(itemCount, isInitial) {
         __classPrivateFieldSet(this, _viewPosition, []);
         const prepareNormalHolderEvent = (index) => {
-            const targetHolder = __classPrivateFieldGet(this, _viewHolders)[index % __classPrivateFieldGet(this, _visibleCount)];
-            if (isInitial) {
-                if (this.orientation === Orientation.Vertical) {
-                    targetHolder.setTranslate(0, __classPrivateFieldGet(this, _viewPosition)[index]);
-                }
-                else {
-                    targetHolder.setTranslate(__classPrivateFieldGet(this, _viewPosition)[index], 0);
-                }
-                this.onBindViewHolder(targetHolder, -1, index);
-                this.context.addView(targetHolder);
+            const targetHolder = __classPrivateFieldGet(this, _viewHolders)[index % __classPrivateFieldGet(this, _possibleCount)];
+            if (this.orientation === Orientation.Vertical) {
+                targetHolder.setTranslate(0, __classPrivateFieldGet(this, _viewPosition)[index]);
             }
+            else {
+                targetHolder.setTranslate(__classPrivateFieldGet(this, _viewPosition)[index], 0);
+            }
+            this.onBindViewHolder(targetHolder, -1, index);
+            this.context.addView(targetHolder);
         };
         let positionArea;
         let ignorePosition;
@@ -357,7 +381,9 @@ export class RecyclerViewAdapter {
                     markSpecialPositionIfNeed(index);
                 }
             }
-            prepareNormalHolderEvent(index);
+            if (isInitial) {
+                prepareNormalHolderEvent(index);
+            }
         });
     }
     getArea(target) {
@@ -369,4 +395,4 @@ export class RecyclerViewAdapter {
         }
     }
 }
-_visibleArea = new WeakMap(), _itemCount = new WeakMap(), _possibleCount = new WeakMap(), _normalHolderArea = new WeakMap(), _visibleCount = new WeakMap(), _viewHolders = new WeakMap(), _movedCount = new WeakMap(), _invisibleCount = new WeakMap(), _viewPosition = new WeakMap(), _beginPassCount = new WeakMap(), __afterDatasetChanged = new WeakMap(), _viewHolder = new WeakMap(), _holderTypes = new WeakMap(), _normalHolder = new WeakMap(), _specialHolderTypes = new WeakMap(), _contentArea = new WeakMap(), _displayedSpecialHoldersArea = new WeakMap(), _firstScreenSpecialHolderCount = new WeakMap(), _footer = new WeakMap(), _normalHolderDisplayType = new WeakMap(), _position = new WeakMap(), _specialHolders = new WeakMap(), _flipPageCount = new WeakMap(), _fixedOffset = new WeakMap();
+_itemCount = new WeakMap(), _possibleCount = new WeakMap(), _normalHolderArea = new WeakMap(), _viewHolders = new WeakMap(), _movedCount = new WeakMap(), _invisibleCount = new WeakMap(), _viewPosition = new WeakMap(), _beginPassCount = new WeakMap(), __afterDatasetChanged = new WeakMap(), _viewHolder = new WeakMap(), _holderTypes = new WeakMap(), _normalHolder = new WeakMap(), _specialHolderTypes = new WeakMap(), _contentArea = new WeakMap(), _displayedSpecialHoldersArea = new WeakMap(), _firstScreenSpecialHolderCount = new WeakMap(), _footer = new WeakMap(), _normalHolderDisplayType = new WeakMap(), _headerSpecialHoldersHeight = new WeakMap(), _position = new WeakMap(), _specialHolders = new WeakMap(), _flipPageCount = new WeakMap(), _fixedOffset = new WeakMap();

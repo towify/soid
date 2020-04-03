@@ -84,10 +84,12 @@ export class App {
             const length = document.body.children.length;
             for (let index = 0; index < length; index++) {
                 if (children.item(index) === oldFragment.contentView._element) {
+                    oldFragment.listenBrowserEvents(false);
                     yield oldFragment._beforeDestroyed();
                     yield newFragment._beforeAttached();
                     yield newFragment.contentView._prepareLifeCycle();
                     document.body.replaceChild(newFragment.contentView._element, oldFragment.contentView._element);
+                    oldFragment.contentView.remove();
                 }
             }
         });

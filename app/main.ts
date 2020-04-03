@@ -42,8 +42,24 @@ export class Main extends App {
   }
 }
 
+class Test2 extends Fragment {
+  protected async onCreateView(context: ViewGroup): Promise<void> {
+    context.setWidth(500).setHeight(500);
+    context.addView(new TextView().setFullParent().setBackgroundColor(new Color("blue")));
+  }
+}
+
+class Test3 extends Fragment {
+  protected async onCreateView(context: ViewGroup): Promise<void> {
+    context.setWidth(500).setHeight(500);
+    context.addView(new TextView().setFullParent().setBackgroundColor(new Color("red")));
+  }
+}
+
 class Text extends Fragment {
   private layout = new LinearLayout(Orientation.Horizontal);
+  private test2 = new Test2();
+  private test3 = new Test3();
 
   protected async onCreateView(context: ViewGroup): Promise<void> {
     this.layout
@@ -51,6 +67,7 @@ class Text extends Fragment {
       .setBorder("2px solid yellow")
       .setBackgroundColor(Color.black);
     print.register("board1").register("board2").mount(this.layout);
+    this.addFragment(this.test2);
     let rect;
     let textView;
     let image;
@@ -59,7 +76,13 @@ class Text extends Fragment {
         .setWidth(100)
         .setHeight(50 * index)
         .setBackgroundColor(Color.white)
-        .setMargin("10px");
+        .setMargin("10px")
+        .onClick(() => {
+          this.replaceFragment(this.test3, this.test2);
+          setTimeout(() => {
+            this.replaceFragment(this.test2, this.test3);
+          }, 3000);
+        });
       if (index === 1) {
         rect
           .setScale(1.2, 1.2)
@@ -171,16 +194,17 @@ class Text extends Fragment {
     // );
 
     let hasLoadPage = false;
-    let pageCount = 2;
+    let pageCount = 4;
     recyclerView.onReachedEnd(() => {
       if (hasLoadPage || !pageCount) return;
       hasLoadPage = true;
-      recyclerView.adapter.getViewByPosition<MyRecyclerFooterView>(RecyclerViewHolderType.Footer).model = "loading now";
+      const footerView = recyclerView.adapter?.getViewByPosition<MyRecyclerFooterView>(RecyclerViewHolderType.Footer);
+      !footerView || (footerView.model = "loading now");
       setTimeout(async () => {
         pageCount -= 1;
-        recyclerView.adapter.getViewByPosition<MyRecyclerFooterView>(RecyclerViewHolderType.Footer).model = "footer view";
-        recyclerView.adapter.updateData(await this.prepareData());
-        recyclerView.adapter.notifyDataChanged();
+        !footerView || (footerView.model = "footer view");
+        recyclerView.adapter?.updateData(await this.prepareData());
+        recyclerView.adapter?.notifyDataChanged();
         hasLoadPage = false;
       }, 3000);
     });
@@ -248,6 +272,7 @@ class Text extends Fragment {
 
     this.afterResized(event => {
       recyclerView.setHeight(1000).updateStyle();
+      recyclerView.adapter?.updateItemCountIfNeed();
     });
   }
 

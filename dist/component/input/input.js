@@ -58,7 +58,7 @@ export class Input extends RelativeLayout {
             .setImage("resource/image/close_icon.svg")
             .setMode(ImageMode.AspectFit)
             .setCursor(Cursor.Pointer)
-            .onClick(event => {
+            .onClick(_ => {
             this.setValue("");
             __classPrivateFieldSet(this, __hasDisplayedClearButton, false);
             __classPrivateFieldGet(this, _placeHolder).setOpacity(1).updateStyle();
