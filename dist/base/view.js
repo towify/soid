@@ -37,7 +37,6 @@ export class View {
         __clickEvent.set(this, void 0);
         __mouseoverEvent.set(this, void 0);
         __mouseleaveEvent.set(this, void 0);
-        this.hasAttached = false;
         if (this.element) {
             this._element = this.element;
         }
@@ -141,9 +140,7 @@ export class View {
         return __awaiter(this, void 0, void 0, function* () { });
     }
     onAttached() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.hasAttached = true;
-        });
+        return __awaiter(this, void 0, void 0, function* () { });
     }
     onShow(action) {
         this.recoveryEventListenerIfNeed();

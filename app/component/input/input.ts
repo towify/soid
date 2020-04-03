@@ -40,7 +40,7 @@ export class Input extends RelativeLayout implements InputInterface {
       .setImage("resource/image/close_icon.svg")
       .setMode(ImageMode.AspectFit)
       .setCursor(Cursor.Pointer)
-      .onClick(event => {
+      .onClick(_ => {
         this.setValue("");
         this.#_hasDisplayedClearButton = false;
         this.#placeHolder.setOpacity(1).updateStyle();

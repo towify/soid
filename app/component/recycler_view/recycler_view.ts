@@ -28,24 +28,28 @@ export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
   protected constructor() {
     super();
     this.setOverflow("hidden");
-    this.contentView.setFullParent();
     this.onCreate();
   }
 
-  set adapter(adapter: RecyclerViewAdapter) {
+  async onAttached(): Promise<any> {
+    super.onAttached();
+    this.contentView.setFullParent().updateStyle();
+  }
+
+  set adapter(adapter: RecyclerViewAdapter | undefined) {
     this.#adapter = adapter;
-    this.#_orientation = this.#adapter.orientation;
+    this.#_orientation = this.#adapter?.orientation || Orientation.Vertical;
     // After the content was turned, you need to obtain the new content height to
     // update the height value corresponding to the scroll table and scroll area.
-    this.#adapter.afterDatasetChanged(() => {
+    this.#adapter?.afterDatasetChanged(() => {
       this.contentView
         ?.setHeight(this.#adapter?.getContentSize() || 0)
         ?.updateStyle();
     });
   }
 
-  get adapter(): RecyclerViewAdapter {
-    return this.#adapter!;
+  get adapter(): RecyclerViewAdapter | undefined {
+    return this.#adapter;
   }
 
   public scrollToStart() {
@@ -55,7 +59,7 @@ export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
         this.#scrollContent = undefined;
         this.#lastKnownScrollValue = 0;
         this.#isScrollingToPast = false;
-        this.#adapter?.recoveryItemPosition().then();
+        this.#adapter?.recoveryItemPosition();
         this.onCreate();
       },
       easing: (percent) => easingsFunctions.easeInOutQuad(percent)
@@ -88,9 +92,8 @@ export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
     this.contentView.addView(view);
   }
 
-  public async reset() {
-    await this.contentView.clear();
-    return this;
+  getSubviewByElement<T extends View>(element: HTMLDivElement): T {
+    return this.contentView.subviews.find(view => view._element === element) as T;
   }
 
   private onCreate() {
@@ -161,15 +164,22 @@ export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
     return this;
   }
 
+  // Because scrolling may trigger page turning and cause the content height
+  // to rise, Let the height of the scroll bar correspond to the change of the
+  // real-time scroll height of the content in real time
   private didScroll() {
-    // Because scrolling may trigger page turning and cause the content height
-    // to rise, Let the height of the scroll bar correspond to the change of the
-    // real-time scroll height of the content in real time
     if (this.#_orientation === Orientation.Vertical) {
       this.#scrollbar?.track.yAxis.update(this.#lastKnownScrollValue, this.height!, this.#adapter?.getContentSize()!);
     } else {
       this.#scrollbar?.track.xAxis.update(this.#lastKnownScrollValue, this.width!, this.#adapter?.getContentSize()!);
     }
-    this.#adapter?._onVerticalScroll(this.#lastKnownScrollValue, this.#isScrollingToPast === undefined ? false : this.#isScrollingToPast);
+    this.#adapter?.onScroll(this.#lastKnownScrollValue, this.#isScrollingToPast === undefined ? false : this.#isScrollingToPast);
+  }
+
+  onDetached() {
+    super.onDetached();
+    this.contentView.clear();
+    this.adapter?.reset();
+    this.adapter = undefined;
   }
 }

@@ -7,7 +7,7 @@ import { RecyclerViewAdapter } from "./recycler_view_adapter";
 import { RecyclerViewHolder } from "./recycler_view_holder";
 
 export interface IRecyclerView {
-  adapter: RecyclerViewAdapter
+  adapter: RecyclerViewAdapter | undefined
 
   scrollToStart(): void
 
@@ -19,7 +19,7 @@ export interface IRecyclerView {
 }
 
 export interface IRecyclerViewAdapter {
-  recoveryItemPosition(): Promise<void>
+  recoveryItemPosition(): this
 
   getContentSize(): number
 
@@ -35,5 +35,5 @@ export interface IRecyclerViewAdapter {
     dataIndex?: number
   ): void
 
-  getViewByPosition<T extends RecyclerViewHolder>(position: number): T
+  getViewByPosition<T extends RecyclerViewHolder>(position: number): T | undefined
 }

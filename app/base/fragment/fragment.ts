@@ -8,7 +8,7 @@ import { BrowserService, BrowserServiceType } from "../../service/browser_servic
 import { IFragment } from "./fragment_interface";
 
 export abstract class Fragment implements IFragment {
-  readonly childFragments: Fragment[] = [];
+  public childFragments: Fragment[] = [];
   readonly contentView = new ViewGroup();
   readonly #visibilityEvent: (status: boolean) => void;
   readonly #resizeEvent: (event: UIEvent) => void;
@@ -34,7 +34,9 @@ export abstract class Fragment implements IFragment {
 
   protected async onDestroy() {}
 
-  protected async onDetached() {}
+  protected async onDetached() {
+    this.contentView.clear();
+  }
 
   constructor() {
     this.contentView.setFullParent();
@@ -79,10 +81,13 @@ export abstract class Fragment implements IFragment {
     const length = children.length;
     for (let index = 0; index < length; index++) {
       if (children.item(index) === oldFragment.contentView._element) {
+        oldFragment.listenBrowserEvents(false);
         await oldFragment._beforeDestroyed();
         await newFragment._beforeAttached();
         await newFragment.contentView._prepareLifeCycle();
         this.contentView._element.replaceChild(newFragment.contentView._element, oldFragment.contentView._element);
+        oldFragment.contentView.remove();
+        break;
       }
     }
   }
@@ -118,10 +123,10 @@ export abstract class Fragment implements IFragment {
 
   public async _beforeDestroyed() {
     await this.onDestroy();
-    this.childFragments.forEach(child => {
+    await this.childFragments.forEach(child => {
       child._beforeDestroyed();
     });
-    this.childFragments.slice(0, this.childFragments.length);
+    this.childFragments = [];
     await this.onDetached();
   }
 }

@@ -7,14 +7,16 @@ export declare abstract class RecyclerView extends ViewGroup implements IRecycle
     #private;
     readonly contentView: RelativeLayout;
     protected constructor();
-    set adapter(adapter: RecyclerViewAdapter);
-    get adapter(): RecyclerViewAdapter;
+    onAttached(): Promise<any>;
+    set adapter(adapter: RecyclerViewAdapter | undefined);
+    get adapter(): RecyclerViewAdapter | undefined;
     scrollToStart(): void;
     setHeight(value: number): this;
     setWidth(value: number): this;
     addView(view: View): void;
-    reset(): Promise<this>;
+    getSubviewByElement<T extends View>(element: HTMLDivElement): T;
     private onCreate;
     onReachedEnd(action: () => void): this;
     private didScroll;
+    onDetached(): void;
 }

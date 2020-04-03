@@ -9,7 +9,7 @@ import { DisplayType, StyleTag } from "../value/style/style";
 import { SequenceTaskManager } from "../manager/sequence_task_manager";
 
 export class ViewGroup extends View {
-  readonly subviews: View[] = [];
+  public subviews: View[] = [];
   #sequenceManager = new SequenceTaskManager();
 
   constructor(element?: HTMLDivElement) {
@@ -44,8 +44,8 @@ export class ViewGroup extends View {
     return this;
   }
 
-  public getSubviewByElement(element: HTMLDivElement) {
-    return this.subviews.find(view => view._element === element);
+  public getSubviewByElement<T extends View>(element: HTMLDivElement) {
+    return this.subviews.find(view => view._element === element) as T;
   }
 
   public addDomFragment(domFragment: DomFragment) {
@@ -56,19 +56,29 @@ export class ViewGroup extends View {
   }
 
   public insertBefore(newView: View, oldView: View) {
-    this._element.insertBefore(newView._element, oldView._element);
+    newView.beforeAttached().then(() => {
+      newView._prepareLifeCycle().then(() => {
+        this._element.insertBefore(newView._element, oldView._element);
+      });
+    });
   }
 
   public replaceView(newView: View, oldView: View) {
-    this._element.replaceChild(newView._element, oldView._element);
+    oldView.onDetached();
+    newView.beforeAttached().then(() => {
+      newView._prepareLifeCycle().then(() => {
+        this._element.replaceChild(newView._element, oldView._element);
+      });
+    });
   }
 
-  public clear(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      this.subviews.forEach(child => {
-        child.remove();
-      });
-      resolve();
+  public clear(): void {
+    this.subviews.forEach(child => {
+      if (child instanceof ViewGroup) {
+        child.clear();
+      }
+      child.remove();
     });
+    this.subviews = [];
   }
 }

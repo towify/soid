@@ -9,15 +9,17 @@ export declare abstract class RecyclerViewAdapter implements IRecyclerViewAdapte
     readonly orientation: Orientation;
     protected data: any[];
     constructor(context: RecyclerView, initialData: any[], orientation?: Orientation);
-    getViewByPosition<T extends RecyclerViewHolder>(position: number): T;
-    recoveryItemPosition(): Promise<void>;
+    reset(): void;
+    getViewByPosition<T extends RecyclerViewHolder>(position: number): T | undefined;
+    recoveryItemPosition(): this;
     getContentSize(): number;
     afterDatasetChanged(action: () => void): this;
     notifyDataChanged(): void;
+    updateItemCountIfNeed(): void;
     updateData(newData: any[]): this;
     abstract getViewHoldersTypeWithPositions(): RecyclerViewHolderModel[];
     abstract onBindViewHolder(viewHolder: RecyclerViewHolder, type: number, dataIndex?: number): void;
-    _onVerticalScroll(offset: number, isScrollingToTop: boolean): void;
+    onScroll(offset: number, isScrollingToPast: boolean): void;
     /**
      * @description
      * `moreCount`  is used to mark whether an element that needs additional

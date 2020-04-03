@@ -78,7 +78,9 @@ export class Fragment {
         return __awaiter(this, void 0, void 0, function* () { });
     }
     onDetached() {
-        return __awaiter(this, void 0, void 0, function* () { });
+        return __awaiter(this, void 0, void 0, function* () {
+            this.contentView.clear();
+        });
     }
     onResize(hold) {
         __classPrivateFieldSet(this, _onResizeEvent, hold);
@@ -102,10 +104,13 @@ export class Fragment {
             const length = children.length;
             for (let index = 0; index < length; index++) {
                 if (children.item(index) === oldFragment.contentView._element) {
+                    oldFragment.listenBrowserEvents(false);
                     yield oldFragment._beforeDestroyed();
                     yield newFragment._beforeAttached();
                     yield newFragment.contentView._prepareLifeCycle();
                     this.contentView._element.replaceChild(newFragment.contentView._element, oldFragment.contentView._element);
+                    oldFragment.contentView.remove();
+                    break;
                 }
             }
         });
@@ -144,10 +149,10 @@ export class Fragment {
     _beforeDestroyed() {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.onDestroy();
-            this.childFragments.forEach(child => {
+            yield this.childFragments.forEach(child => {
                 child._beforeDestroyed();
             });
-            this.childFragments.slice(0, this.childFragments.length);
+            this.childFragments = [];
             yield this.onDetached();
         });
     }

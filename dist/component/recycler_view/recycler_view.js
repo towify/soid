@@ -45,15 +45,24 @@ export class RecyclerView extends ViewGroup {
         __orientation.set(this, Orientation.Vertical);
         __onReachedEnd.set(this, void 0);
         this.setOverflow("hidden");
-        this.contentView.setFullParent();
         this.onCreate();
     }
+    onAttached() {
+        const _super = Object.create(null, {
+            onAttached: { get: () => super.onAttached }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.onAttached.call(this);
+            this.contentView.setFullParent().updateStyle();
+        });
+    }
     set adapter(adapter) {
+        var _a, _b;
         __classPrivateFieldSet(this, _adapter, adapter);
-        __classPrivateFieldSet(this, __orientation, __classPrivateFieldGet(this, _adapter).orientation);
+        __classPrivateFieldSet(this, __orientation, ((_a = __classPrivateFieldGet(this, _adapter)) === null || _a === void 0 ? void 0 : _a.orientation) || Orientation.Vertical);
         // After the content was turned, you need to obtain the new content height to
         // update the height value corresponding to the scroll table and scroll area.
-        __classPrivateFieldGet(this, _adapter).afterDatasetChanged(() => {
+        (_b = __classPrivateFieldGet(this, _adapter)) === null || _b === void 0 ? void 0 : _b.afterDatasetChanged(() => {
             var _a, _b, _c;
             (_c = (_a = this.contentView) === null || _a === void 0 ? void 0 : _a.setHeight(((_b = __classPrivateFieldGet(this, _adapter)) === null || _b === void 0 ? void 0 : _b.getContentSize()) || 0)) === null || _c === void 0 ? void 0 : _c.updateStyle();
         });
@@ -70,7 +79,7 @@ export class RecyclerView extends ViewGroup {
                 __classPrivateFieldSet(this, _scrollContent, undefined);
                 __classPrivateFieldSet(this, _lastKnownScrollValue, 0);
                 __classPrivateFieldSet(this, _isScrollingToPast, false);
-                (_a = __classPrivateFieldGet(this, _adapter)) === null || _a === void 0 ? void 0 : _a.recoveryItemPosition().then();
+                (_a = __classPrivateFieldGet(this, _adapter)) === null || _a === void 0 ? void 0 : _a.recoveryItemPosition();
                 this.onCreate();
             },
             easing: (percent) => easingsFunctions.easeInOutQuad(percent)
@@ -101,11 +110,8 @@ export class RecyclerView extends ViewGroup {
     addView(view) {
         this.contentView.addView(view);
     }
-    reset() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.contentView.clear();
-            return this;
-        });
+    getSubviewByElement(element) {
+        return this.contentView.subviews.find(view => view._element === element);
     }
     onCreate() {
         // Control Scroll Speed For Recycler View
@@ -172,19 +178,25 @@ export class RecyclerView extends ViewGroup {
         }, 500));
         return this;
     }
+    // Because scrolling may trigger page turning and cause the content height
+    // to rise, Let the height of the scroll bar correspond to the change of the
+    // real-time scroll height of the content in real time
     didScroll() {
-        var _a, _b, _c, _d, _e, _f;
-        // Because scrolling may trigger page turning and cause the content height
-        // to rise, Let the height of the scroll bar correspond to the change of the
-        // real-time scroll height of the content in real time
-        console.log(this.height, (_a = __classPrivateFieldGet(this, _adapter)) === null || _a === void 0 ? void 0 : _a.getContentSize(), "___");
+        var _a, _b, _c, _d, _e;
         if (__classPrivateFieldGet(this, __orientation) === Orientation.Vertical) {
-            (_b = __classPrivateFieldGet(this, _scrollbar)) === null || _b === void 0 ? void 0 : _b.track.yAxis.update(__classPrivateFieldGet(this, _lastKnownScrollValue), this.height, (_c = __classPrivateFieldGet(this, _adapter)) === null || _c === void 0 ? void 0 : _c.getContentSize());
+            (_a = __classPrivateFieldGet(this, _scrollbar)) === null || _a === void 0 ? void 0 : _a.track.yAxis.update(__classPrivateFieldGet(this, _lastKnownScrollValue), this.height, (_b = __classPrivateFieldGet(this, _adapter)) === null || _b === void 0 ? void 0 : _b.getContentSize());
         }
         else {
-            (_d = __classPrivateFieldGet(this, _scrollbar)) === null || _d === void 0 ? void 0 : _d.track.xAxis.update(__classPrivateFieldGet(this, _lastKnownScrollValue), this.width, (_e = __classPrivateFieldGet(this, _adapter)) === null || _e === void 0 ? void 0 : _e.getContentSize());
+            (_c = __classPrivateFieldGet(this, _scrollbar)) === null || _c === void 0 ? void 0 : _c.track.xAxis.update(__classPrivateFieldGet(this, _lastKnownScrollValue), this.width, (_d = __classPrivateFieldGet(this, _adapter)) === null || _d === void 0 ? void 0 : _d.getContentSize());
         }
-        (_f = __classPrivateFieldGet(this, _adapter)) === null || _f === void 0 ? void 0 : _f._onVerticalScroll(__classPrivateFieldGet(this, _lastKnownScrollValue), __classPrivateFieldGet(this, _isScrollingToPast) === undefined ? false : __classPrivateFieldGet(this, _isScrollingToPast));
+        (_e = __classPrivateFieldGet(this, _adapter)) === null || _e === void 0 ? void 0 : _e.onScroll(__classPrivateFieldGet(this, _lastKnownScrollValue), __classPrivateFieldGet(this, _isScrollingToPast) === undefined ? false : __classPrivateFieldGet(this, _isScrollingToPast));
+    }
+    onDetached() {
+        var _a;
+        super.onDetached();
+        this.contentView.clear();
+        (_a = this.adapter) === null || _a === void 0 ? void 0 : _a.reset();
+        this.adapter = undefined;
     }
 }
 _lastKnownScrollValue = new WeakMap(), _adapter = new WeakMap(), _isScrollingToPast = new WeakMap(), _scrollbar = new WeakMap(), _scrollContent = new WeakMap(), _lastHeight = new WeakMap(), _lastWidth = new WeakMap(), __orientation = new WeakMap(), __onReachedEnd = new WeakMap();

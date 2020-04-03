@@ -19,14 +19,13 @@ export abstract class View {
   protected style = new Style();
   protected isDisplayNone?: boolean;
   readonly _element: HTMLDivElement;
+  protected initialDisplayType?: DisplayType;
   #_isEnable = true;
   #_isClickable = true;
   #_isFocusable = true;
   #_clickEvent?: (event: MouseEvent) => void;
   #_mouseoverEvent?: (event: MouseEvent) => void;
   #_mouseleaveEvent?: (event: MouseEvent) => void;
-  protected initialDisplayType?: DisplayType;
-  protected hasAttached = false;
 
   protected constructor(private element?: HTMLDivElement) {
     if (this.element) {
@@ -143,9 +142,7 @@ export abstract class View {
   // Life Cycle
   public async beforeAttached() {}
 
-  public async onAttached() {
-    this.hasAttached = true;
-  }
+  public async onAttached() {}
 
   public onShow(action?: () => void) {
     this.recoveryEventListenerIfNeed();

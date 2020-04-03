@@ -8,7 +8,6 @@ export declare abstract class View {
     protected isDisplayNone?: boolean;
     readonly _element: HTMLDivElement;
     protected initialDisplayType?: DisplayType;
-    protected hasAttached: boolean;
     protected constructor(element?: HTMLDivElement | undefined);
     setAttribute(qualifiedName: string, value: string): this;
     get cssText(): string;
