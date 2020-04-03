@@ -4,7 +4,7 @@
  */
 
 enum Platform {
-  WEB, Mobile, Mini_Program,
+  Web, Mobile, MiniProgram,
 }
 
 enum ListenerType {
