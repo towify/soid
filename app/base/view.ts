@@ -39,7 +39,21 @@ export abstract class View {
       .addRule(StyleTag.BoxSizing, "border-box");
   }
 
+  public addStyleRule(tag: StyleTag, value: string) {
+    this.style.addRule(tag, value);
+    return this;
+  }
+
   // Property Methods
+  public setID(id: string) {
+    this._element.id = id;
+    return this;
+  }
+
+  public get id(): string | undefined {
+    return this._element.id;
+  }
+
   public setAttribute(qualifiedName: string, value: string) {
     this._element.setAttribute(qualifiedName, value);
     return this;
@@ -530,23 +544,39 @@ export abstract class View {
 
   // Interface Getting Methods
   public get width(): number | undefined {
-    return <number | undefined>this.style.values.width;
+    return this.style.values.width;
   }
 
   public get height(): number | undefined {
-    return <number | undefined>this.style.values.height;
+    return this.style.values.height;
+  }
+
+  public get left(): number | undefined {
+    return this.style.values.left;
+  }
+
+  public get right(): number | undefined {
+    return this.style.values.right;
+  }
+
+  public get top(): number | undefined {
+    return this.style.values.top;
+  }
+
+  public get bottom(): number | undefined {
+    return this.style.values.bottom;
   }
 
   public get paddingLeft(): number | undefined {
-    return <number | undefined>this.style.values.paddingLeft;
+    return this.style.values.paddingLeft;
   }
 
   public get paddingRight(): number | undefined {
-    return <number | undefined>this.style.values.paddingRight;
+    return this.style.values.paddingRight;
   }
 
   public get hasHorizontalPadding(): boolean {
-    return <boolean>this.style.values.hasHorizontalPadding;
+    return this.style.values.hasHorizontalPadding;
   }
 
   public get displayType(): DisplayType | undefined {

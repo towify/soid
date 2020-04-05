@@ -21,7 +21,7 @@ export declare class Input extends RelativeLayout implements InputInterface {
     setTextType(type: TextType): this;
     setPlaceholder(value: string): this;
     setPlaceholderColor(color: Color): this;
-    resetClearButton(hold: (button: ImageView) => void): this;
+    getClearButton(hold: (button: ImageView) => void): this;
     onDetached(): void;
     _prepareLifeCycle(): Promise<void>;
     private showClearButton;

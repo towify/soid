@@ -48,7 +48,15 @@ export class View {
             .addRule(StyleTag.Outline, "none")
             .addRule(StyleTag.BoxSizing, "border-box");
     }
+    addStyleRule(tag, value) {
+        this.style.addRule(tag, value);
+        return this;
+    }
     // Property Methods
+    setID(id) {
+        this._element.id = id;
+        return this;
+    }
     setAttribute(qualifiedName, value) {
         this._element.setAttribute(qualifiedName, value);
         return this;
@@ -464,6 +472,18 @@ export class View {
     }
     get height() {
         return this.style.values.height;
+    }
+    get left() {
+        return this.style.values.left;
+    }
+    get right() {
+        return this.style.values.right;
+    }
+    get top() {
+        return this.style.values.top;
+    }
+    get bottom() {
+        return this.style.values.bottom;
     }
     get paddingLeft() {
         return this.style.values.paddingLeft;

@@ -28,6 +28,7 @@ import {
 import { Swiper } from "./component/swiper/swiper";
 import { SegmentContainer, TabsType } from "./component/segment/segment_container";
 import { SegmentMenu } from "./component/segment/segment_menu";
+import { FolderItem, FolderView } from "./component/folder/folder_view";
 
 const cellWidth = 200;
 
@@ -152,7 +153,7 @@ class Text extends Fragment {
       .setPlaceholderColor(new Color("gray"))
       .setWidth(150)
       .setHeight(30)
-      .resetClearButton(button => {
+      .getClearButton(button => {
       })
       .setType(InputType.Password)
       .onFocus(() => {
@@ -261,6 +262,33 @@ class Text extends Fragment {
           });
       }));
 
+    const foldView = new FolderView()
+      .setWidth(200)
+      .setHeight(300)
+      .setBackgroundColor(new Color("olive"))
+      .addItem(new FolderItem()
+        .setID(`${new Date().getTime()}`)
+        .setPercentWidth(100)
+        .setModel({
+          iconPath: "./resource/image/image_icon.svg",
+          title: "Login Page",
+          isParent: true
+        }));
+    const item = () => {
+      return new FolderItem()
+        .setID(`${new Date().getTime()}`)
+        .setPercentWidth(100)
+        .setModel({
+          iconPath: "./resource/image/image_icon.svg",
+          title: "Login Page",
+          isParent: true
+        });
+    };
+    foldView.onClick(event => {
+      const parent = event.target as HTMLDivElement;
+      foldView.addItem(item(), parent.id);
+    });
+
     this.layout.addView(relativeLayout);
     this.layout.addView(gridLayout);
     this.layout.addView(recyclerView);
@@ -268,9 +296,10 @@ class Text extends Fragment {
     this.layout.addView(swiper);
     this.layout.addView(segment);
     this.layout.addView(segmentMenu);
+    this.layout.addView(foldView);
     context.addView(this.layout);
 
-    this.afterResized(event => {
+    this.afterResized(_ => {
       recyclerView.setHeight(1000).updateStyle();
       recyclerView.adapter?.updateItemCountIfNeed();
     });

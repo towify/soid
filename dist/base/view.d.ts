@@ -1,5 +1,5 @@
 import { Platform } from "../value/type";
-import { Cursor, DisplayType, JustifyContent, Style, ViewPosition, WillChangeType } from "../value/style/style";
+import { Cursor, DisplayType, JustifyContent, Style, StyleTag, ViewPosition, WillChangeType } from "../value/style/style";
 import { Color } from "../value/color";
 export declare abstract class View {
     #private;
@@ -9,6 +9,9 @@ export declare abstract class View {
     readonly _element: HTMLDivElement;
     protected initialDisplayType?: DisplayType;
     protected constructor(element?: HTMLDivElement | undefined);
+    addStyleRule(tag: StyleTag, value: string): this;
+    setID(id: string): this;
+    get id(): string | undefined;
     setAttribute(qualifiedName: string, value: string): this;
     get cssText(): string;
     get isClickable(): boolean;
@@ -99,6 +102,10 @@ export declare abstract class View {
     setAlignItem(value: JustifyContent): this;
     get width(): number | undefined;
     get height(): number | undefined;
+    get left(): number | undefined;
+    get right(): number | undefined;
+    get top(): number | undefined;
+    get bottom(): number | undefined;
     get paddingLeft(): number | undefined;
     get paddingRight(): number | undefined;
     get hasHorizontalPadding(): boolean;

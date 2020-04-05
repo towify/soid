@@ -195,7 +195,7 @@ export class Input extends RelativeLayout implements InputInterface {
     return this;
   }
 
-  public resetClearButton(hold: (button: ImageView) => void) {
+  public getClearButton(hold: (button: ImageView) => void) {
     hold(this.#clearButton);
     return this;
   }

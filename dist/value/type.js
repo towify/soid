@@ -4,9 +4,9 @@
  */
 var Platform;
 (function (Platform) {
-    Platform[Platform["WEB"] = 0] = "WEB";
+    Platform[Platform["Web"] = 0] = "Web";
     Platform[Platform["Mobile"] = 1] = "Mobile";
-    Platform[Platform["Mini_Program"] = 2] = "Mini_Program";
+    Platform[Platform["MiniProgram"] = 2] = "MiniProgram";
 })(Platform || (Platform = {}));
 var ListenerType;
 (function (ListenerType) {
