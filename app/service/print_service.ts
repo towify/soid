@@ -14,7 +14,7 @@ class PrintService extends LinearLayout {
   #dashboards: { [key: string]: TextView }[] = [];
   #hasDisplayed = false;
 
-  constructor() {
+  private constructor() {
     super();
     this
       .setPosition(ViewPosition.Fixed)

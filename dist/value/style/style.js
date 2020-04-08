@@ -17,12 +17,12 @@ export class Style {
         }
         return result;
     }
-    addRule(tag, value) {
+    addRule(tag, value, record = true) {
         if (value.indexOf(";") > 0) {
             throw new Error("value contains invalid \";\" symbol");
         }
         this.style[tag] = value;
-        this.recordValue(tag);
+        !record || this.recordValue(tag);
         return this;
     }
     setStyle(view) {
@@ -197,6 +197,7 @@ var StyleTag;
     StyleTag["GridColumn"] = "grid-column";
     StyleTag["ColumnGap"] = "column-gap";
     StyleTag["RowGap"] = "row-gap";
+    StyleTag["GridAutoRows"] = "grid-auto-rows";
     StyleTag["Cursor"] = "cursor";
     StyleTag["Mask"] = "mask";
     StyleTag["WebkitMaskImage"] = "-webkit-mask-image";

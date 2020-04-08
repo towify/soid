@@ -3,7 +3,7 @@ import { ViewGroup } from "../base/view_group";
 declare class PrintService extends LinearLayout {
     #private;
     static _instance: PrintService;
-    constructor();
+    private constructor();
     static getInstance(): PrintService;
     register(key: string): this;
     mount<V extends ViewGroup>(parent: V): void;

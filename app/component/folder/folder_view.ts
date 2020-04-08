@@ -3,10 +3,9 @@
  * @date 2020/4/5 01:14
  */
 
-import { LinearLayout } from "../linear_layout";
 import { ViewGroup } from "../../base/view_group";
 import { ImageMode, ImageView } from "../image_view";
-import { TextView } from "../text_view";
+import { TextOverflow, TextView } from "../text_view";
 import { Cursor, DisplayType, JustifyContent, StyleTag } from "../../value/style/style";
 import { Color } from "../../value/color";
 import { View } from "../../base/view";
@@ -16,6 +15,10 @@ export class FolderView extends ViewGroup {
 
   constructor() {
     super();
+    this
+      .setDisplay(DisplayType.Grid)
+      .setPercentWidth(100)
+      .addStyleRule(StyleTag.RowGap, "10px");
   }
 
   addItem(item: FolderItem, parentID?: string) {
@@ -52,7 +55,7 @@ export class FolderItem extends ViewGroup {
   #arrow = new ImageView();
   #icon = new ImageView();
   #title = new TextView();
-  #container = new LinearLayout();
+  #container = new ViewGroup();
   #subItems: FolderItem[] = [];
   #_isFolded = true;
 
@@ -76,25 +79,35 @@ export class FolderItem extends ViewGroup {
 
     this.#title
       .addStyleRule(StyleTag.GridArea, "title")
+      .setTextOverflow(TextOverflow.Ellipsis)
       .setPointerEvent("none")
       .setLeftPadding(5)
       .setFullParent()
-      .setTextSize(12)
+      .setTextSize(10)
       .setTextColor(Color.white);
 
     this.#arrow
-      .setRotate(-90).updateStyle()
       .addStyleRule(StyleTag.GridArea, "arrow")
-      .setPointerEvent("none")
-      .setImage("./resource/image/drop_arrow_icon.svg")
-      .setMode(ImageMode.AspectFit)
-      .setWidth(18)
-      .setHeight(18)
-      .setDisplay(DisplayType.None);
+      .setWidth(0)
+      .setHeight(0)
+      .setRightBorder("3px solid transparent")
+      .setLeftBorder("4px solid transparent")
+      .setTopBorder("5px solid #fff")
+      .updateStyle()
+      .setDisplay(DisplayType.None)
+      .onClick(_ => {
+        this.fold(this.#_isFolded);
+        this.#_isFolded = !this.#_isFolded;
+      });
+
+    this.dropArrowStyle(true);
 
     this.#container
+      .setDisplay(DisplayType.Grid)
+      .addStyleRule(StyleTag.RowGap, "10px")
       .setFullParent()
       .setLeftPadding(20)
+      .setTopPadding(10)
       .setDisplay(DisplayType.None)
       .addStyleRule(StyleTag.GridArea, "container");
   }
@@ -105,22 +118,24 @@ export class FolderItem extends ViewGroup {
 
   setModel(model: FolderItemModel) {
     this.#icon?.setImage(model.iconPath);
-    this.#title?.setText(model.title);
+    this.#title?.setText(model.name);
     this.#arrow.setDisplay(model.isParent ? DisplayType.Block : DisplayType.None);
+    if (model.isParent) {
+      this.#container.setDisplay(DisplayType.Grid);
+    }
     return this;
   }
 
   fold(status: boolean) {
-    this.#_isFolded = status;
     if (status) {
-      if (this.#container.displayType !== DisplayType.None) {
-        this.#arrow.setRotate(-90).updateStyle();
+      if (!this.#container.isDisplayNone) {
+        this.dropArrowStyle(false);
         this.#container.setDisplay(DisplayType.None).updateStyle();
         this.#subItems.forEach(item => item.fold(true));
       }
     } else {
-      if (this.#container.displayType !== DisplayType.Grid) {
-        this.#arrow.setRotate(0).updateStyle();
+      if (this.#container.isDisplayNone) {
+        this.dropArrowStyle(true);
         this.#container.setDisplay(DisplayType.Grid).updateStyle();
       }
     }
@@ -150,10 +165,22 @@ export class FolderItem extends ViewGroup {
     super.addView(this.#title);
     super.addView(this.#container);
   }
+
+  private dropArrowStyle(isDropStyle: boolean) {
+    if (isDropStyle) {
+      this.#arrow
+        .setRotate(0)
+        .updateStyle()
+    } else {
+      this.#arrow
+        .setRotate(-90)
+        .updateStyle();
+    }
+  }
 }
 
 export type FolderItemModel = {
   iconPath: string,
-  title: string,
+  name: string,
   isParent?: boolean
 }

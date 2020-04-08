@@ -57,6 +57,9 @@ export class View {
         this._element.id = id;
         return this;
     }
+    get id() {
+        return this._element.id;
+    }
     setAttribute(qualifiedName, value) {
         this._element.setAttribute(qualifiedName, value);
         return this;
@@ -221,11 +224,11 @@ export class View {
         return this;
     }
     setPercentWidth(value) {
-        this.style.addRule(StyleTag.Width, `${value}%`);
+        this.style.addRule(StyleTag.Width, `${value}%`, false);
         return this;
     }
     setPercentHeight(value) {
-        this.style.addRule(StyleTag.Height, `${value}%`);
+        this.style.addRule(StyleTag.Height, `${value}%`, false);
         return this;
     }
     setMinWidth(minWidth) {

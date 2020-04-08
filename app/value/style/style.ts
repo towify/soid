@@ -24,12 +24,12 @@ export class Style implements StyleInterface {
     return result;
   }
 
-  addRule(tag: StyleTag, value: string) {
+  addRule(tag: StyleTag, value: string, record: boolean = true) {
     if (value.indexOf(";") > 0) {
       throw new Error("value contains invalid \";\" symbol");
     }
     this.style[tag] = value;
-    this.recordValue(tag);
+    !record || this.recordValue(tag);
     return this;
   }
 
@@ -200,6 +200,7 @@ enum StyleTag {
   GridColumn = "grid-column",
   ColumnGap = "column-gap",
   RowGap = "row-gap",
+  GridAutoRows = "grid-auto-rows",
   Cursor = "cursor",
   Mask = "mask",
   WebkitMaskImage = "-webkit-mask-image",

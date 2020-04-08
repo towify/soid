@@ -172,11 +172,14 @@ class Text extends Fragment {
       .setBackgroundColor(Color.white)
       .setOptionHeight(30)
       .setHorizontalPadding(10)
+      .setGapBetweenSelectionAndOption(10)
       .setOptionSelectedBackgroundColor(new Color("olive"))
-      .setData(["Jack Bos", "Hello Kitty", "Amazing Kiss"], 2)
-      .onClickOption(value => {
-        console.log(value, "value");
+      .setRadius(5)
+      .onClickOption(item => {
+        console.log(item, 'item');
       });
+
+    selection.setData(["Jack Bos", "Hello Kitty", "Amazing Kiss"], 2).then();
     gridLayout.addView(button, 0, 1);
     gridLayout.addView(input, 1, 1);
     gridLayout.addView(selection, 1, 1);
@@ -264,30 +267,15 @@ class Text extends Fragment {
 
     const foldView = new FolderView()
       .setWidth(200)
-      .setHeight(300)
       .setBackgroundColor(new Color("olive"))
       .addItem(new FolderItem()
         .setID(`${new Date().getTime()}`)
         .setPercentWidth(100)
         .setModel({
           iconPath: "./resource/image/image_icon.svg",
-          title: "Login Page",
+          name: "Login Page",
           isParent: true
         }));
-    const item = () => {
-      return new FolderItem()
-        .setID(`${new Date().getTime()}`)
-        .setPercentWidth(100)
-        .setModel({
-          iconPath: "./resource/image/image_icon.svg",
-          title: "Login Page",
-          isParent: true
-        });
-    };
-    foldView.onClick(event => {
-      const parent = event.target as HTMLDivElement;
-      foldView.addItem(item(), parent.id);
-    });
 
     this.layout.addView(relativeLayout);
     this.layout.addView(gridLayout);

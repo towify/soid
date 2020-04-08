@@ -12,7 +12,7 @@ export declare class Style implements StyleInterface {
     cssText: string | undefined;
     constructor();
     getValue(tag: StyleTag, isNumber?: boolean): string | number | undefined;
-    addRule(tag: StyleTag, value: string): this;
+    addRule(tag: StyleTag, value: string, record?: boolean): this;
     setStyle(view: View | HTMLElement): this;
     generateCssText(): string;
     /**
@@ -94,6 +94,7 @@ declare enum StyleTag {
     GridColumn = "grid-column",
     ColumnGap = "column-gap",
     RowGap = "row-gap",
+    GridAutoRows = "grid-auto-rows",
     Cursor = "cursor",
     Mask = "mask",
     WebkitMaskImage = "-webkit-mask-image",

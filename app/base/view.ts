@@ -17,7 +17,7 @@ import { Color } from "../value/color";
 
 export abstract class View {
   protected style = new Style();
-  protected isDisplayNone?: boolean;
+  public isDisplayNone?: boolean;
   readonly _element: HTMLDivElement;
   protected initialDisplayType?: DisplayType;
   #_isEnable = true;
@@ -239,12 +239,12 @@ export abstract class View {
   }
 
   public setPercentWidth(value: number): this {
-    this.style.addRule(StyleTag.Width, `${value}%`);
+    this.style.addRule(StyleTag.Width, `${value}%`, false);
     return this;
   }
 
   public setPercentHeight(value: number): this {
-    this.style.addRule(StyleTag.Height, `${value}%`);
+    this.style.addRule(StyleTag.Height, `${value}%`, false);
     return this;
   }
 

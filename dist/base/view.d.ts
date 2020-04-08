@@ -5,7 +5,7 @@ export declare abstract class View {
     #private;
     private element?;
     protected style: Style;
-    protected isDisplayNone?: boolean;
+    isDisplayNone?: boolean;
     readonly _element: HTMLDivElement;
     protected initialDisplayType?: DisplayType;
     protected constructor(element?: HTMLDivElement | undefined);

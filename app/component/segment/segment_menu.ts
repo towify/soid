@@ -4,12 +4,13 @@
  */
 
 import { LinearLayout } from "../linear_layout";
-import { JustifyContent, Orientation } from "../../value/style/style";
+import { Cursor, JustifyContent, Orientation } from "../../value/style/style";
 import { TabsType } from "./segment_container";
 import { View } from "../../base/view";
 
 export class SegmentMenu<Item extends View> extends LinearLayout {
   #tabType?: { new(): Item };
+  #previousSelected?: Item;
 
   constructor(public readonly type: TabsType) {
     super();
@@ -35,18 +36,22 @@ export class SegmentMenu<Item extends View> extends LinearLayout {
     }
   }
 
-  setItemType(tab: { new(): Item }) {
+  public setItemType(tab: { new(): Item }) {
     this.#tabType = tab;
     return this;
   }
 
-  setData<T>(
+  public setData<T>(
     models: T[],
     onBind: (item: Item, position: number) => void
   ) {
     let item: Item;
     models.forEach((model, index) => {
-      item = new this.#tabType!();
+      item = new this.#tabType!()
+        .setCursor(Cursor.Pointer);
+      if (!index) {
+        this.#previousSelected = item;
+      }
       switch (this.type) {
         case TabsType.TopScrollable:
         case TabsType.TopFixed: {
@@ -60,6 +65,17 @@ export class SegmentMenu<Item extends View> extends LinearLayout {
       }
       onBind(item, index);
       this.addView(item);
+    });
+    return this;
+  }
+
+  public onSelected(hold: (previous: Item, current: Item) => void) {
+    this.onClick(event => {
+      const targetView = this.getSubviewByElement<Item>(event.target as HTMLDivElement);
+      if (targetView !== this.#previousSelected) {
+        hold(this.#previousSelected!, targetView);
+        this.#previousSelected = targetView;
+      }
     });
     return this;
   }

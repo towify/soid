@@ -14,9 +14,10 @@ export declare class FolderItem extends ViewGroup {
     getItemByID(id: string, hold: (item: FolderItem) => void): void;
     addView(view: View): void;
     beforeAttached(): Promise<any>;
+    private dropArrowStyle;
 }
 export declare type FolderItemModel = {
     iconPath: string;
-    title: string;
+    name: string;
     isParent?: boolean;
 };

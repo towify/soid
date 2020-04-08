@@ -201,7 +201,7 @@ export class Input extends RelativeLayout {
         __classPrivateFieldGet(this, _placeHolder).setTextColor(color);
         return this;
     }
-    resetClearButton(hold) {
+    getClearButton(hold) {
         hold(__classPrivateFieldGet(this, _clearButton));
         return this;
     }
