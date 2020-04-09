@@ -14,10 +14,10 @@ import { SegmentMenu } from "./segment_menu";
 
 export class SegmentContainer<Item extends View> extends ViewGroup implements ISegment<Item> {
   readonly subviews: View[] = [];
-  #preDisplayedContent?: View;
   readonly #contents: { page?: View, willInitial: { new(): View } }[] = [];
   readonly #pageContainer = new RelativeLayout();
   readonly #menu: SegmentMenu<Item>;
+  #preDisplayedContent?: View;
 
   constructor(public readonly type: TabsType) {
     super();

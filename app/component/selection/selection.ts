@@ -4,7 +4,6 @@
  */
 
 import { TextType, TextView } from "../text_view";
-import { RelativeLayout } from "../relative_layout";
 import { DomFragment } from "../../base/dom_fragment";
 import { LinearLayout } from "../linear_layout";
 import {
@@ -18,24 +17,43 @@ import {
 } from "../../value/style/style";
 import { Color } from "../../value/color";
 import { SelectionInterface } from "./selection_interface";
+import { Rectangle } from "../rectangle";
+import { ViewGroup } from "../../base/view_group";
 
-export class Selection extends RelativeLayout implements SelectionInterface {
-  #selection = new TextView();
-  #dataList = new LinearLayout();
-  #isOpening = false;
-  #optionStyle = new Style();
+export class Selection extends ViewGroup implements SelectionInterface {
+  readonly #selection = new TextView();
+  readonly #dataList = new LinearLayout();
+  readonly #optionStyle = new Style();
+  readonly #arrow = new Rectangle();
+  #isClosing = false;
   #optionSelectedColor?: Color;
   #selectedOption?: TextView;
   #optionClickEvent?: (item: TextView) => void;
   #selectionGap = 0;
+  #arrowColor = new Color("black");
 
   constructor(private readonly isFixedOption: boolean = false) {
     super();
+    this
+      .setDisplay(DisplayType.Grid)
+      .addStyleRule(StyleTag.GridTemplateColumns, "auto 15px")
+      .setAlignItem(JustifyContent.Center)
+      .setPosition(ViewPosition.Relative);
+
     this.#selection
+      .setPercentWidth(100)
       .setPercentHeight(100)
       .setText("Default")
       .setTextType(TextType.Small)
       .onClick(_ => this.switchDatalist());
+
+    this.#arrow
+      .setPointerEvent("none")
+      .setRight(10)
+      .setWidth(0)
+      .setHeight(0)
+      .setRightBorder("3px solid transparent")
+      .setLeftBorder("3px solid transparent");
 
     this.#optionStyle
       .addRule(StyleTag.AlignItems, JustifyContent.Center)
@@ -44,9 +62,8 @@ export class Selection extends RelativeLayout implements SelectionInterface {
   }
 
   public setBackgroundColor(color: Color) {
-    this.#selection.setBackgroundColor(color);
     this.#dataList.setBackgroundColor(color);
-    return this;
+    return super.setBackgroundColor(color);
   }
 
   public onClickOption(hold: (item: TextView) => void) {
@@ -77,7 +94,6 @@ export class Selection extends RelativeLayout implements SelectionInterface {
   }
 
   public setWidth(value: number) {
-    this.#selection.setWidth(value);
     this.#dataList.setWidth(value);
     return super.setWidth(value);
   }
@@ -118,6 +134,11 @@ export class Selection extends RelativeLayout implements SelectionInterface {
     });
   }
 
+  setArrowColor(color: Color): this {
+    this.#arrowColor = color;
+    return this;
+  }
+
   setOptionTextColor(color: Color): this {
     this.#optionStyle.addRule(StyleTag.Color, color.value);
     return this;
@@ -135,9 +156,8 @@ export class Selection extends RelativeLayout implements SelectionInterface {
   }
 
   setRadius(radius: number): this {
-    this.#selection.setRadius(radius);
     this.#dataList.setRadius(radius);
-    return this;
+    return super.setRadius(radius);
   }
 
   setGapBetweenSelectionAndOption(value: number) {
@@ -149,7 +169,6 @@ export class Selection extends RelativeLayout implements SelectionInterface {
     let preMouseoverOption: TextView;
     this.#dataList
       .setZIndex(10)
-      .setMarginTop((this.height || 0) + this.#selectionGap)
       .setDisplay(DisplayType.None)
       .setOrientation(Orientation.Vertical)
       .onMouseover(event => {
@@ -182,16 +201,31 @@ export class Selection extends RelativeLayout implements SelectionInterface {
 
   private switchDatalist() {
     this.#dataList
-      .setDisplay(this.#isOpening ? DisplayType.None : DisplayType.Flex)
+      .setDisplay(this.#isClosing ? DisplayType.None : DisplayType.Flex)
       .updateStyle();
-    this.#isOpening = !this.#isOpening;
+    this.#arrow
+      .setRotate(this.#isClosing ? 0 : -90)
+      .updateStyle();
+    this.#isClosing = !this.#isClosing;
   }
 
   async beforeAttached(): Promise<any> {
     this.addView(this.#selection);
+    this.#arrow
+      .setTopBorder(`4px solid ${this.#arrowColor.value}`);
+    this.addView(this.#arrow);
     this.prepareDataList();
     this.addView(this.#dataList);
-    !this.isFixedOption || this.#dataList.setPosition(ViewPosition.Fixed).updateStyle();
+    if (this.isFixedOption) {
+      this.#dataList
+        .setMarginTop((this.height || 0) + this.#selectionGap)
+        .setPosition(ViewPosition.Fixed);
+    } else {
+      this.#dataList
+        .setTop((this.height || 0) + this.#selectionGap)
+        .setPosition(ViewPosition.Absolute);
+    }
+    this.#dataList.updateStyle();
     super.beforeAttached();
   }
 

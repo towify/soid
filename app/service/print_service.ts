@@ -11,7 +11,7 @@ import { ViewGroup } from "../base/view_group";
 
 class PrintService extends LinearLayout {
   static _instance: PrintService;
-  #dashboards: { [key: string]: TextView }[] = [];
+  readonly #dashboards: { [key: string]: TextView }[] = [];
   #hasDisplayed = false;
 
   private constructor() {

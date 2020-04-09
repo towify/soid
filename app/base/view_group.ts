@@ -10,7 +10,7 @@ import { SequenceTaskManager } from "../manager/sequence_task_manager";
 
 export class ViewGroup extends View {
   public subviews: View[] = [];
-  #sequenceManager = new SequenceTaskManager();
+  readonly #sequenceManager = new SequenceTaskManager();
 
   constructor(element?: HTMLDivElement) {
     super(element);

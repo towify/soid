@@ -4,7 +4,7 @@
  */
 
 export class Transform {
-  #properties: { [key: string]: string } = {};
+  readonly #properties: { [key: string]: string } = {};
 
   constructor() {
   }
@@ -15,6 +15,11 @@ export class Transform {
 
   public addTranslate(x: number, y: number) {
     this.#properties.translate = `translate(${x}px, ${y}px)`;
+    return this;
+  }
+
+  public addTranslateValue(x: string, y: string) {
+    this.#properties.translate = `translate(${x}, ${y})`;
     return this;
   }
 

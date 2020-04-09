@@ -3,6 +3,7 @@ export declare class Transform {
     constructor();
     hasValue(): number;
     addTranslate(x: number, y: number): this;
+    addTranslateValue(x: string, y: string): this;
     addRotate(angle: number): this;
     addScale(widthRatio: number, heightRatio: number): this;
     addScaleX(widthRatio: number): this;

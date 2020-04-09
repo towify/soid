@@ -175,6 +175,7 @@ class Text extends Fragment {
       .setGapBetweenSelectionAndOption(10)
       .setOptionSelectedBackgroundColor(new Color("olive"))
       .setRadius(5)
+      .setArrowColor(new Color("red"))
       .onClickOption(item => {
         console.log(item, 'item');
       });

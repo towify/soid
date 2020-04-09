@@ -427,6 +427,31 @@ export abstract class View {
     return this;
   }
 
+  public setBorderColor(color: Color) {
+    this.style.addRule(StyleTag.BorderColor, color.value);
+    return this;
+  }
+
+  public setTopBorderColor(color: Color) {
+    this.style.addRule(StyleTag.BorderTopColor, color.value);
+    return this;
+  }
+
+  public setBottomBorderColor(color: Color) {
+    this.style.addRule(StyleTag.BorderBottomColor, color.value);
+    return this;
+  }
+
+  public setLeftBorderColor(color: Color) {
+    this.style.addRule(StyleTag.BorderLeftColor, color.value);
+    return this;
+  }
+
+  public setRightBorderColor(color: Color) {
+    this.style.addRule(StyleTag.BorderRightColor, color.value);
+    return this;
+  }
+
   public setRightBorder(value: string) {
     this.style.addRule(StyleTag.BorderRight, value);
     return this;
@@ -477,6 +502,11 @@ export abstract class View {
 
   public setTranslate(x: number, y: number) {
     this.style.transform.addTranslate(x, y);
+    return this;
+  }
+
+  public setTranslateStyleRule(x: string, y: string) {
+    this.style.transform.addTranslateValue(x, y);
     return this;
   }
 

@@ -16,8 +16,8 @@ import { GlobalStyle } from "./value/style/global_style";
 
 export abstract class App {
   readonly childFragment: ChildFragmentModel[] = [];
-  #domFragment = new DomFragment();
-  #visibilityEvent = async (status: boolean) =>
+  readonly #domFragment = new DomFragment();
+  readonly #visibilityEvent = async (status: boolean) =>
     status ? await this.onResume() : await this.onPause();
   #hasCommitted = false;
 

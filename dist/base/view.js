@@ -377,6 +377,26 @@ export class View {
         this.style.addRule(StyleTag.Border, value);
         return this;
     }
+    setBorderColor(color) {
+        this.style.addRule(StyleTag.BorderColor, color.value);
+        return this;
+    }
+    setTopBorderColor(color) {
+        this.style.addRule(StyleTag.BorderTopColor, color.value);
+        return this;
+    }
+    setBottomBorderColor(color) {
+        this.style.addRule(StyleTag.BorderBottomColor, color.value);
+        return this;
+    }
+    setLeftBorderColor(color) {
+        this.style.addRule(StyleTag.BorderLeftColor, color.value);
+        return this;
+    }
+    setRightBorderColor(color) {
+        this.style.addRule(StyleTag.BorderRightColor, color.value);
+        return this;
+    }
     setRightBorder(value) {
         this.style.addRule(StyleTag.BorderRight, value);
         return this;
@@ -417,6 +437,10 @@ export class View {
     }
     setTranslate(x, y) {
         this.style.transform.addTranslate(x, y);
+        return this;
+    }
+    setTranslateStyleRule(x, y) {
+        this.style.transform.addTranslateValue(x, y);
         return this;
     }
     setScale(widthRatio, heightRatio) {

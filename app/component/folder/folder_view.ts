@@ -11,7 +11,7 @@ import { Color } from "../../value/color";
 import { View } from "../../base/view";
 
 export class FolderView extends ViewGroup {
-  #subItems: FolderItem[] = [];
+  readonly #subItems: FolderItem[] = [];
 
   constructor() {
     super();

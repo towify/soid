@@ -24,37 +24,51 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
     privateMap.set(receiver, value);
     return value;
 };
-var _selection, _dataList, _isOpening, _optionStyle, _optionSelectedColor, _selectedOption, _optionClickEvent, _selectionGap;
+var _selection, _dataList, _optionStyle, _arrow, _isClosing, _optionSelectedColor, _selectedOption, _optionClickEvent, _selectionGap, _arrowColor;
 import { TextType, TextView } from "../text_view";
-import { RelativeLayout } from "../relative_layout";
 import { DomFragment } from "../../base/dom_fragment";
 import { LinearLayout } from "../linear_layout";
 import { Cursor, DisplayType, JustifyContent, Orientation, Style, StyleTag, ViewPosition } from "../../value/style/style";
 import { Color } from "../../value/color";
-export class Selection extends RelativeLayout {
+import { Rectangle } from "../rectangle";
+import { ViewGroup } from "../../base/view_group";
+export class Selection extends ViewGroup {
     constructor(isFixedOption = false) {
         super();
         this.isFixedOption = isFixedOption;
         _selection.set(this, new TextView());
         _dataList.set(this, new LinearLayout());
-        _isOpening.set(this, false);
         _optionStyle.set(this, new Style());
+        _arrow.set(this, new Rectangle());
+        _isClosing.set(this, false);
         _optionSelectedColor.set(this, void 0);
         _selectedOption.set(this, void 0);
         _optionClickEvent.set(this, void 0);
         _selectionGap.set(this, 0);
-        __classPrivateFieldGet(this, _selection).setPercentHeight(100)
+        _arrowColor.set(this, new Color("black"));
+        this
+            .setDisplay(DisplayType.Grid)
+            .addStyleRule(StyleTag.GridTemplateColumns, "auto 15px")
+            .setAlignItem(JustifyContent.Center)
+            .setPosition(ViewPosition.Relative);
+        __classPrivateFieldGet(this, _selection).setPercentWidth(100)
+            .setPercentHeight(100)
             .setText("Default")
             .setTextType(TextType.Small)
             .onClick(_ => this.switchDatalist());
+        __classPrivateFieldGet(this, _arrow).setPointerEvent("none")
+            .setRight(10)
+            .setWidth(0)
+            .setHeight(0)
+            .setRightBorder("3px solid transparent")
+            .setLeftBorder("3px solid transparent");
         __classPrivateFieldGet(this, _optionStyle).addRule(StyleTag.AlignItems, JustifyContent.Center)
             .addRule(StyleTag.Display, DisplayType.Flex)
             .addRule(StyleTag.Cursor, Cursor.Pointer);
     }
     setBackgroundColor(color) {
-        __classPrivateFieldGet(this, _selection).setBackgroundColor(color);
         __classPrivateFieldGet(this, _dataList).setBackgroundColor(color);
-        return this;
+        return super.setBackgroundColor(color);
     }
     onClickOption(hold) {
         __classPrivateFieldSet(this, _optionClickEvent, hold);
@@ -79,7 +93,6 @@ export class Selection extends RelativeLayout {
         return this;
     }
     setWidth(value) {
-        __classPrivateFieldGet(this, _selection).setWidth(value);
         __classPrivateFieldGet(this, _dataList).setWidth(value);
         return super.setWidth(value);
     }
@@ -116,6 +129,10 @@ export class Selection extends RelativeLayout {
             });
         });
     }
+    setArrowColor(color) {
+        __classPrivateFieldSet(this, _arrowColor, color);
+        return this;
+    }
     setOptionTextColor(color) {
         __classPrivateFieldGet(this, _optionStyle).addRule(StyleTag.Color, color.value);
         return this;
@@ -130,9 +147,8 @@ export class Selection extends RelativeLayout {
         return this;
     }
     setRadius(radius) {
-        __classPrivateFieldGet(this, _selection).setRadius(radius);
         __classPrivateFieldGet(this, _dataList).setRadius(radius);
-        return this;
+        return super.setRadius(radius);
     }
     setGapBetweenSelectionAndOption(value) {
         __classPrivateFieldSet(this, _selectionGap, value);
@@ -141,7 +157,6 @@ export class Selection extends RelativeLayout {
     prepareDataList() {
         let preMouseoverOption;
         __classPrivateFieldGet(this, _dataList).setZIndex(10)
-            .setMarginTop((this.height || 0) + __classPrivateFieldGet(this, _selectionGap))
             .setDisplay(DisplayType.None)
             .setOrientation(Orientation.Vertical)
             .onMouseover(event => {
@@ -170,9 +185,11 @@ export class Selection extends RelativeLayout {
             .addRule(StyleTag.AlignItems, "center");
     }
     switchDatalist() {
-        __classPrivateFieldGet(this, _dataList).setDisplay(__classPrivateFieldGet(this, _isOpening) ? DisplayType.None : DisplayType.Flex)
+        __classPrivateFieldGet(this, _dataList).setDisplay(__classPrivateFieldGet(this, _isClosing) ? DisplayType.None : DisplayType.Flex)
             .updateStyle();
-        __classPrivateFieldSet(this, _isOpening, !__classPrivateFieldGet(this, _isOpening));
+        __classPrivateFieldGet(this, _arrow).setRotate(__classPrivateFieldGet(this, _isClosing) ? 0 : -90)
+            .updateStyle();
+        __classPrivateFieldSet(this, _isClosing, !__classPrivateFieldGet(this, _isClosing));
     }
     beforeAttached() {
         const _super = Object.create(null, {
@@ -180,11 +197,21 @@ export class Selection extends RelativeLayout {
         });
         return __awaiter(this, void 0, void 0, function* () {
             this.addView(__classPrivateFieldGet(this, _selection));
+            __classPrivateFieldGet(this, _arrow).setTopBorder(`4px solid ${__classPrivateFieldGet(this, _arrowColor).value}`);
+            this.addView(__classPrivateFieldGet(this, _arrow));
             this.prepareDataList();
             this.addView(__classPrivateFieldGet(this, _dataList));
-            !this.isFixedOption || __classPrivateFieldGet(this, _dataList).setPosition(ViewPosition.Fixed).updateStyle();
+            if (this.isFixedOption) {
+                __classPrivateFieldGet(this, _dataList).setMarginTop((this.height || 0) + __classPrivateFieldGet(this, _selectionGap))
+                    .setPosition(ViewPosition.Fixed);
+            }
+            else {
+                __classPrivateFieldGet(this, _dataList).setTop((this.height || 0) + __classPrivateFieldGet(this, _selectionGap))
+                    .setPosition(ViewPosition.Absolute);
+            }
+            __classPrivateFieldGet(this, _dataList).updateStyle();
             _super.beforeAttached.call(this);
         });
     }
 }
-_selection = new WeakMap(), _dataList = new WeakMap(), _isOpening = new WeakMap(), _optionStyle = new WeakMap(), _optionSelectedColor = new WeakMap(), _selectedOption = new WeakMap(), _optionClickEvent = new WeakMap(), _selectionGap = new WeakMap();
+_selection = new WeakMap(), _dataList = new WeakMap(), _optionStyle = new WeakMap(), _arrow = new WeakMap(), _isClosing = new WeakMap(), _optionSelectedColor = new WeakMap(), _selectedOption = new WeakMap(), _optionClickEvent = new WeakMap(), _selectionGap = new WeakMap(), _arrowColor = new WeakMap();

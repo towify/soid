@@ -78,6 +78,11 @@ export declare abstract class View {
     setOverflowX(value: string): this;
     setBoxSizing(value: string): this;
     setBorder(value: string): this;
+    setBorderColor(color: Color): this;
+    setTopBorderColor(color: Color): this;
+    setBottomBorderColor(color: Color): this;
+    setLeftBorderColor(color: Color): this;
+    setRightBorderColor(color: Color): this;
     setRightBorder(value: string): this;
     setLeftBorder(value: string): this;
     setBottomBorder(value: string): this;
@@ -88,6 +93,7 @@ export declare abstract class View {
     setBackDropFilter(value: string): this;
     setRotate(angle: number): this;
     setTranslate(x: number, y: number): this;
+    setTranslateStyleRule(x: string, y: string): this;
     setScale(widthRatio: number, heightRatio: number): this;
     setScaleX(widthRatio: number): this;
     setScaleY(heightRatio: number): this;

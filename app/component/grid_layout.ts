@@ -9,8 +9,8 @@ import { RelativeLayout } from "./relative_layout";
 
 export class GridLayout extends View {
   readonly subviews: RelativeLayout[] = [];
-  #columnTemplate: string[] = [];
-  #rowTemplate: string[] = [];
+  readonly #columnTemplate: string[] = [];
+  readonly #rowTemplate: string[] = [];
   #rowCount = 0;
   #columnCount = 0;
 

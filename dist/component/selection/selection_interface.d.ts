@@ -12,5 +12,6 @@ export interface SelectionInterface {
     setHorizontalPadding(value: number): this;
     setOptionHeight(value: number): this;
     setWidth(value: number): this;
+    setArrowColor(color: Color): this;
     setData(data: string[], defaultIndex: number, bindOption: (option: TextView) => void): Promise<void>;
 }

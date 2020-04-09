@@ -12,16 +12,16 @@ import { ImageMode, ImageView } from "../image_view";
 import { InputInterface } from "./input_interface";
 
 export class Input extends RelativeLayout implements InputInterface {
-  #placeHolder = new TextView();
-  #input = document.createElement("input");
-  #clearButton = new ImageView();
-  #inputStyle = new Style();
+  readonly #placeHolder = new TextView();
+  readonly #input = document.createElement("input");
+  readonly #clearButton = new ImageView();
+  readonly #inputStyle = new Style();
+  readonly #clearButtonSize = 12;
   #focusEvent?: (event: FocusEvent) => void;
   #blurEvent?: (event: FocusEvent) => void;
   #changeEvent?: (event: Event) => void;
   #_hasClearButton = true;
   #_hasDisplayedClearButton = false;
-  #clearButtonSize = 12;
 
   constructor() {
     super();
