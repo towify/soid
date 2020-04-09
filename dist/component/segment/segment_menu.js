@@ -15,15 +15,16 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     }
     return privateMap.get(receiver);
 };
-var _tabType;
+var _tabType, _previousSelected;
 import { LinearLayout } from "../linear_layout";
-import { JustifyContent, Orientation } from "../../value/style/style";
+import { Cursor, JustifyContent, Orientation } from "../../value/style/style";
 import { TabsType } from "./segment_container";
 export class SegmentMenu extends LinearLayout {
     constructor(type) {
         super();
         this.type = type;
         _tabType.set(this, void 0);
+        _previousSelected.set(this, void 0);
         this.hideScrollbar();
         switch (this.type) {
             case TabsType.LeftScrollable: {
@@ -52,7 +53,11 @@ export class SegmentMenu extends LinearLayout {
     setData(models, onBind) {
         let item;
         models.forEach((model, index) => {
-            item = new (__classPrivateFieldGet(this, _tabType))();
+            item = new (__classPrivateFieldGet(this, _tabType))()
+                .setCursor(Cursor.Pointer);
+            if (!index) {
+                __classPrivateFieldSet(this, _previousSelected, item);
+            }
             switch (this.type) {
                 case TabsType.TopScrollable:
                 case TabsType.TopFixed: {
@@ -69,5 +74,15 @@ export class SegmentMenu extends LinearLayout {
         });
         return this;
     }
+    onSelected(hold) {
+        this.onClick(event => {
+            const targetView = this.getSubviewByElement(event.target);
+            if (targetView !== __classPrivateFieldGet(this, _previousSelected)) {
+                hold(__classPrivateFieldGet(this, _previousSelected), targetView);
+                __classPrivateFieldSet(this, _previousSelected, targetView);
+            }
+        });
+        return this;
+    }
 }
-_tabType = new WeakMap();
+_tabType = new WeakMap(), _previousSelected = new WeakMap();

@@ -48,7 +48,18 @@ export class View {
             .addRule(StyleTag.Outline, "none")
             .addRule(StyleTag.BoxSizing, "border-box");
     }
+    addStyleRule(tag, value) {
+        this.style.addRule(tag, value);
+        return this;
+    }
     // Property Methods
+    setID(id) {
+        this._element.id = id;
+        return this;
+    }
+    get id() {
+        return this._element.id;
+    }
     setAttribute(qualifiedName, value) {
         this._element.setAttribute(qualifiedName, value);
         return this;
@@ -213,11 +224,11 @@ export class View {
         return this;
     }
     setPercentWidth(value) {
-        this.style.addRule(StyleTag.Width, `${value}%`);
+        this.style.addRule(StyleTag.Width, `${value}%`, false);
         return this;
     }
     setPercentHeight(value) {
-        this.style.addRule(StyleTag.Height, `${value}%`);
+        this.style.addRule(StyleTag.Height, `${value}%`, false);
         return this;
     }
     setMinWidth(minWidth) {
@@ -366,6 +377,26 @@ export class View {
         this.style.addRule(StyleTag.Border, value);
         return this;
     }
+    setBorderColor(color) {
+        this.style.addRule(StyleTag.BorderColor, color.value);
+        return this;
+    }
+    setTopBorderColor(color) {
+        this.style.addRule(StyleTag.BorderTopColor, color.value);
+        return this;
+    }
+    setBottomBorderColor(color) {
+        this.style.addRule(StyleTag.BorderBottomColor, color.value);
+        return this;
+    }
+    setLeftBorderColor(color) {
+        this.style.addRule(StyleTag.BorderLeftColor, color.value);
+        return this;
+    }
+    setRightBorderColor(color) {
+        this.style.addRule(StyleTag.BorderRightColor, color.value);
+        return this;
+    }
     setRightBorder(value) {
         this.style.addRule(StyleTag.BorderRight, value);
         return this;
@@ -406,6 +437,10 @@ export class View {
     }
     setTranslate(x, y) {
         this.style.transform.addTranslate(x, y);
+        return this;
+    }
+    setTranslateStyleRule(x, y) {
+        this.style.transform.addTranslateValue(x, y);
         return this;
     }
     setScale(widthRatio, heightRatio) {
@@ -464,6 +499,18 @@ export class View {
     }
     get height() {
         return this.style.values.height;
+    }
+    get left() {
+        return this.style.values.left;
+    }
+    get right() {
+        return this.style.values.right;
+    }
+    get top() {
+        return this.style.values.top;
+    }
+    get bottom() {
+        return this.style.values.bottom;
     }
     get paddingLeft() {
         return this.style.values.paddingLeft;

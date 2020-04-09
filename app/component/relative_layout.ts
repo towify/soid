@@ -19,11 +19,11 @@ export class RelativeLayout extends ViewGroup {
     super.addView(view);
   }
 
-  public addDomFragment(domFragment: DomFragment) {
-    domFragment._beforeAttached(view => {
+  public async addDomFragment(domFragment: DomFragment) {
+    await domFragment.hodViews.forEach(view => {
       view.setPosition(ViewPosition.Absolute);
-    }).then(_ => {
-      this._element.appendChild(domFragment.fragment);
     });
+    await domFragment._beforeAttached();
+    await this._element.appendChild(domFragment.fragment);
   }
 }

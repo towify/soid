@@ -1,14 +1,17 @@
 import { Platform } from "../value/type";
-import { Cursor, DisplayType, JustifyContent, Style, ViewPosition, WillChangeType } from "../value/style/style";
+import { Cursor, DisplayType, JustifyContent, Style, StyleTag, ViewPosition, WillChangeType } from "../value/style/style";
 import { Color } from "../value/color";
 export declare abstract class View {
     #private;
     private element?;
     protected style: Style;
-    protected isDisplayNone?: boolean;
+    isDisplayNone?: boolean;
     readonly _element: HTMLDivElement;
     protected initialDisplayType?: DisplayType;
     protected constructor(element?: HTMLDivElement | undefined);
+    addStyleRule(tag: StyleTag, value: string): this;
+    setID(id: string): this;
+    get id(): string | undefined;
     setAttribute(qualifiedName: string, value: string): this;
     get cssText(): string;
     get isClickable(): boolean;
@@ -75,6 +78,11 @@ export declare abstract class View {
     setOverflowX(value: string): this;
     setBoxSizing(value: string): this;
     setBorder(value: string): this;
+    setBorderColor(color: Color): this;
+    setTopBorderColor(color: Color): this;
+    setBottomBorderColor(color: Color): this;
+    setLeftBorderColor(color: Color): this;
+    setRightBorderColor(color: Color): this;
     setRightBorder(value: string): this;
     setLeftBorder(value: string): this;
     setBottomBorder(value: string): this;
@@ -85,6 +93,7 @@ export declare abstract class View {
     setBackDropFilter(value: string): this;
     setRotate(angle: number): this;
     setTranslate(x: number, y: number): this;
+    setTranslateStyleRule(x: string, y: string): this;
     setScale(widthRatio: number, heightRatio: number): this;
     setScaleX(widthRatio: number): this;
     setScaleY(heightRatio: number): this;
@@ -99,6 +108,10 @@ export declare abstract class View {
     setAlignItem(value: JustifyContent): this;
     get width(): number | undefined;
     get height(): number | undefined;
+    get left(): number | undefined;
+    get right(): number | undefined;
+    get top(): number | undefined;
+    get bottom(): number | undefined;
     get paddingLeft(): number | undefined;
     get paddingRight(): number | undefined;
     get hasHorizontalPadding(): boolean;

@@ -17,7 +17,7 @@ import { Color } from "../value/color";
 
 export abstract class View {
   protected style = new Style();
-  protected isDisplayNone?: boolean;
+  public isDisplayNone?: boolean;
   readonly _element: HTMLDivElement;
   protected initialDisplayType?: DisplayType;
   #_isEnable = true;
@@ -39,7 +39,21 @@ export abstract class View {
       .addRule(StyleTag.BoxSizing, "border-box");
   }
 
+  public addStyleRule(tag: StyleTag, value: string) {
+    this.style.addRule(tag, value);
+    return this;
+  }
+
   // Property Methods
+  public setID(id: string) {
+    this._element.id = id;
+    return this;
+  }
+
+  public get id(): string | undefined {
+    return this._element.id;
+  }
+
   public setAttribute(qualifiedName: string, value: string) {
     this._element.setAttribute(qualifiedName, value);
     return this;
@@ -225,12 +239,12 @@ export abstract class View {
   }
 
   public setPercentWidth(value: number): this {
-    this.style.addRule(StyleTag.Width, `${value}%`);
+    this.style.addRule(StyleTag.Width, `${value}%`, false);
     return this;
   }
 
   public setPercentHeight(value: number): this {
-    this.style.addRule(StyleTag.Height, `${value}%`);
+    this.style.addRule(StyleTag.Height, `${value}%`, false);
     return this;
   }
 
@@ -413,6 +427,31 @@ export abstract class View {
     return this;
   }
 
+  public setBorderColor(color: Color) {
+    this.style.addRule(StyleTag.BorderColor, color.value);
+    return this;
+  }
+
+  public setTopBorderColor(color: Color) {
+    this.style.addRule(StyleTag.BorderTopColor, color.value);
+    return this;
+  }
+
+  public setBottomBorderColor(color: Color) {
+    this.style.addRule(StyleTag.BorderBottomColor, color.value);
+    return this;
+  }
+
+  public setLeftBorderColor(color: Color) {
+    this.style.addRule(StyleTag.BorderLeftColor, color.value);
+    return this;
+  }
+
+  public setRightBorderColor(color: Color) {
+    this.style.addRule(StyleTag.BorderRightColor, color.value);
+    return this;
+  }
+
   public setRightBorder(value: string) {
     this.style.addRule(StyleTag.BorderRight, value);
     return this;
@@ -463,6 +502,11 @@ export abstract class View {
 
   public setTranslate(x: number, y: number) {
     this.style.transform.addTranslate(x, y);
+    return this;
+  }
+
+  public setTranslateStyleRule(x: string, y: string) {
+    this.style.transform.addTranslateValue(x, y);
     return this;
   }
 
@@ -530,23 +574,39 @@ export abstract class View {
 
   // Interface Getting Methods
   public get width(): number | undefined {
-    return <number | undefined>this.style.values.width;
+    return this.style.values.width;
   }
 
   public get height(): number | undefined {
-    return <number | undefined>this.style.values.height;
+    return this.style.values.height;
+  }
+
+  public get left(): number | undefined {
+    return this.style.values.left;
+  }
+
+  public get right(): number | undefined {
+    return this.style.values.right;
+  }
+
+  public get top(): number | undefined {
+    return this.style.values.top;
+  }
+
+  public get bottom(): number | undefined {
+    return this.style.values.bottom;
   }
 
   public get paddingLeft(): number | undefined {
-    return <number | undefined>this.style.values.paddingLeft;
+    return this.style.values.paddingLeft;
   }
 
   public get paddingRight(): number | undefined {
-    return <number | undefined>this.style.values.paddingRight;
+    return this.style.values.paddingRight;
   }
 
   public get hasHorizontalPadding(): boolean {
-    return <boolean>this.style.values.hasHorizontalPadding;
+    return this.style.values.hasHorizontalPadding;
   }
 
   public get displayType(): DisplayType | undefined {

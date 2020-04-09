@@ -20,6 +20,10 @@ export class Transform {
         __classPrivateFieldGet(this, _properties).translate = `translate(${x}px, ${y}px)`;
         return this;
     }
+    addTranslateValue(x, y) {
+        __classPrivateFieldGet(this, _properties).translate = `translate(${x}, ${y})`;
+        return this;
+    }
     addRotate(angle) {
         __classPrivateFieldGet(this, _properties).rotate = `rotate(${angle}deg)`;
         return this;

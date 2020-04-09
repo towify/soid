@@ -4,13 +4,12 @@
  */
 
 export class SequenceTaskManager {
-  #tasks: (() => void)[] = [];
+  readonly #tasks: (() => void)[] = [];
   #isRunning = false;
 
-  constructor() {
-  }
+  constructor() {}
 
-  addTask(task: () => void) {
+  public addTask(task: () => void) {
     this.#tasks.push(task);
     return this;
   }

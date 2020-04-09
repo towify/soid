@@ -20,11 +20,9 @@ export class DomFragment {
         this.hodViews.push(view);
     }
     ;
-    _beforeAttached(hold) {
+    _beforeAttached() {
         return __awaiter(this, void 0, void 0, function* () {
             for (const view of this.hodViews) {
-                if (typeof hold === "function")
-                    hold(view);
                 yield view._prepareLifeCycle();
                 this.fragment.appendChild(view._element);
             }

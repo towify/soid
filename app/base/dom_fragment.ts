@@ -16,9 +16,8 @@ export class DomFragment {
     this.hodViews.push(view);
   };
 
-  public async _beforeAttached(hold?: (view: View) => void) {
+  public async _beforeAttached() {
     for (const view of this.hodViews) {
-      if (typeof hold === "function") hold(view);
       await view._prepareLifeCycle();
       this.fragment.appendChild(view._element);
     }

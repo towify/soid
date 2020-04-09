@@ -18,7 +18,7 @@ class SharedPreference {
 
   private redis: { [key: string]: string } = {};
 
-  constructor() { }
+  private constructor() { }
 
   public delete(key: string) {
     return new Promise((resolve) => {

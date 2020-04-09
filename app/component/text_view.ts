@@ -8,8 +8,8 @@ import { Align, DisplayType, Style, StyleTag } from "../value/style/style";
 import { Color } from "../value/color";
 
 export class TextView extends View {
-  #span = document.createElement("span");
-  #spanStyle = new Style();
+  readonly #span = document.createElement("span");
+  readonly #spanStyle = new Style();
   #_textContent?: string;
 
   constructor() {

@@ -34,12 +34,12 @@ export abstract class RecyclerViewHolder extends ViewGroup {
 
 export class RecyclerViewHolderModel {
   constructor(
-    public holder: new () => RecyclerViewHolder,
-    public position: RecyclerViewHolderType | number = RecyclerViewHolderType.Default,
-    public height: number = 0,
-    public width: number = 0,
-    public y: number = 0,
-    public x: number = 0
+    public readonly holder: new () => RecyclerViewHolder,
+    public readonly position: RecyclerViewHolderType | number = RecyclerViewHolderType.Default,
+    public readonly height: number = 0,
+    public readonly width: number = 0,
+    public readonly y: number = 0,
+    public readonly x: number = 0
   ) {
 
   }

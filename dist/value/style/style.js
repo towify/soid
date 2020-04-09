@@ -17,12 +17,12 @@ export class Style {
         }
         return result;
     }
-    addRule(tag, value) {
+    addRule(tag, value, record = true) {
         if (value.indexOf(";") > 0) {
             throw new Error("value contains invalid \";\" symbol");
         }
         this.style[tag] = value;
-        this.recordValue(tag);
+        !record || this.recordValue(tag);
         return this;
     }
     setStyle(view) {
@@ -139,6 +139,11 @@ var StyleTag;
     StyleTag["BackgroundImage"] = "background-image";
     StyleTag["Opacity"] = "opacity";
     StyleTag["Border"] = "border";
+    StyleTag["BorderColor"] = "border-color";
+    StyleTag["BorderLeftColor"] = "border-left-color";
+    StyleTag["BorderRightColor"] = "border-right-color";
+    StyleTag["BorderTopColor"] = "border-top-color";
+    StyleTag["BorderBottomColor"] = "border-bottom-color";
     StyleTag["BorderTop"] = "border-top";
     StyleTag["BorderBottom"] = "border-bottom";
     StyleTag["BorderRight"] = "border-right";
@@ -197,6 +202,7 @@ var StyleTag;
     StyleTag["GridColumn"] = "grid-column";
     StyleTag["ColumnGap"] = "column-gap";
     StyleTag["RowGap"] = "row-gap";
+    StyleTag["GridAutoRows"] = "grid-auto-rows";
     StyleTag["Cursor"] = "cursor";
     StyleTag["Mask"] = "mask";
     StyleTag["WebkitMaskImage"] = "-webkit-mask-image";

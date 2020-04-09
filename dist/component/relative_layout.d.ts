@@ -4,5 +4,5 @@ import { DomFragment } from "../base/dom_fragment";
 export declare class RelativeLayout extends ViewGroup {
     constructor();
     addView(view: View): void;
-    addDomFragment(domFragment: DomFragment): void;
+    addDomFragment(domFragment: DomFragment): Promise<void>;
 }

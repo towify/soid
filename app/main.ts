@@ -28,6 +28,7 @@ import {
 import { Swiper } from "./component/swiper/swiper";
 import { SegmentContainer, TabsType } from "./component/segment/segment_container";
 import { SegmentMenu } from "./component/segment/segment_menu";
+import { FolderItem, FolderView } from "./component/folder/folder_view";
 
 const cellWidth = 200;
 
@@ -152,7 +153,7 @@ class Text extends Fragment {
       .setPlaceholderColor(new Color("gray"))
       .setWidth(150)
       .setHeight(30)
-      .resetClearButton(button => {
+      .getClearButton(button => {
       })
       .setType(InputType.Password)
       .onFocus(() => {
@@ -171,11 +172,15 @@ class Text extends Fragment {
       .setBackgroundColor(Color.white)
       .setOptionHeight(30)
       .setHorizontalPadding(10)
+      .setGapBetweenSelectionAndOption(10)
       .setOptionSelectedBackgroundColor(new Color("olive"))
-      .setData(["Jack Bos", "Hello Kitty", "Amazing Kiss"], 2)
-      .onClickOption(value => {
-        console.log(value, "value");
+      .setRadius(5)
+      .setArrowColor(new Color("red"))
+      .onClickOption(item => {
+        console.log(item, 'item');
       });
+
+    selection.setData(["Jack Bos", "Hello Kitty", "Amazing Kiss"], 2).then();
     gridLayout.addView(button, 0, 1);
     gridLayout.addView(input, 1, 1);
     gridLayout.addView(selection, 1, 1);
@@ -261,6 +266,18 @@ class Text extends Fragment {
           });
       }));
 
+    const foldView = new FolderView()
+      .setWidth(200)
+      .setBackgroundColor(new Color("olive"))
+      .addItem(new FolderItem()
+        .setID(`${new Date().getTime()}`)
+        .setPercentWidth(100)
+        .setModel({
+          iconPath: "./resource/image/image_icon.svg",
+          name: "Login Page",
+          isParent: true
+        }));
+
     this.layout.addView(relativeLayout);
     this.layout.addView(gridLayout);
     this.layout.addView(recyclerView);
@@ -268,9 +285,10 @@ class Text extends Fragment {
     this.layout.addView(swiper);
     this.layout.addView(segment);
     this.layout.addView(segmentMenu);
+    this.layout.addView(foldView);
     context.addView(this.layout);
 
-    this.afterResized(event => {
+    this.afterResized(_ => {
       recyclerView.setHeight(1000).updateStyle();
       recyclerView.adapter?.updateItemCountIfNeed();
     });

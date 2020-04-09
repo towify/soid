@@ -1,7 +1,7 @@
 declare enum Platform {
-    WEB = 0,
+    Web = 0,
     Mobile = 1,
-    Mini_Program = 2
+    MiniProgram = 2
 }
 declare enum ListenerType {
     Click = "click",

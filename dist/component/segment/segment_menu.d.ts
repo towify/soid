@@ -9,4 +9,5 @@ export declare class SegmentMenu<Item extends View> extends LinearLayout {
         new (): Item;
     }): this;
     setData<T>(models: T[], onBind: (item: Item, position: number) => void): this;
+    onSelected(hold: (previous: Item, current: Item) => void): this;
 }

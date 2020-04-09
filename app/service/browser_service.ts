@@ -20,7 +20,7 @@ export class BrowserService {
     return BrowserService.service;
   }
 
-  constructor() {
+  private constructor() {
     // browser tab switching event listener
     this.#visibilityListener = (_) => {
       if (document.visibilityState == "visible") {

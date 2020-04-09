@@ -8,7 +8,7 @@ import { ImageMode, ImageView } from "../image_view";
 import { Align, DisplayType, StyleTag } from "../../value/style/style";
 
 export class IconButton extends Button {
-  #icon = new ImageView();
+  readonly #icon = new ImageView();
   #isLeft = true;
   #iconSize?: number;
 

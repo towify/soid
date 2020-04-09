@@ -59,9 +59,10 @@ export class ViewGroup extends View {
         return this.subviews.find(view => view._element === element);
     }
     addDomFragment(domFragment) {
-        domFragment._beforeAttached().then(_ => {
-            domFragment.hodViews.forEach(view => this.subviews.push(view));
-            this._element.appendChild(domFragment.fragment);
+        return __awaiter(this, void 0, void 0, function* () {
+            yield domFragment._beforeAttached();
+            yield domFragment.hodViews.forEach(view => this.subviews.push(view));
+            yield this._element.appendChild(domFragment.fragment);
         });
     }
     insertBefore(newView, oldView) {

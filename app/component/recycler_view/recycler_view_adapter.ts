@@ -27,10 +27,10 @@ export abstract class RecyclerViewAdapter implements IRecyclerViewAdapter {
   #beginPassCount = 2;
   #_afterDatasetChanged?: () => void;
 
+  #specialHolderTypes: RecyclerViewHolderModel[] = [];
   #viewHolder?: RecyclerViewHolder;
   #holderTypes?: RecyclerViewHolderModel[];
   #normalHolder?: new () => RecyclerViewHolder;
-  #specialHolderTypes: RecyclerViewHolderModel[] = [];
   #contentArea = 0;
   #displayedSpecialHoldersArea = 0;
   #firstScreenSpecialHolderCount = 0;

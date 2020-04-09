@@ -4,5 +4,5 @@ export declare class DomFragment {
     hodViews: View[];
     constructor();
     addView<V extends View>(view: V): void;
-    _beforeAttached(hold?: (view: View) => void): Promise<void>;
+    _beforeAttached(): Promise<void>;
 }

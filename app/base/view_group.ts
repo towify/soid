@@ -10,7 +10,7 @@ import { SequenceTaskManager } from "../manager/sequence_task_manager";
 
 export class ViewGroup extends View {
   public subviews: View[] = [];
-  #sequenceManager = new SequenceTaskManager();
+  readonly #sequenceManager = new SequenceTaskManager();
 
   constructor(element?: HTMLDivElement) {
     super(element);
@@ -48,11 +48,10 @@ export class ViewGroup extends View {
     return this.subviews.find(view => view._element === element) as T;
   }
 
-  public addDomFragment(domFragment: DomFragment) {
-    domFragment._beforeAttached().then(_ => {
-      domFragment.hodViews.forEach(view => this.subviews.push(view));
-      this._element.appendChild(domFragment.fragment);
-    });
+  public async addDomFragment(domFragment: DomFragment) {
+    await domFragment._beforeAttached();
+    await domFragment.hodViews.forEach(view => this.subviews.push(view));
+    await this._element.appendChild(domFragment.fragment);
   }
 
   public insertBefore(newView: View, oldView: View) {
