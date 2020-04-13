@@ -14,6 +14,7 @@ enum ListenerType {
   Blur = "blur",
   Scroll = "scroll",
   Wheel = "wheel",
+  ContextMenu = "contextmenu",
   Mousemove = "mousemove",
   Mouseover = "mouseover",
   Mouseleave = "mouseleave",

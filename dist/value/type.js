@@ -16,6 +16,7 @@ var ListenerType;
     ListenerType["Blur"] = "blur";
     ListenerType["Scroll"] = "scroll";
     ListenerType["Wheel"] = "wheel";
+    ListenerType["ContextMenu"] = "contextmenu";
     ListenerType["Mousemove"] = "mousemove";
     ListenerType["Mouseover"] = "mouseover";
     ListenerType["Mouseleave"] = "mouseleave";

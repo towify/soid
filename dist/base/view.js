@@ -53,6 +53,10 @@ export class View {
         return this;
     }
     // Property Methods
+    setDataset(key, value) {
+        this._element.dataset[key] = value;
+        return this;
+    }
     setID(id) {
         this._element.id = id;
         return this;

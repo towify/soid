@@ -8,8 +8,8 @@ export declare abstract class RecyclerViewHolder extends ViewGroup {
     };
 }
 export declare class RecyclerViewHolderModel {
-    holder: new () => RecyclerViewHolder;
-    position: RecyclerViewHolderType | number;
+    readonly holder: new () => RecyclerViewHolder;
+    readonly position: RecyclerViewHolderType | number;
     height: number;
     width: number;
     y: number;

@@ -2,7 +2,7 @@ import { ViewGroup } from "../view_group";
 import { IFragment } from "./fragment_interface";
 export declare abstract class Fragment implements IFragment {
     #private;
-    childFragments: Fragment[];
+    readonly childFragments: Set<Fragment>;
     readonly contentView: ViewGroup;
     protected onAttach(): Promise<void>;
     protected abstract onCreateView(context: ViewGroup): Promise<void>;

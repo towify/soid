@@ -14,7 +14,7 @@ export declare abstract class RecyclerView extends ViewGroup implements IRecycle
     setHeight(value: number): this;
     setWidth(value: number): this;
     addView(view: View): void;
-    getSubviewByElement<T extends View>(element: HTMLDivElement): T;
+    getSubviewByElement<T extends View>(element: HTMLDivElement): T | undefined;
     private onCreate;
     onReachedEnd(action: () => void): this;
     private didScroll;

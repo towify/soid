@@ -55,7 +55,7 @@ export class Swiper<Slider extends View> extends RelativeLayout implements ISwip
   private handleSliderAnimation(managers: AnimationManager[]) {
     let index = 0;
     let animation: AnimationManager;
-    let length = this.subviews.length;
+    let length = this.children.size;
     let isInitial = true;
     const sequence = () => {
       animation = managers[index]

@@ -40,6 +40,8 @@ import { Swiper } from "./component/swiper/swiper";
 import { SegmentContainer, TabsType } from "./component/segment/segment_container";
 import { SegmentMenu } from "./component/segment/segment_menu";
 import { FolderItem, FolderView } from "./component/folder/folder_view";
+import { SelectionInput } from "./component/selection_input/selection_input";
+import { ButtonInput } from "./component/button_input/button_input";
 const cellWidth = 200;
 export class Main extends App {
     constructor() {
@@ -55,16 +57,26 @@ export class Main extends App {
 class Test2 extends Fragment {
     onCreateView(context) {
         return __awaiter(this, void 0, void 0, function* () {
-            context.setWidth(500).setHeight(500);
-            context.addView(new TextView().setFullParent().setBackgroundColor(new Color("blue")));
+            context
+                .setWidth(500)
+                .setHeight(500);
+            context
+                .addView(new TextView()
+                .setFullParent()
+                .setBackgroundColor(new Color("blue")));
         });
     }
 }
 class Test3 extends Fragment {
     onCreateView(context) {
         return __awaiter(this, void 0, void 0, function* () {
-            context.setWidth(500).setHeight(500);
-            context.addView(new TextView().setFullParent().setBackgroundColor(new Color("red")));
+            context
+                .setWidth(500)
+                .setHeight(500);
+            context
+                .addView(new TextView()
+                .setFullParent()
+                .setBackgroundColor(new Color("red")));
         });
     }
 }
@@ -75,13 +87,32 @@ class Text extends Fragment {
         this.test2 = new Test2();
         this.test3 = new Test3();
     }
+    onPause() {
+        const _super = Object.create(null, {
+            onPause: { get: () => super.onPause }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.onPause.call(this);
+        });
+    }
+    onStart() {
+        const _super = Object.create(null, {
+            onStart: { get: () => super.onStart }
+        });
+        return __awaiter(this, void 0, void 0, function* () {
+            _super.onStart.call(this);
+        });
+    }
     onCreateView(context) {
         return __awaiter(this, void 0, void 0, function* () {
             this.layout
                 .setWidth(900)
                 .setBorder("2px solid yellow")
                 .setBackgroundColor(Color.black);
-            print.register("board1").register("board2").mount(this.layout);
+            print
+                .register("board1")
+                .register("board2")
+                .mount(this.layout);
             this.addFragment(this.test2);
             let rect;
             let textView;
@@ -94,8 +125,10 @@ class Text extends Fragment {
                     .setMargin("10px")
                     .onClick(() => {
                     this.replaceFragment(this.test3, this.test2);
+                    console.log(this.childFragments);
                     setTimeout(() => {
                         this.replaceFragment(this.test2, this.test3);
+                        console.log(this.childFragments);
                     }, 3000);
                 });
                 if (index === 1) {
@@ -189,12 +222,41 @@ class Text extends Fragment {
                 .setRadius(5)
                 .setArrowColor(new Color("red"))
                 .onClickOption(item => {
-                console.log(item, 'item');
+                console.log(item, "item");
             });
+            const inputSelection = new SelectionInput()
+                .onFocus(() => { })
+                .onBlur(() => { })
+                .setInputTextColor(new Color("blue"))
+                .setInputTextSize(14)
+                .setHeight(20)
+                .setInputBorder(0.5, new Color("yellow"))
+                .setPlaceholder("Opacity")
+                .setPlaceholderColor(new Color("red"))
+                .setSelectionBackgroundColor(new Color("gray"))
+                .setOptionSelectedBackgroundColor(new Color("olive"))
+                .setBackgroundColor(Color.white)
+                .setWidth(200)
+                .setTop(150);
+            const selectionData = ["%", "PX"];
+            inputSelection.setSelectionData(selectionData, 0).then();
             selection.setData(["Jack Bos", "Hello Kitty", "Amazing Kiss"], 2).then();
+            const iconSelection = new ButtonInput()
+                .setRadius(5)
+                .setWidth(200)
+                .setHeight(40)
+                .setTop(190)
+                .setBackgroundColor(Color.white)
+                .setIconBackgroundColor(Color.black)
+                .onClickButton(() => {
+                console.log("hello 1");
+            })
+                .setImage("./resource/image/image_icon.svg");
             gridLayout.addView(button, 0, 1);
             gridLayout.addView(input, 1, 1);
             gridLayout.addView(selection, 1, 1);
+            gridLayout.addView(inputSelection, 1, 1);
+            gridLayout.addView(iconSelection, 1, 1);
             const recyclerView = new MyRecyclerView().setWidth(cellWidth);
             recyclerView.adapter = new MyRecyclerViewAdapter(recyclerView, ["Hello 1", "Hello 2", "Hello3", "Hello 4", "Hello 5", "Hello 6", "Hello 7", "Hello 8", "Hello 9"]);
             // const horizontalRecyclerView = new MyRecyclerView().setWidth(400);

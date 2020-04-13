@@ -1,4 +1,5 @@
 import { TextView } from "../text_view";
+import { Align } from "../../value/style/style";
 import { Color } from "../../value/color";
 import { SelectionInterface } from "./selection_interface";
 import { ViewGroup } from "../../base/view_group";
@@ -13,12 +14,16 @@ export declare class Selection extends ViewGroup implements SelectionInterface {
     setHorizontalPadding(value: number): this;
     setOptionHeight(value: number): this;
     setWidth(value: number): this;
+    setContentTextAlign(align: Align): this;
     setData(data: string[], defaultIndex: number, bindOption?: (option: TextView) => void): Promise<void>;
     setArrowColor(color: Color): this;
     setOptionTextColor(color: Color): this;
     setSelectionTextColor(color: Color): this;
     setTextSize(value: number): this;
+    setTextWeight(value: string): this;
+    setFont(value: string): this;
     setRadius(radius: number): this;
+    setOptionBoardRadius(radius: number): this;
     setGapBetweenSelectionAndOption(value: number): this;
     private prepareDataList;
     private switchDatalist;

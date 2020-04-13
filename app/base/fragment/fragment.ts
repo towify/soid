@@ -8,7 +8,7 @@ import { BrowserService, BrowserServiceType } from "../../service/browser_servic
 import { IFragment } from "./fragment_interface";
 
 export abstract class Fragment implements IFragment {
-  public childFragments: Fragment[] = [];
+  public readonly childFragments: Set<Fragment> = new Set();
   readonly contentView = new ViewGroup();
   readonly #visibilityEvent: (status: boolean) => void;
   readonly #resizeEvent: (event: UIEvent) => void;
@@ -70,13 +70,14 @@ export abstract class Fragment implements IFragment {
   }
 
   public async addFragment(fragment: Fragment) {
-    this.childFragments.push(fragment);
+    this.childFragments.add(fragment);
     await fragment._beforeAttached();
-    this.contentView.addView(fragment.contentView);
+    await this.contentView.addView(fragment.contentView);
   }
 
   public async replaceFragment(newFragment: Fragment, oldFragment: Fragment) {
-    this.childFragments[this.childFragments.indexOf(oldFragment)] = newFragment;
+    this.childFragments.delete(oldFragment);
+    this.childFragments.add(newFragment);
     const children = this.contentView._element.children;
     const length = children.length;
     for (let index = 0; index < length; index++) {
@@ -95,9 +96,8 @@ export abstract class Fragment implements IFragment {
   public async removeFragment(fragment: Fragment) {
     fragment.listenBrowserEvents(false);
     await fragment._beforeDestroyed();
-    const target = this.childFragments.find(item => item === fragment);
-    this.childFragments.deleteItem(target!);
-    target?.contentView.remove();
+    this.childFragments.delete(fragment);
+    fragment.contentView.remove();
   }
 
   public listenBrowserEvents(needListen: boolean) {
@@ -126,7 +126,7 @@ export abstract class Fragment implements IFragment {
     await this.childFragments.forEach(child => {
       child._beforeDestroyed();
     });
-    this.childFragments = [];
+    this.childFragments.clear();
     await this.onDetached();
   }
 }
