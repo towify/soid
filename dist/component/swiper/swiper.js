@@ -58,7 +58,7 @@ export class Swiper extends RelativeLayout {
     handleSliderAnimation(managers) {
         let index = 0;
         let animation;
-        let length = this.subviews.length;
+        let length = this.children.size;
         let isInitial = true;
         const sequence = () => {
             animation = managers[index]

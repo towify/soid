@@ -15,7 +15,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     }
     return privateMap.get(receiver);
 };
-var _itemCount, _possibleCount, _normalHolderArea, _viewHolders, _movedCount, _invisibleCount, _viewPosition, _beginPassCount, __afterDatasetChanged, _viewHolder, _holderTypes, _normalHolder, _specialHolderTypes, _contentArea, _displayedSpecialHoldersArea, _firstScreenSpecialHolderCount, _footer, _normalHolderDisplayType, _headerSpecialHoldersHeight, _position, _specialHolders, _flipPageCount, _fixedOffset;
+var _itemCount, _possibleCount, _normalHolderArea, _viewHolders, _movedCount, _invisibleCount, _viewPosition, _beginPassCount, __afterDatasetChanged, _specialHolderTypes, _viewHolder, _holderTypes, _normalHolder, _contentArea, _displayedSpecialHoldersArea, _firstScreenSpecialHolderCount, _footer, _normalHolderDisplayType, _headerSpecialHoldersHeight, _position, _specialHolders, _flipPageCount, _fixedOffset;
 import { DisplayType, Orientation } from "../../value/style/style";
 import { RecyclerViewHolderType, SpecialViewHolderPosition } from "./recycler_view_holder";
 export class RecyclerViewAdapter {
@@ -34,10 +34,10 @@ export class RecyclerViewAdapter {
         // how many count disappeared that the move engine will start to work
         _beginPassCount.set(this, 2);
         __afterDatasetChanged.set(this, void 0);
+        _specialHolderTypes.set(this, []);
         _viewHolder.set(this, void 0);
         _holderTypes.set(this, void 0);
         _normalHolder.set(this, void 0);
-        _specialHolderTypes.set(this, []);
         _contentArea.set(this, 0);
         _displayedSpecialHoldersArea.set(this, 0);
         _firstScreenSpecialHolderCount.set(this, 0);
@@ -395,4 +395,4 @@ export class RecyclerViewAdapter {
         }
     }
 }
-_itemCount = new WeakMap(), _possibleCount = new WeakMap(), _normalHolderArea = new WeakMap(), _viewHolders = new WeakMap(), _movedCount = new WeakMap(), _invisibleCount = new WeakMap(), _viewPosition = new WeakMap(), _beginPassCount = new WeakMap(), __afterDatasetChanged = new WeakMap(), _viewHolder = new WeakMap(), _holderTypes = new WeakMap(), _normalHolder = new WeakMap(), _specialHolderTypes = new WeakMap(), _contentArea = new WeakMap(), _displayedSpecialHoldersArea = new WeakMap(), _firstScreenSpecialHolderCount = new WeakMap(), _footer = new WeakMap(), _normalHolderDisplayType = new WeakMap(), _headerSpecialHoldersHeight = new WeakMap(), _position = new WeakMap(), _specialHolders = new WeakMap(), _flipPageCount = new WeakMap(), _fixedOffset = new WeakMap();
+_itemCount = new WeakMap(), _possibleCount = new WeakMap(), _normalHolderArea = new WeakMap(), _viewHolders = new WeakMap(), _movedCount = new WeakMap(), _invisibleCount = new WeakMap(), _viewPosition = new WeakMap(), _beginPassCount = new WeakMap(), __afterDatasetChanged = new WeakMap(), _specialHolderTypes = new WeakMap(), _viewHolder = new WeakMap(), _holderTypes = new WeakMap(), _normalHolder = new WeakMap(), _contentArea = new WeakMap(), _displayedSpecialHoldersArea = new WeakMap(), _firstScreenSpecialHolderCount = new WeakMap(), _footer = new WeakMap(), _normalHolderDisplayType = new WeakMap(), _headerSpecialHoldersHeight = new WeakMap(), _position = new WeakMap(), _specialHolders = new WeakMap(), _flipPageCount = new WeakMap(), _fixedOffset = new WeakMap();

@@ -24,7 +24,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     }
     return privateMap.get(receiver);
 };
-var _preDisplayedContent, _contents, _pageContainer, _menu;
+var _contents, _pageContainer, _menu, _preDisplayedContent;
 import { RelativeLayout } from "../relative_layout";
 import { DisplayType, StyleTag } from "../../value/style/style";
 import { ViewGroup } from "../../base/view_group";
@@ -34,10 +34,10 @@ export class SegmentContainer extends ViewGroup {
         super();
         this.type = type;
         this.subviews = [];
-        _preDisplayedContent.set(this, void 0);
         _contents.set(this, []);
         _pageContainer.set(this, new RelativeLayout());
         _menu.set(this, void 0);
+        _preDisplayedContent.set(this, void 0);
         __classPrivateFieldSet(this, _menu, new SegmentMenu(type));
         this.style.addRule(StyleTag.Display, DisplayType.Grid);
         __classPrivateFieldGet(this, _pageContainer).setFullParent();
@@ -118,7 +118,7 @@ export class SegmentContainer extends ViewGroup {
         });
     }
 }
-_preDisplayedContent = new WeakMap(), _contents = new WeakMap(), _pageContainer = new WeakMap(), _menu = new WeakMap();
+_contents = new WeakMap(), _pageContainer = new WeakMap(), _menu = new WeakMap(), _preDisplayedContent = new WeakMap();
 export class SegmentModel {
     constructor(page) {
         this.page = page;

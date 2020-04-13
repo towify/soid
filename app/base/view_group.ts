@@ -9,7 +9,7 @@ import { DisplayType, StyleTag } from "../value/style/style";
 import { SequenceTaskManager } from "../manager/sequence_task_manager";
 
 export class ViewGroup extends View {
-  public subviews: View[] = [];
+  public readonly children: Set<View> = new Set();
   readonly #sequenceManager = new SequenceTaskManager();
 
   constructor(element?: HTMLDivElement) {
@@ -18,7 +18,7 @@ export class ViewGroup extends View {
 
   // Basic Dom Operation Methods
   public addView(view: View) {
-    this.subviews.push(view);
+    this.children.add(view);
     this.#sequenceManager.addTask((async () => {
       await view._prepareLifeCycle();
       this._element.appendChild(view._element);
@@ -31,12 +31,12 @@ export class ViewGroup extends View {
     }
     if (type === DisplayType.None) {
       if (this.isDisplayNone !== undefined) this.onHide();
-      this.subviews.forEach(view => view.onHide());
+      this.children.forEach(child => child.onHide());
       this.isDisplayNone = true;
     } else {
       if (this.isDisplayNone) {
         this.onShow();
-        this.subviews.forEach(view => view.onShow());
+        this.children.forEach(child => child.onShow());
         this.isDisplayNone = false;
       }
     }
@@ -45,12 +45,18 @@ export class ViewGroup extends View {
   }
 
   public getSubviewByElement<T extends View>(element: HTMLDivElement) {
-    return this.subviews.find(view => view._element === element) as T;
+    const childViews = this.children.values();
+    for (const view of childViews) {
+      if (view._element === element) {
+        return view as T;
+      }
+    }
+    return undefined;
   }
 
   public async addDomFragment(domFragment: DomFragment) {
     await domFragment._beforeAttached();
-    await domFragment.hodViews.forEach(view => this.subviews.push(view));
+    await domFragment.hodViews.forEach(view => this.children.add(view));
     await this._element.appendChild(domFragment.fragment);
   }
 
@@ -72,12 +78,12 @@ export class ViewGroup extends View {
   }
 
   public clear(): void {
-    this.subviews.forEach(child => {
+    this.children.forEach(child => {
       if (child instanceof ViewGroup) {
         child.clear();
       }
       child.remove();
     });
-    this.subviews = [];
+    this.children.clear();
   }
 }

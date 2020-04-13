@@ -29,7 +29,7 @@ import { ViewGroup } from "../view_group";
 import { BrowserService, BrowserServiceType } from "../../service/browser_service";
 export class Fragment {
     constructor() {
-        this.childFragments = [];
+        this.childFragments = new Set();
         this.contentView = new ViewGroup();
         _visibilityEvent.set(this, void 0);
         _resizeEvent.set(this, void 0);
@@ -92,14 +92,15 @@ export class Fragment {
     }
     addFragment(fragment) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.childFragments.push(fragment);
+            this.childFragments.add(fragment);
             yield fragment._beforeAttached();
-            this.contentView.addView(fragment.contentView);
+            yield this.contentView.addView(fragment.contentView);
         });
     }
     replaceFragment(newFragment, oldFragment) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.childFragments[this.childFragments.indexOf(oldFragment)] = newFragment;
+            this.childFragments.delete(oldFragment);
+            this.childFragments.add(newFragment);
             const children = this.contentView._element.children;
             const length = children.length;
             for (let index = 0; index < length; index++) {
@@ -119,9 +120,8 @@ export class Fragment {
         return __awaiter(this, void 0, void 0, function* () {
             fragment.listenBrowserEvents(false);
             yield fragment._beforeDestroyed();
-            const target = this.childFragments.find(item => item === fragment);
-            this.childFragments.deleteItem(target);
-            target === null || target === void 0 ? void 0 : target.contentView.remove();
+            this.childFragments.delete(fragment);
+            fragment.contentView.remove();
         });
     }
     listenBrowserEvents(needListen) {
@@ -152,7 +152,7 @@ export class Fragment {
             yield this.childFragments.forEach(child => {
                 child._beforeDestroyed();
             });
-            this.childFragments = [];
+            this.childFragments.clear();
             yield this.onDetached();
         });
     }

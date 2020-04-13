@@ -1,5 +1,6 @@
 import { Color } from "../../value/color";
 import { TextView } from "../text_view";
+import { Align } from "../../value/style/style";
 export interface SelectionInterface {
     setBackgroundColor(color: Color): this;
     onClickOption(hold: (item: TextView) => void): this;
@@ -13,5 +14,7 @@ export interface SelectionInterface {
     setOptionHeight(value: number): this;
     setWidth(value: number): this;
     setArrowColor(color: Color): this;
+    setContentTextAlign(align: Align): this;
+    setOptionBoardRadius(radius: number): this;
     setData(data: string[], defaultIndex: number, bindOption: (option: TextView) => void): Promise<void>;
 }

@@ -92,8 +92,9 @@ export abstract class RecyclerView extends ViewGroup implements IRecyclerView {
     this.contentView.addView(view);
   }
 
-  getSubviewByElement<T extends View>(element: HTMLDivElement): T {
-    return this.contentView.subviews.find(view => view._element === element) as T;
+  getSubviewByElement<T extends View>(element: HTMLDivElement): T | undefined {
+    // return this.contentView.subviews.find(view => view._element === element) as T;
+    return this.contentView.getSubviewByElement<T>(element);
   }
 
   private onCreate() {

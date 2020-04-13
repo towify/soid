@@ -45,6 +45,11 @@ export abstract class View {
   }
 
   // Property Methods
+  public setDataset(key: string, value: string) {
+    this._element.dataset[key] = value;
+    return this;
+  }
+
   public setID(id: string) {
     this._element.id = id;
     return this;

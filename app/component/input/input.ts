@@ -27,9 +27,9 @@ export class Input extends RelativeLayout implements InputInterface {
     super();
     this
       .setDisplay(DisplayType.Flex)
-      .setMinHeight(30)
+      .setMinHeight(20)
       .setOverflow("hidden")
-      .setHorizontalPadding(15)
+      .setHorizontalPadding(10)
       .setBackgroundColor(Color.white);
     this.#clearButton
       .setWidth(this.#clearButtonSize)
@@ -37,7 +37,6 @@ export class Input extends RelativeLayout implements InputInterface {
       .setRightPadding(10)
       .setRight(0)
       .setDisplay(DisplayType.None)
-      .setImage("resource/image/close_icon.svg")
       .setMode(ImageMode.AspectFit)
       .setCursor(Cursor.Pointer)
       .onClick(_ => {
@@ -72,7 +71,7 @@ export class Input extends RelativeLayout implements InputInterface {
   public removeClearButton() {
     this.#_hasClearButton = false;
     this.#clearButton.remove();
-    this.#inputStyle.addRule(StyleTag.Width, "100%");
+    this.#inputStyle.addRule(StyleTag.Width, `calc(100% - ${(this.paddingLeft || 0) + (this.paddingRight || 0)}px)`);
     this.#placeHolder.setPercentWidth(100);
     return this;
   }
@@ -150,11 +149,11 @@ export class Input extends RelativeLayout implements InputInterface {
     return this;
   }
 
-  public onBlur(action: () => void) {
+  public onBlur(action: (event: FocusEvent) => void) {
     if (!this.#blurEvent && this.isEnable && this.isFocusable) {
       this.#blurEvent = (event) => {
         if (!this.isEnable || !this.isFocusable) return;
-        action();
+        action(event);
         if (!this.value.length) this.#placeHolder.setOpacity(1).updateStyle();
         event.stopPropagation();
       };
@@ -216,9 +215,14 @@ export class Input extends RelativeLayout implements InputInterface {
 
   private showClearButton(status: boolean) {
     if (status && this.#_hasClearButton) {
-      this.#clearButton.setDisplay(DisplayType.Block).updateStyle();
+      this.#clearButton
+        .setImage("./resource/image/close_icon.svg")
+        .setDisplay(DisplayType.Block)
+        .updateStyle();
     } else {
-      this.#clearButton.setDisplay(DisplayType.None).updateStyle();
+      this.#clearButton
+        .setDisplay(DisplayType.None)
+        .updateStyle();
     }
     return this;
   }

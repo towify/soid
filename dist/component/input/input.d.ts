@@ -14,7 +14,7 @@ export declare class Input extends RelativeLayout implements InputInterface {
     onHide(): this;
     onFocus(action: () => void): this;
     onChange(hold: (value: string) => void): this;
-    onBlur(action: () => void): this;
+    onBlur(action: (event: FocusEvent) => void): this;
     setTextSize(value: number): this;
     setTextColor(color: Color): this;
     setTextWeight(value: string): this;

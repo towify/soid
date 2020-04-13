@@ -77,7 +77,7 @@ export class SegmentMenu extends LinearLayout {
     onSelected(hold) {
         this.onClick(event => {
             const targetView = this.getSubviewByElement(event.target);
-            if (targetView !== __classPrivateFieldGet(this, _previousSelected)) {
+            if (targetView && targetView !== __classPrivateFieldGet(this, _previousSelected)) {
                 hold(__classPrivateFieldGet(this, _previousSelected), targetView);
                 __classPrivateFieldSet(this, _previousSelected, targetView);
             }

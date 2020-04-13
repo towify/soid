@@ -24,7 +24,7 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
     privateMap.set(receiver, value);
     return value;
 };
-var _selection, _dataList, _optionStyle, _arrow, _isClosing, _optionSelectedColor, _selectedOption, _optionClickEvent, _selectionGap, _arrowColor;
+var _selection, _dataList, _optionStyle, _arrow, _isClosing, _optionSelectedColor, _selectedOption, _optionClickEvent, _selectionGap, _arrowColor, _fontName;
 import { TextType, TextView } from "../text_view";
 import { DomFragment } from "../../base/dom_fragment";
 import { LinearLayout } from "../linear_layout";
@@ -46,18 +46,19 @@ export class Selection extends ViewGroup {
         _optionClickEvent.set(this, void 0);
         _selectionGap.set(this, 0);
         _arrowColor.set(this, new Color("black"));
+        _fontName.set(this, void 0);
         this
             .setDisplay(DisplayType.Grid)
             .addStyleRule(StyleTag.GridTemplateColumns, "auto 15px")
             .setAlignItem(JustifyContent.Center)
-            .setPosition(ViewPosition.Relative);
-        __classPrivateFieldGet(this, _selection).setPercentWidth(100)
+            .setPosition(ViewPosition.Relative)
+            .onClick(_ => this.switchDatalist());
+        __classPrivateFieldGet(this, _selection).setPointerEvent("none")
+            .setPercentWidth(100)
             .setPercentHeight(100)
             .setText("Default")
-            .setTextType(TextType.Small)
-            .onClick(_ => this.switchDatalist());
+            .setTextType(TextType.Small);
         __classPrivateFieldGet(this, _arrow).setPointerEvent("none")
-            .setRight(10)
             .setWidth(0)
             .setHeight(0)
             .setRightBorder("3px solid transparent")
@@ -96,6 +97,11 @@ export class Selection extends ViewGroup {
         __classPrivateFieldGet(this, _dataList).setWidth(value);
         return super.setWidth(value);
     }
+    setContentTextAlign(align) {
+        __classPrivateFieldGet(this, _optionStyle).addRule(StyleTag.TextAlign, align);
+        __classPrivateFieldGet(this, _selection).setTextAlign(align);
+        return this;
+    }
     setData(data, defaultIndex, bindOption) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
@@ -105,6 +111,7 @@ export class Selection extends ViewGroup {
                 option = new TextView()
                     .resetStyle(__classPrivateFieldGet(this, _optionStyle))
                     .setText(item);
+                !__classPrivateFieldGet(this, _fontName) || option.setFont(__classPrivateFieldGet(this, _fontName));
                 if (index === defaultIndex) {
                     __classPrivateFieldGet(this, _selection).setText(item);
                     __classPrivateFieldSet(this, _selectedOption, option);
@@ -146,9 +153,22 @@ export class Selection extends ViewGroup {
         __classPrivateFieldGet(this, _selection).setTextSize(value);
         return this;
     }
+    setTextWeight(value) {
+        __classPrivateFieldGet(this, _selection).setTextWeight(value);
+        return this;
+    }
+    setFont(value) {
+        __classPrivateFieldGet(this, _selection).setFont(value);
+        __classPrivateFieldSet(this, _fontName, value);
+        return this;
+    }
     setRadius(radius) {
         __classPrivateFieldGet(this, _dataList).setRadius(radius);
         return super.setRadius(radius);
+    }
+    setOptionBoardRadius(radius) {
+        __classPrivateFieldGet(this, _dataList).setRadius(radius);
+        return this;
     }
     setGapBetweenSelectionAndOption(value) {
         __classPrivateFieldSet(this, _selectionGap, value);
@@ -214,4 +234,4 @@ export class Selection extends ViewGroup {
         });
     }
 }
-_selection = new WeakMap(), _dataList = new WeakMap(), _optionStyle = new WeakMap(), _arrow = new WeakMap(), _isClosing = new WeakMap(), _optionSelectedColor = new WeakMap(), _selectedOption = new WeakMap(), _optionClickEvent = new WeakMap(), _selectionGap = new WeakMap(), _arrowColor = new WeakMap();
+_selection = new WeakMap(), _dataList = new WeakMap(), _optionStyle = new WeakMap(), _arrow = new WeakMap(), _isClosing = new WeakMap(), _optionSelectedColor = new WeakMap(), _selectedOption = new WeakMap(), _optionClickEvent = new WeakMap(), _selectionGap = new WeakMap(), _arrowColor = new WeakMap(), _fontName = new WeakMap();

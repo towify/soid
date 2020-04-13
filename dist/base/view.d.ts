@@ -10,6 +10,7 @@ export declare abstract class View {
     protected initialDisplayType?: DisplayType;
     protected constructor(element?: HTMLDivElement | undefined);
     addStyleRule(tag: StyleTag, value: string): this;
+    setDataset(key: string, value: string): this;
     setID(id: string): this;
     get id(): string | undefined;
     setAttribute(qualifiedName: string, value: string): this;

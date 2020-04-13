@@ -29,6 +29,8 @@ import { Swiper } from "./component/swiper/swiper";
 import { SegmentContainer, TabsType } from "./component/segment/segment_container";
 import { SegmentMenu } from "./component/segment/segment_menu";
 import { FolderItem, FolderView } from "./component/folder/folder_view";
+import { SelectionInput } from "./component/selection_input/selection_input";
+import { ButtonInput } from "./component/button_input/button_input";
 
 const cellWidth = 200;
 
@@ -45,15 +47,25 @@ export class Main extends App {
 
 class Test2 extends Fragment {
   protected async onCreateView(context: ViewGroup): Promise<void> {
-    context.setWidth(500).setHeight(500);
-    context.addView(new TextView().setFullParent().setBackgroundColor(new Color("blue")));
+    context
+      .setWidth(500)
+      .setHeight(500);
+    context
+      .addView(new TextView()
+        .setFullParent()
+        .setBackgroundColor(new Color("blue")));
   }
 }
 
 class Test3 extends Fragment {
   protected async onCreateView(context: ViewGroup): Promise<void> {
-    context.setWidth(500).setHeight(500);
-    context.addView(new TextView().setFullParent().setBackgroundColor(new Color("red")));
+    context
+      .setWidth(500)
+      .setHeight(500);
+    context
+      .addView(new TextView()
+        .setFullParent()
+        .setBackgroundColor(new Color("red")));
   }
 }
 
@@ -62,12 +74,25 @@ class Text extends Fragment {
   private test2 = new Test2();
   private test3 = new Test3();
 
+  protected async onPause(): Promise<any> {
+    super.onPause();
+  }
+
+  protected async onStart(): Promise<any> {
+    super.onStart();
+  }
+
   protected async onCreateView(context: ViewGroup): Promise<void> {
     this.layout
       .setWidth(900)
       .setBorder("2px solid yellow")
       .setBackgroundColor(Color.black);
-    print.register("board1").register("board2").mount(this.layout);
+
+    print
+      .register("board1")
+      .register("board2")
+      .mount(this.layout);
+
     this.addFragment(this.test2);
     let rect;
     let textView;
@@ -80,8 +105,10 @@ class Text extends Fragment {
         .setMargin("10px")
         .onClick(() => {
           this.replaceFragment(this.test3, this.test2);
+          console.log(this.childFragments)
           setTimeout(() => {
             this.replaceFragment(this.test2, this.test3);
+            console.log(this.childFragments)
           }, 3000);
         });
       if (index === 1) {
@@ -114,6 +141,7 @@ class Text extends Fragment {
       .setHeight(300)
       .setClass("test")
       .setBackgroundColor(new Color("yellow"));
+
     for (let index = 0; index < 2; index++) {
       const rectAngle = new Rectangle()
         .setWidth(100)
@@ -135,6 +163,7 @@ class Text extends Fragment {
       .setRowGap(10)
       .setColumnGap(10)
       .setBackgroundColor(new Color("purple"));
+
     const button = new IconButton()
       .setText("Confirm")
       .setBackgroundColor(new Color("blue"))
@@ -177,13 +206,44 @@ class Text extends Fragment {
       .setRadius(5)
       .setArrowColor(new Color("red"))
       .onClickOption(item => {
-        console.log(item, 'item');
+        console.log(item, "item");
       });
 
+    const inputSelection = new SelectionInput()
+      .onFocus(() => {})
+      .onBlur(() => {})
+      .setInputTextColor(new Color("blue"))
+      .setInputTextSize(14)
+      .setHeight(20)
+      .setInputBorder(0.5, new Color("yellow"))
+      .setPlaceholder("Opacity")
+      .setPlaceholderColor(new Color("red"))
+      .setSelectionBackgroundColor(new Color("gray"))
+      .setOptionSelectedBackgroundColor(new Color("olive"))
+      .setBackgroundColor(Color.white)
+      .setWidth(200)
+      .setTop(150);
+    const selectionData = ["%", "PX"];
+    inputSelection.setSelectionData(selectionData, 0).then();
     selection.setData(["Jack Bos", "Hello Kitty", "Amazing Kiss"], 2).then();
+
+    const iconSelection = new ButtonInput()
+      .setRadius(5)
+      .setWidth(200)
+      .setHeight(40)
+      .setTop(190)
+      .setBackgroundColor(Color.white)
+      .setIconBackgroundColor(Color.black)
+      .onClickButton(() => {
+        console.log("hello 1");
+      })
+      .setImage("./resource/image/image_icon.svg");
+
     gridLayout.addView(button, 0, 1);
     gridLayout.addView(input, 1, 1);
     gridLayout.addView(selection, 1, 1);
+    gridLayout.addView(inputSelection, 1, 1);
+    gridLayout.addView(iconSelection, 1, 1);
 
     const recyclerView = new MyRecyclerView().setWidth(cellWidth);
     recyclerView.adapter = new MyRecyclerViewAdapter(

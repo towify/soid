@@ -11,7 +11,7 @@ import { Color } from "../../value/color";
 import { View } from "../../base/view";
 
 export class FolderView extends ViewGroup {
-  readonly #subItems: FolderItem[] = [];
+  readonly subItems: FolderItem[] = [];
 
   constructor() {
     super();
@@ -21,42 +21,52 @@ export class FolderView extends ViewGroup {
       .addStyleRule(StyleTag.RowGap, "10px");
   }
 
-  addItem(item: FolderItem, parentID?: string) {
-    if (parentID) {
-      let parent = this.#subItems.find(item => item.id === parentID);
-      if (parent) {
-        parent
-          ?.fold(false)
-          ?.addView(item);
-      } else {
-        let length = this.#subItems.length;
-        let needBreak = false;
-        for (let index = 0; index < length; index++) {
-          this.#subItems[index].getItemByID(parentID, parent => {
-            if (parent) {
-              parent
-                ?.fold(false)
-                ?.addView(item);
-              needBreak = true;
-            }
-          });
-          if (needBreak) break;
-        }
-      }
+  getItemById(id: string, hold: (item: FolderItem) => void) {
+    let result = this.subItems.find(item => item.id === id);
+    if (result) {
+      hold(result);
     } else {
-      this.#subItems.push(item);
+      for (let item of this.subItems) {
+        item.getItemByID(id, child => {
+          if (child) {
+            result = child;
+            hold(result);
+          }
+        });
+        if (result) break;
+      }
+    }
+  }
+
+  addItem(item: FolderItem, parent?: FolderItem) {
+    if (parent) {
+      parent
+        ?.fold(false)
+        ?.addItem(item);
+    } else {
+      this.subItems.push(item);
       this.addView(item);
     }
     return this;
   }
+
+  removeChildItem(item: FolderItem) {
+    const targetIndex = this.subItems.indexOf(item);
+    if (targetIndex >= 0) {
+      this.subItems.splice(targetIndex, 1);
+      item.remove();
+    }
+  }
 }
 
 export class FolderItem extends ViewGroup {
-  #arrow = new ImageView();
-  #icon = new ImageView();
-  #title = new TextView();
-  #container = new ViewGroup();
-  #subItems: FolderItem[] = [];
+  readonly subItems: FolderItem[] = [];
+  readonly #arrow = new ImageView();
+  readonly #icon = new ImageView();
+  readonly #title = new TextView();
+  readonly #container = new ViewGroup();
+  #_parentItem?: FolderItem;
+  #_model?: FolderItemModel;
   #_isFolded = true;
 
   constructor() {
@@ -116,7 +126,21 @@ export class FolderItem extends ViewGroup {
     return this.#_isFolded;
   }
 
+  get model() {
+    return this.#_model;
+  }
+
+  get parentItem() {
+    return this.#_parentItem;
+  }
+
+  setParentItem(parentItem: FolderItem) {
+    this.#_parentItem = parentItem;
+    return this;
+  }
+
   setModel(model: FolderItemModel) {
+    this.#_model = model;
     this.#icon?.setImage(model.iconPath);
     this.#title?.setText(model.name);
     this.#arrow.setDisplay(model.isParent ? DisplayType.Block : DisplayType.None);
@@ -131,7 +155,7 @@ export class FolderItem extends ViewGroup {
       if (!this.#container.isDisplayNone) {
         this.dropArrowStyle(false);
         this.#container.setDisplay(DisplayType.None).updateStyle();
-        this.#subItems.forEach(item => item.fold(true));
+        this.subItems.forEach(item => item.fold(true));
       }
     } else {
       if (this.#container.isDisplayNone) {
@@ -143,19 +167,57 @@ export class FolderItem extends ViewGroup {
   }
 
   getItemByID(id: string, hold: (item: FolderItem) => void) {
-    const item = this.#subItems.find(item => item.id === id);
+    let item = this.subItems.find(item => item.id === id);
     if (item) {
       hold(item);
     } else {
-      for (let index = 0; index < this.#subItems.length; index++) {
-        this.#subItems[index].getItemByID(id, hold);
+      for (let subItem of this.subItems) {
+        subItem.getItemByID(id, child => {
+          if (child.id === id) {
+            item = child;
+            hold(item);
+          }
+        });
+        if (item) break;
       }
     }
   }
 
   addView(view: View) {
-    this.#container.addView(view);
-    this.#subItems.push(view as FolderItem);
+    throw Error("You can't add view into fold item component but it instanceof fold item type");
+  }
+
+  addItem(item: FolderItem) {
+    this.#container.addView(item);
+    this.subItems.push(item);
+    item.setParentItem(this);
+  }
+
+  removeChildItem(item: FolderItem) {
+    this.removeSubItem(this);
+    return this;
+  }
+
+  removeSelf() {
+    !this.parentItem || this.removeSubItem(this.parentItem);
+    return this;
+  }
+
+  isEmptyFold() {
+    this.#arrow.setDisplay(DisplayType.None).updateStyle();
+    this.#container.setDisplay(DisplayType.None).updateStyle();
+    return this;
+  }
+
+  private removeSubItem(parentItem: FolderItem) {
+    const targetIndex = parentItem.subItems.indexOf(this);
+    if (targetIndex >= 0) {
+      parentItem.subItems.splice(targetIndex, 1);
+      this.remove();
+      if (parentItem.subItems.length === 0) {
+        parentItem.isEmptyFold();
+      }
+    }
   }
 
   async beforeAttached(): Promise<any> {
@@ -170,7 +232,7 @@ export class FolderItem extends ViewGroup {
     if (isDropStyle) {
       this.#arrow
         .setRotate(0)
-        .updateStyle()
+        .updateStyle();
     } else {
       this.#arrow
         .setRotate(-90)

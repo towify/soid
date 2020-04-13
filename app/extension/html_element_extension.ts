@@ -15,14 +15,12 @@ declare global {
   }
 }
 
-HTMLElement.prototype.addDomFragment = function (domFragment) {
-  domFragment._beforeAttached().then(_ => {
-    this.appendChild(domFragment.fragment);
-  });
+HTMLElement.prototype.addDomFragment = async function (domFragment) {
+  await domFragment._beforeAttached();
+  await this.appendChild(domFragment.fragment);
 };
-HTMLElement.prototype.addView = function (view) {
-  view._prepareLifeCycle().then(_ => {
-    this.appendChild(view._element);
-  });
+HTMLElement.prototype.addView = async function (view) {
+  await view._prepareLifeCycle();
+  await this.appendChild(view._element);
 };
 export {};

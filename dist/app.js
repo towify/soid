@@ -66,10 +66,10 @@ export class App {
             yield model.fragment._beforeAttached();
             this.childFragment.push(model);
             if (__classPrivateFieldGet(this, _hasCommitted)) {
-                document.body.addView(model.fragment.contentView);
+                yield document.body.addView(model.fragment.contentView);
             }
             else {
-                __classPrivateFieldGet(this, _domFragment).addView(model.fragment.contentView);
+                yield __classPrivateFieldGet(this, _domFragment).addView(model.fragment.contentView);
             }
         });
     }
@@ -97,8 +97,8 @@ export class App {
     removeFragment(fragment) {
         return __awaiter(this, void 0, void 0, function* () {
             // Remove all of this fragment's listener events in browser service
-            fragment.listenBrowserEvents(false);
             yield fragment._beforeDestroyed();
+            fragment.listenBrowserEvents(false);
             const targetPosition = this.getTargetChildFragmentPosition(fragment);
             if (targetPosition) {
                 this.childFragment.splice(targetPosition, 1);
@@ -131,6 +131,7 @@ export class App {
             .find((model, index) => {
             if (model.fragment === fragment) {
                 position = index;
+                return true;
             }
         });
         return position;

@@ -24,7 +24,7 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
     privateMap.set(receiver, value);
     return value;
 };
-var _subItems, _arrow, _icon, _title, _container, _subItems_1, __isFolded;
+var _arrow, _icon, _title, _container, __parentItem, __model, __isFolded;
 import { ViewGroup } from "../../base/view_group";
 import { ImageMode, ImageView } from "../image_view";
 import { TextOverflow, TextView } from "../text_view";
@@ -33,51 +33,59 @@ import { Color } from "../../value/color";
 export class FolderView extends ViewGroup {
     constructor() {
         super();
-        _subItems.set(this, []);
+        this.subItems = [];
         this
             .setDisplay(DisplayType.Grid)
             .setPercentWidth(100)
             .addStyleRule(StyleTag.RowGap, "10px");
     }
-    addItem(item, parentID) {
-        var _a;
-        if (parentID) {
-            let parent = __classPrivateFieldGet(this, _subItems).find(item => item.id === parentID);
-            if (parent) {
-                (_a = parent === null || parent === void 0 ? void 0 : parent.fold(false)) === null || _a === void 0 ? void 0 : _a.addView(item);
-            }
-            else {
-                let length = __classPrivateFieldGet(this, _subItems).length;
-                let needBreak = false;
-                for (let index = 0; index < length; index++) {
-                    __classPrivateFieldGet(this, _subItems)[index].getItemByID(parentID, parent => {
-                        var _a;
-                        if (parent) {
-                            (_a = parent === null || parent === void 0 ? void 0 : parent.fold(false)) === null || _a === void 0 ? void 0 : _a.addView(item);
-                            needBreak = true;
-                        }
-                    });
-                    if (needBreak)
-                        break;
-                }
-            }
+    getItemById(id, hold) {
+        let result = this.subItems.find(item => item.id === id);
+        if (result) {
+            hold(result);
         }
         else {
-            __classPrivateFieldGet(this, _subItems).push(item);
+            for (let item of this.subItems) {
+                item.getItemByID(id, child => {
+                    if (child) {
+                        result = child;
+                        hold(result);
+                    }
+                });
+                if (result)
+                    break;
+            }
+        }
+    }
+    addItem(item, parent) {
+        var _a;
+        if (parent) {
+            (_a = parent === null || parent === void 0 ? void 0 : parent.fold(false)) === null || _a === void 0 ? void 0 : _a.addItem(item);
+        }
+        else {
+            this.subItems.push(item);
             this.addView(item);
         }
         return this;
     }
+    removeChildItem(item) {
+        const targetIndex = this.subItems.indexOf(item);
+        if (targetIndex >= 0) {
+            this.subItems.splice(targetIndex, 1);
+            item.remove();
+        }
+    }
 }
-_subItems = new WeakMap();
 export class FolderItem extends ViewGroup {
     constructor() {
         super();
+        this.subItems = [];
         _arrow.set(this, new ImageView());
         _icon.set(this, new ImageView());
         _title.set(this, new TextView());
         _container.set(this, new ViewGroup());
-        _subItems_1.set(this, []);
+        __parentItem.set(this, void 0);
+        __model.set(this, void 0);
         __isFolded.set(this, true);
         this
             .setCursor(Cursor.Pointer)
@@ -122,8 +130,19 @@ export class FolderItem extends ViewGroup {
     get isFolded() {
         return __classPrivateFieldGet(this, __isFolded);
     }
+    get model() {
+        return __classPrivateFieldGet(this, __model);
+    }
+    get parentItem() {
+        return __classPrivateFieldGet(this, __parentItem);
+    }
+    setParentItem(parentItem) {
+        __classPrivateFieldSet(this, __parentItem, parentItem);
+        return this;
+    }
     setModel(model) {
         var _a, _b;
+        __classPrivateFieldSet(this, __model, model);
         (_a = __classPrivateFieldGet(this, _icon)) === null || _a === void 0 ? void 0 : _a.setImage(model.iconPath);
         (_b = __classPrivateFieldGet(this, _title)) === null || _b === void 0 ? void 0 : _b.setText(model.name);
         __classPrivateFieldGet(this, _arrow).setDisplay(model.isParent ? DisplayType.Block : DisplayType.None);
@@ -137,7 +156,7 @@ export class FolderItem extends ViewGroup {
             if (!__classPrivateFieldGet(this, _container).isDisplayNone) {
                 this.dropArrowStyle(false);
                 __classPrivateFieldGet(this, _container).setDisplay(DisplayType.None).updateStyle();
-                __classPrivateFieldGet(this, _subItems_1).forEach(item => item.fold(true));
+                this.subItems.forEach(item => item.fold(true));
             }
         }
         else {
@@ -149,19 +168,53 @@ export class FolderItem extends ViewGroup {
         return this;
     }
     getItemByID(id, hold) {
-        const item = __classPrivateFieldGet(this, _subItems_1).find(item => item.id === id);
+        let item = this.subItems.find(item => item.id === id);
         if (item) {
             hold(item);
         }
         else {
-            for (let index = 0; index < __classPrivateFieldGet(this, _subItems_1).length; index++) {
-                __classPrivateFieldGet(this, _subItems_1)[index].getItemByID(id, hold);
+            for (let subItem of this.subItems) {
+                subItem.getItemByID(id, child => {
+                    if (child.id === id) {
+                        item = child;
+                        hold(item);
+                    }
+                });
+                if (item)
+                    break;
             }
         }
     }
     addView(view) {
-        __classPrivateFieldGet(this, _container).addView(view);
-        __classPrivateFieldGet(this, _subItems_1).push(view);
+        throw Error("You can't add view into fold item component but it instanceof fold item type");
+    }
+    addItem(item) {
+        __classPrivateFieldGet(this, _container).addView(item);
+        this.subItems.push(item);
+        item.setParentItem(this);
+    }
+    removeChildItem(item) {
+        this.removeSubItem(this);
+        return this;
+    }
+    removeSelf() {
+        !this.parentItem || this.removeSubItem(this.parentItem);
+        return this;
+    }
+    isEmptyFold() {
+        __classPrivateFieldGet(this, _arrow).setDisplay(DisplayType.None).updateStyle();
+        __classPrivateFieldGet(this, _container).setDisplay(DisplayType.None).updateStyle();
+        return this;
+    }
+    removeSubItem(parentItem) {
+        const targetIndex = parentItem.subItems.indexOf(this);
+        if (targetIndex >= 0) {
+            parentItem.subItems.splice(targetIndex, 1);
+            this.remove();
+            if (parentItem.subItems.length === 0) {
+                parentItem.isEmptyFold();
+            }
+        }
     }
     beforeAttached() {
         const _super = Object.create(null, {
@@ -187,4 +240,4 @@ export class FolderItem extends ViewGroup {
         }
     }
 }
-_arrow = new WeakMap(), _icon = new WeakMap(), _title = new WeakMap(), _container = new WeakMap(), _subItems_1 = new WeakMap(), __isFolded = new WeakMap();
+_arrow = new WeakMap(), _icon = new WeakMap(), _title = new WeakMap(), _container = new WeakMap(), __parentItem = new WeakMap(), __model = new WeakMap(), __isFolded = new WeakMap();

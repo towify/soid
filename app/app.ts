@@ -46,9 +46,9 @@ export abstract class App {
     await model.fragment._beforeAttached();
     this.childFragment.push(model);
     if (this.#hasCommitted) {
-      document.body.addView(model.fragment.contentView);
+      await document.body.addView(model.fragment.contentView);
     } else {
-      this.#domFragment.addView(model.fragment.contentView);
+      await this.#domFragment.addView(model.fragment.contentView);
     }
   }
 
@@ -74,8 +74,8 @@ export abstract class App {
 
   public async removeFragment(fragment: Fragment) {
     // Remove all of this fragment's listener events in browser service
-    fragment.listenBrowserEvents(false);
     await fragment._beforeDestroyed();
+    fragment.listenBrowserEvents(false);
     const targetPosition = this.getTargetChildFragmentPosition(fragment);
     if (targetPosition) {
       this.childFragment.splice(targetPosition, 1);
@@ -108,6 +108,7 @@ export abstract class App {
       .find((model, index) => {
         if (model.fragment === fragment) {
           position = index;
+          return true;
         }
       });
     return position;

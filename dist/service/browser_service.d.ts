@@ -9,5 +9,6 @@ export declare class BrowserService {
 }
 export declare enum BrowserServiceType {
     VisibilityChange = "visibilitychange",
-    Resize = "resize"
+    Resize = "resize",
+    Click = "click"
 }

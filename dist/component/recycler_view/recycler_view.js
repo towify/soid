@@ -111,7 +111,8 @@ export class RecyclerView extends ViewGroup {
         this.contentView.addView(view);
     }
     getSubviewByElement(element) {
-        return this.contentView.subviews.find(view => view._element === element);
+        // return this.contentView.subviews.find(view => view._element === element) as T;
+        return this.contentView.getSubviewByElement(element);
     }
     onCreate() {
         // Control Scroll Speed For Recycler View

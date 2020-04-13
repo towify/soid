@@ -7,6 +7,7 @@ import { TextType, TextView } from "../text_view";
 import { DomFragment } from "../../base/dom_fragment";
 import { LinearLayout } from "../linear_layout";
 import {
+  Align,
   Cursor,
   DisplayType,
   JustifyContent,
@@ -31,6 +32,7 @@ export class Selection extends ViewGroup implements SelectionInterface {
   #optionClickEvent?: (item: TextView) => void;
   #selectionGap = 0;
   #arrowColor = new Color("black");
+  #fontName?: string;
 
   constructor(private readonly isFixedOption: boolean = false) {
     super();
@@ -38,18 +40,18 @@ export class Selection extends ViewGroup implements SelectionInterface {
       .setDisplay(DisplayType.Grid)
       .addStyleRule(StyleTag.GridTemplateColumns, "auto 15px")
       .setAlignItem(JustifyContent.Center)
-      .setPosition(ViewPosition.Relative);
+      .setPosition(ViewPosition.Relative)
+      .onClick(_ => this.switchDatalist());
 
     this.#selection
+      .setPointerEvent("none")
       .setPercentWidth(100)
       .setPercentHeight(100)
       .setText("Default")
-      .setTextType(TextType.Small)
-      .onClick(_ => this.switchDatalist());
+      .setTextType(TextType.Small);
 
     this.#arrow
       .setPointerEvent("none")
-      .setRight(10)
       .setWidth(0)
       .setHeight(0)
       .setRightBorder("3px solid transparent")
@@ -98,6 +100,13 @@ export class Selection extends ViewGroup implements SelectionInterface {
     return super.setWidth(value);
   }
 
+  public setContentTextAlign(align: Align): this {
+    this.#optionStyle
+      .addRule(StyleTag.TextAlign, align);
+    this.#selection.setTextAlign(align);
+    return this;
+  }
+
   public async setData(
     data: string[],
     defaultIndex: number,
@@ -109,6 +118,7 @@ export class Selection extends ViewGroup implements SelectionInterface {
       option = new TextView()
         .resetStyle(this.#optionStyle)
         .setText(item);
+      !this.#fontName || option.setFont(this.#fontName);
       if (index === defaultIndex) {
         this.#selection.setText(item);
         this.#selectedOption = option;
@@ -155,9 +165,25 @@ export class Selection extends ViewGroup implements SelectionInterface {
     return this;
   }
 
+  setTextWeight(value: string) {
+    this.#selection.setTextWeight(value);
+    return this;
+  }
+
+  setFont(value: string) {
+    this.#selection.setFont(value);
+    this.#fontName = value;
+    return this;
+  }
+
   setRadius(radius: number): this {
     this.#dataList.setRadius(radius);
     return super.setRadius(radius);
+  }
+
+  setOptionBoardRadius(radius: number) {
+    this.#dataList.setRadius(radius);
+    return this;
   }
 
   setGapBetweenSelectionAndOption(value: number) {

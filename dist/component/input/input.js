@@ -24,7 +24,7 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
     privateMap.set(receiver, value);
     return value;
 };
-var _placeHolder, _input, _clearButton, _inputStyle, _focusEvent, _blurEvent, _changeEvent, __hasClearButton, __hasDisplayedClearButton, _clearButtonSize;
+var _placeHolder, _input, _clearButton, _inputStyle, _clearButtonSize, _focusEvent, _blurEvent, _changeEvent, __hasClearButton, __hasDisplayedClearButton;
 import { Align, Cursor, DisplayType, Style, StyleTag, ViewPosition } from "../../value/style/style";
 import { RelativeLayout } from "../relative_layout";
 import { TextOverflow, TextView, WhiteSpace } from "../text_view";
@@ -38,24 +38,23 @@ export class Input extends RelativeLayout {
         _input.set(this, document.createElement("input"));
         _clearButton.set(this, new ImageView());
         _inputStyle.set(this, new Style());
+        _clearButtonSize.set(this, 12);
         _focusEvent.set(this, void 0);
         _blurEvent.set(this, void 0);
         _changeEvent.set(this, void 0);
         __hasClearButton.set(this, true);
         __hasDisplayedClearButton.set(this, false);
-        _clearButtonSize.set(this, 12);
         this
             .setDisplay(DisplayType.Flex)
-            .setMinHeight(30)
+            .setMinHeight(20)
             .setOverflow("hidden")
-            .setHorizontalPadding(15)
+            .setHorizontalPadding(10)
             .setBackgroundColor(Color.white);
         __classPrivateFieldGet(this, _clearButton).setWidth(__classPrivateFieldGet(this, _clearButtonSize))
             .setHeight(__classPrivateFieldGet(this, _clearButtonSize))
             .setRightPadding(10)
             .setRight(0)
             .setDisplay(DisplayType.None)
-            .setImage("resource/image/close_icon.svg")
             .setMode(ImageMode.AspectFit)
             .setCursor(Cursor.Pointer)
             .onClick(_ => {
@@ -86,7 +85,7 @@ export class Input extends RelativeLayout {
     removeClearButton() {
         __classPrivateFieldSet(this, __hasClearButton, false);
         __classPrivateFieldGet(this, _clearButton).remove();
-        __classPrivateFieldGet(this, _inputStyle).addRule(StyleTag.Width, "100%");
+        __classPrivateFieldGet(this, _inputStyle).addRule(StyleTag.Width, `calc(100% - ${(this.paddingLeft || 0) + (this.paddingRight || 0)}px)`);
         __classPrivateFieldGet(this, _placeHolder).setPercentWidth(100);
         return this;
     }
@@ -166,7 +165,7 @@ export class Input extends RelativeLayout {
             __classPrivateFieldSet(this, _blurEvent, (event) => {
                 if (!this.isEnable || !this.isFocusable)
                     return;
-                action();
+                action(event);
                 if (!this.value.length)
                     __classPrivateFieldGet(this, _placeHolder).setOpacity(1).updateStyle();
                 event.stopPropagation();
@@ -224,15 +223,18 @@ export class Input extends RelativeLayout {
     }
     showClearButton(status) {
         if (status && __classPrivateFieldGet(this, __hasClearButton)) {
-            __classPrivateFieldGet(this, _clearButton).setDisplay(DisplayType.Block).updateStyle();
+            __classPrivateFieldGet(this, _clearButton).setImage("./resource/image/close_icon.svg")
+                .setDisplay(DisplayType.Block)
+                .updateStyle();
         }
         else {
-            __classPrivateFieldGet(this, _clearButton).setDisplay(DisplayType.None).updateStyle();
+            __classPrivateFieldGet(this, _clearButton).setDisplay(DisplayType.None)
+                .updateStyle();
         }
         return this;
     }
 }
-_placeHolder = new WeakMap(), _input = new WeakMap(), _clearButton = new WeakMap(), _inputStyle = new WeakMap(), _focusEvent = new WeakMap(), _blurEvent = new WeakMap(), _changeEvent = new WeakMap(), __hasClearButton = new WeakMap(), __hasDisplayedClearButton = new WeakMap(), _clearButtonSize = new WeakMap();
+_placeHolder = new WeakMap(), _input = new WeakMap(), _clearButton = new WeakMap(), _inputStyle = new WeakMap(), _clearButtonSize = new WeakMap(), _focusEvent = new WeakMap(), _blurEvent = new WeakMap(), _changeEvent = new WeakMap(), __hasClearButton = new WeakMap(), __hasDisplayedClearButton = new WeakMap();
 export var InputType;
 (function (InputType) {
     InputType["Password"] = "password";

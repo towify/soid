@@ -72,7 +72,7 @@ export class SegmentMenu<Item extends View> extends LinearLayout {
   public onSelected(hold: (previous: Item, current: Item) => void) {
     this.onClick(event => {
       const targetView = this.getSubviewByElement<Item>(event.target as HTMLDivElement);
-      if (targetView !== this.#previousSelected) {
+      if (targetView && targetView !== this.#previousSelected) {
         hold(this.#previousSelected!, targetView);
         this.#previousSelected = targetView;
       }
