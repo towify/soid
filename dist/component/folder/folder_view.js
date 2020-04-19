@@ -28,7 +28,7 @@ var _arrow, _icon, _title, _container, __parentItem, __model, __isFolded;
 import { ViewGroup } from "../../base/view_group";
 import { ImageMode, ImageView } from "../image_view";
 import { TextOverflow, TextView } from "../text_view";
-import { Cursor, DisplayType, JustifyContent, StyleTag } from "../../value/style/style";
+import { DisplayType, JustifyContent, StyleTag } from "../../value/style/style";
 import { Color } from "../../value/color";
 export class FolderView extends ViewGroup {
     constructor() {
@@ -88,7 +88,6 @@ export class FolderItem extends ViewGroup {
         __model.set(this, void 0);
         __isFolded.set(this, true);
         this
-            .setCursor(Cursor.Pointer)
             .setDisplay(DisplayType.Grid)
             .addStyleRule(StyleTag.GridTemplateColumns, "20px 20px auto")
             .addStyleRule(StyleTag.GridTemplateAreas, `"arrow icon title" "container container container"`)

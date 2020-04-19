@@ -6,8 +6,6 @@ export interface InputInterface {
     removeClearButton(): this;
     setValue(value: string): this;
     setType(type: InputType): this;
-    onShow(): this;
-    onHide(): this;
     onFocus(action: () => void): this;
     onChange(hold: (value: string) => void): this;
     onBlur(action: () => void): this;

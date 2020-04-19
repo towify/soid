@@ -40,7 +40,6 @@
     "babel-loader": "^8.1.0",
     "ts-loader": "^6.2.2",
     "typescript": "^3.8.3",
-    "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.10"
   },
@@ -55,5 +54,5 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch:build": "webpack --watch"
   },
-  "version": "1.0.142"
+  "version": "1.0.158"
 }

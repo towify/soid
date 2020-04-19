@@ -33,6 +33,7 @@ export class ViewGroup extends View {
         __classPrivateFieldGet(this, _sequenceManager).addTask((() => __awaiter(this, void 0, void 0, function* () {
             yield view._prepareLifeCycle();
             this._element.appendChild(view._element);
+            yield view.onAttached();
         }))).run();
     }
     setDisplay(type) {
@@ -41,14 +42,14 @@ export class ViewGroup extends View {
         }
         if (type === DisplayType.None) {
             if (this.isDisplayNone !== undefined)
-                this.onHide();
-            this.children.forEach(child => child.onHide());
+                this.prepareToHide();
+            this.children.forEach(child => child.prepareToHide());
             this.isDisplayNone = true;
         }
         else {
             if (this.isDisplayNone) {
-                this.onShow();
-                this.children.forEach(child => child.onShow());
+                this.prepareToShow();
+                this.children.forEach(child => child.prepareToShow());
                 this.isDisplayNone = false;
             }
         }
@@ -56,8 +57,7 @@ export class ViewGroup extends View {
         return this;
     }
     getSubviewByElement(element) {
-        const childViews = this.children.values();
-        for (const view of childViews) {
+        for (const view of this.children.values()) {
             if (view._element === element) {
                 return view;
             }

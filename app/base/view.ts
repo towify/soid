@@ -26,6 +26,12 @@ export abstract class View {
   #_clickEvent?: (event: MouseEvent) => void;
   #_mouseoverEvent?: (event: MouseEvent) => void;
   #_mouseleaveEvent?: (event: MouseEvent) => void;
+  #_mousedownEvent?: (event: MouseEvent) => void;
+  #_mouseupEvent?: (event: MouseEvent) => void;
+  #_onHide?: () => void;
+  #_onShow?: () => void;
+  #_onAttachedEvent?: () => void;
+  #_onInjectedToParent?: () => void;
 
   protected constructor(private element?: HTMLDivElement) {
     if (this.element) {
@@ -140,6 +146,30 @@ export abstract class View {
     return this;
   }
 
+  public onMousedown(action: (event: MouseEvent) => void) {
+    if (!this.#_mousedownEvent && this.isEnable && this.isFocusable) {
+      this.#_mousedownEvent = (event) => {
+        if (!this.isEnable || !this.isFocusable) return;
+        action(event);
+        event.stopPropagation();
+      };
+      this._element.addEventListener(ListenerType.Mousedown, this.#_mousedownEvent);
+    }
+    return this;
+  }
+
+  public onMouseup(action: (event: MouseEvent) => void) {
+    if (!this.#_mouseupEvent && this.isEnable && this.isFocusable) {
+      this.#_mouseupEvent = (event) => {
+        if (!this.isEnable || !this.isFocusable) return;
+        action(event);
+        event.stopPropagation();
+      };
+      this._element.addEventListener(ListenerType.Mouseup, this.#_mouseupEvent);
+    }
+    return this;
+  }
+
   public onClick(action: (event: MouseEvent) => void) {
     if (!this.#_clickEvent && this.isEnable && this.isClickable) {
       this.#_clickEvent = (event) => {
@@ -161,30 +191,49 @@ export abstract class View {
   // Life Cycle
   public async beforeAttached() {}
 
-  public async onAttached() {}
+  public async onAttached() {
+    !this.#_onAttachedEvent || this.#_onAttachedEvent();
+  }
 
-  public onShow(action?: () => void) {
-    this.recoveryEventListenerIfNeed();
-    !action || action();
+  public setOnAttachedEvent(action: () => void) {
+    this.#_onAttachedEvent = action;
     return this;
   }
 
-  public onHide(action?: () => void) {
-    this.clearEventListenerIfNeed();
-    !action || action();
+  public onShow(action: () => void) {
+    this.#_onShow = action;
     return this;
+  }
+
+  public onHide(action: () => void) {
+    this.#_onHide = action;
+    return this;
+  }
+
+  public prepareToShow() {
+    this.recoveryEventListenerIfNeed();
+    !this.#_onShow || this.#_onShow();
+  }
+
+  public prepareToHide() {
+    this.clearEventListenerIfNeed();
+    !this.#_onHide || this.#_onHide();
   }
 
   private clearEventListenerIfNeed() {
     !this.#_clickEvent || this._element.removeEventListener(ListenerType.Click, this.#_clickEvent);
     !this.#_mouseoverEvent || this._element.removeEventListener(ListenerType.Mouseover, this.#_mouseoverEvent);
     !this.#_mouseleaveEvent || this._element.removeEventListener(ListenerType.Mouseleave, this.#_mouseleaveEvent);
+    !this.#_mousedownEvent || this._element.removeEventListener(ListenerType.Mousedown, this.#_mousedownEvent);
+    !this.#_mouseupEvent || this._element.removeEventListener(ListenerType.Mouseup, this.#_mouseupEvent);
   }
 
   private recoveryEventListenerIfNeed() {
     !this.#_clickEvent || this._element.addEventListener(ListenerType.Click, this.#_clickEvent);
     !this.#_mouseoverEvent || this._element.addEventListener(ListenerType.Mouseover, this.#_mouseoverEvent);
     !this.#_mouseleaveEvent || this._element.addEventListener(ListenerType.Mouseleave, this.#_mouseleaveEvent);
+    !this.#_mousedownEvent || this._element.addEventListener(ListenerType.Mousedown, this.#_mousedownEvent);
+    !this.#_mouseupEvent || this._element.addEventListener(ListenerType.Mouseup, this.#_mouseupEvent);
   }
 
   public onDetached() {}
@@ -192,7 +241,6 @@ export abstract class View {
   async _prepareLifeCycle() {
     this.style.setStyle(this);
     await this.beforeAttached();
-    await this.onAttached();
   }
 
   // Interface Settings Methods
@@ -212,7 +260,6 @@ export abstract class View {
 
   public setClass(className: string) {
     this._element.classList.add(className);
-
     return this;
   }
 
@@ -221,11 +268,11 @@ export abstract class View {
       this.initialDisplayType = type;
     }
     if (type === DisplayType.None) {
-      if (this.isDisplayNone !== undefined) this.onHide();
+      if (this.isDisplayNone !== undefined) this.prepareToHide();
       this.isDisplayNone = true;
     } else {
       if (this.isDisplayNone) {
-        this.onShow();
+        this.prepareToShow();
         this.isDisplayNone = false;
       }
     }
@@ -392,12 +439,6 @@ export abstract class View {
   }
 
   public setOpacity(opacity: number) {
-    if (opacity === 0) {
-      this.onHide();
-    }
-    if (opacity === 1) {
-      this.onShow();
-    }
     this.style.addRule(StyleTag.Opacity, `${opacity}`);
     return this;
   }
@@ -500,6 +541,12 @@ export abstract class View {
   }
 
   // Transform Styles
+  public clearTransformStyle() {
+    this.style.transform.clear();
+    this.style.addRule(StyleTag.Transform, "none");
+    return this;
+  }
+
   public setRotate(angle: number) {
     this.style.transform.addRotate(angle);
     return this;
@@ -579,39 +626,39 @@ export abstract class View {
 
   // Interface Getting Methods
   public get width(): number | undefined {
-    return this.style.values.width;
+    return <number | undefined>this.style.values.width;
   }
 
   public get height(): number | undefined {
-    return this.style.values.height;
+    return <number | undefined>this.style.values.height;
   }
 
   public get left(): number | undefined {
-    return this.style.values.left;
+    return <number | undefined>this.style.values.left;
   }
 
   public get right(): number | undefined {
-    return this.style.values.right;
+    return <number | undefined>this.style.values.right;
   }
 
   public get top(): number | undefined {
-    return this.style.values.top;
+    return <number | undefined>this.style.values.top;
   }
 
   public get bottom(): number | undefined {
-    return this.style.values.bottom;
+    return <number | undefined>this.style.values.bottom;
   }
 
   public get paddingLeft(): number | undefined {
-    return this.style.values.paddingLeft;
+    return <number | undefined>this.style.values.paddingLeft;
   }
 
   public get paddingRight(): number | undefined {
-    return this.style.values.paddingRight;
+    return <number | undefined>this.style.values.paddingRight;
   }
 
   public get hasHorizontalPadding(): boolean {
-    return this.style.values.hasHorizontalPadding;
+    return <boolean>this.style.values.hasHorizontalPadding;
   }
 
   public get displayType(): DisplayType | undefined {

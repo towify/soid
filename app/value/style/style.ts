@@ -10,7 +10,7 @@ import { StyleInterface } from "./style_interface";
 export class Style implements StyleInterface {
   public readonly style: { [key: string]: string } = {};
   public readonly transform = new Transform();
-  public readonly values: { [key: string]: any } = {};
+  public readonly values: { [key: string]: number | string | undefined | boolean } = {};
   public cssText: string | undefined;
 
   constructor() {}

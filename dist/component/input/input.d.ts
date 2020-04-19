@@ -10,8 +10,8 @@ export declare class Input extends RelativeLayout implements InputInterface {
     removeClearButton(): this;
     setValue(value: string): this;
     setType(type: InputType): this;
-    onShow(): this;
-    onHide(): this;
+    prepareToShow(): this;
+    prepareToHide(): this;
     onFocus(action: () => void): this;
     onChange(hold: (value: string) => void): this;
     onBlur(action: (event: FocusEvent) => void): this;

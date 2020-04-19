@@ -106,8 +106,9 @@ export class App {
         });
     }
     commit() {
-        __classPrivateFieldSet(this, _hasCommitted, true);
-        this.beforeAttachedToBody().then(_ => {
+        return __awaiter(this, void 0, void 0, function* () {
+            __classPrivateFieldSet(this, _hasCommitted, true);
+            yield this.beforeAttachedToBody();
             systemInfo.windowWidth = window.innerWidth;
             systemInfo.windowHeight = window.innerHeight;
             document.body.addDomFragment(__classPrivateFieldGet(this, _domFragment));

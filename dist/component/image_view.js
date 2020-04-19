@@ -18,20 +18,14 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _imagePath;
 import { View } from "../base/view";
 import { StyleTag } from "../value/style/style";
-import { ValueChecker } from "../util/value_checker";
 export class ImageView extends View {
     constructor() {
         super();
         _imagePath.set(this, void 0);
     }
     setImage(path) {
-        if (ValueChecker.isImage(path)) {
-            __classPrivateFieldSet(this, _imagePath, path);
-            this.style.addRule(StyleTag.BackgroundImage, `url(${path})`);
-        }
-        else {
-            throw Error("invalid image path");
-        }
+        __classPrivateFieldSet(this, _imagePath, path);
+        this.style.addRule(StyleTag.BackgroundImage, `url(${path})`);
         return this;
     }
     setMode(type) {

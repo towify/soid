@@ -7,7 +7,7 @@ export declare class Style implements StyleInterface {
     };
     readonly transform: Transform;
     readonly values: {
-        [key: string]: any;
+        [key: string]: number | string | undefined | boolean;
     };
     cssText: string | undefined;
     constructor();
