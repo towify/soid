@@ -2,6 +2,13 @@
  * @author kaysaith
  * @date 2020/3/15 12:20
  */
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
+    if (!privateMap.has(receiver)) {
+        throw new TypeError("attempted to set private field on non-instance");
+    }
+    privateMap.set(receiver, value);
+    return value;
+};
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, privateMap) {
     if (!privateMap.has(receiver)) {
         throw new TypeError("attempted to get private field on non-instance");
@@ -12,6 +19,9 @@ var _properties;
 export class Transform {
     constructor() {
         _properties.set(this, {});
+    }
+    clear() {
+        __classPrivateFieldSet(this, _properties, {});
     }
     hasValue() {
         return Object.keys(__classPrivateFieldGet(this, _properties)).length;

@@ -35,8 +35,8 @@ export class LinearLayout extends ViewGroup {
   }
 
   hideScrollbar() {
-    const className = `linear-layout-${new Date().getTime()}`;
-    this._element.classList.add(className);
+    const className = `linear-layout-${Math.random().toString(16).substr(2)}`;
+    this.setClass(className);
     GlobalStyle
       .getInstance()
       .addTag(`.${className}::-webkit-scrollbar`, style => {

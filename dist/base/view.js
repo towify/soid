@@ -24,7 +24,7 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
     privateMap.set(receiver, value);
     return value;
 };
-var __isEnable, __isClickable, __isFocusable, __clickEvent, __mouseoverEvent, __mouseleaveEvent;
+var __isEnable, __isClickable, __isFocusable, __clickEvent, __mouseoverEvent, __mouseleaveEvent, __mousedownEvent, __mouseupEvent, __onHide, __onShow, __onAttachedEvent, __onInjectedToParent;
 import { ListenerType } from "../value/type";
 import { DisplayType, Style, StyleTag } from "../value/style/style";
 export class View {
@@ -37,6 +37,12 @@ export class View {
         __clickEvent.set(this, void 0);
         __mouseoverEvent.set(this, void 0);
         __mouseleaveEvent.set(this, void 0);
+        __mousedownEvent.set(this, void 0);
+        __mouseupEvent.set(this, void 0);
+        __onHide.set(this, void 0);
+        __onShow.set(this, void 0);
+        __onAttachedEvent.set(this, void 0);
+        __onInjectedToParent.set(this, void 0);
         if (this.element) {
             this._element = this.element;
         }
@@ -133,6 +139,30 @@ export class View {
         }
         return this;
     }
+    onMousedown(action) {
+        if (!__classPrivateFieldGet(this, __mousedownEvent) && this.isEnable && this.isFocusable) {
+            __classPrivateFieldSet(this, __mousedownEvent, (event) => {
+                if (!this.isEnable || !this.isFocusable)
+                    return;
+                action(event);
+                event.stopPropagation();
+            });
+            this._element.addEventListener(ListenerType.Mousedown, __classPrivateFieldGet(this, __mousedownEvent));
+        }
+        return this;
+    }
+    onMouseup(action) {
+        if (!__classPrivateFieldGet(this, __mouseupEvent) && this.isEnable && this.isFocusable) {
+            __classPrivateFieldSet(this, __mouseupEvent, (event) => {
+                if (!this.isEnable || !this.isFocusable)
+                    return;
+                action(event);
+                event.stopPropagation();
+            });
+            this._element.addEventListener(ListenerType.Mouseup, __classPrivateFieldGet(this, __mouseupEvent));
+        }
+        return this;
+    }
     onClick(action) {
         if (!__classPrivateFieldGet(this, __clickEvent) && this.isEnable && this.isClickable) {
             __classPrivateFieldSet(this, __clickEvent, (event) => {
@@ -155,34 +185,49 @@ export class View {
         return __awaiter(this, void 0, void 0, function* () { });
     }
     onAttached() {
-        return __awaiter(this, void 0, void 0, function* () { });
+        return __awaiter(this, void 0, void 0, function* () {
+            !__classPrivateFieldGet(this, __onAttachedEvent) || __classPrivateFieldGet(this, __onAttachedEvent).call(this);
+        });
+    }
+    setOnAttachedEvent(action) {
+        __classPrivateFieldSet(this, __onAttachedEvent, action);
+        return this;
     }
     onShow(action) {
-        this.recoveryEventListenerIfNeed();
-        !action || action();
+        __classPrivateFieldSet(this, __onShow, action);
         return this;
     }
     onHide(action) {
-        this.clearEventListenerIfNeed();
-        !action || action();
+        __classPrivateFieldSet(this, __onHide, action);
         return this;
+    }
+    prepareToShow() {
+        this.recoveryEventListenerIfNeed();
+        !__classPrivateFieldGet(this, __onShow) || __classPrivateFieldGet(this, __onShow).call(this);
+    }
+    prepareToHide() {
+        this.clearEventListenerIfNeed();
+        !__classPrivateFieldGet(this, __onHide) || __classPrivateFieldGet(this, __onHide).call(this);
     }
     clearEventListenerIfNeed() {
         !__classPrivateFieldGet(this, __clickEvent) || this._element.removeEventListener(ListenerType.Click, __classPrivateFieldGet(this, __clickEvent));
         !__classPrivateFieldGet(this, __mouseoverEvent) || this._element.removeEventListener(ListenerType.Mouseover, __classPrivateFieldGet(this, __mouseoverEvent));
         !__classPrivateFieldGet(this, __mouseleaveEvent) || this._element.removeEventListener(ListenerType.Mouseleave, __classPrivateFieldGet(this, __mouseleaveEvent));
+        !__classPrivateFieldGet(this, __mousedownEvent) || this._element.removeEventListener(ListenerType.Mousedown, __classPrivateFieldGet(this, __mousedownEvent));
+        !__classPrivateFieldGet(this, __mouseupEvent) || this._element.removeEventListener(ListenerType.Mouseup, __classPrivateFieldGet(this, __mouseupEvent));
     }
     recoveryEventListenerIfNeed() {
         !__classPrivateFieldGet(this, __clickEvent) || this._element.addEventListener(ListenerType.Click, __classPrivateFieldGet(this, __clickEvent));
         !__classPrivateFieldGet(this, __mouseoverEvent) || this._element.addEventListener(ListenerType.Mouseover, __classPrivateFieldGet(this, __mouseoverEvent));
         !__classPrivateFieldGet(this, __mouseleaveEvent) || this._element.addEventListener(ListenerType.Mouseleave, __classPrivateFieldGet(this, __mouseleaveEvent));
+        !__classPrivateFieldGet(this, __mousedownEvent) || this._element.addEventListener(ListenerType.Mousedown, __classPrivateFieldGet(this, __mousedownEvent));
+        !__classPrivateFieldGet(this, __mouseupEvent) || this._element.addEventListener(ListenerType.Mouseup, __classPrivateFieldGet(this, __mouseupEvent));
     }
     onDetached() { }
     _prepareLifeCycle() {
         return __awaiter(this, void 0, void 0, function* () {
             this.style.setStyle(this);
             yield this.beforeAttached();
-            yield this.onAttached();
         });
     }
     // Interface Settings Methods
@@ -207,12 +252,12 @@ export class View {
         }
         if (type === DisplayType.None) {
             if (this.isDisplayNone !== undefined)
-                this.onHide();
+                this.prepareToHide();
             this.isDisplayNone = true;
         }
         else {
             if (this.isDisplayNone) {
-                this.onShow();
+                this.prepareToShow();
                 this.isDisplayNone = false;
             }
         }
@@ -348,12 +393,6 @@ export class View {
         return this;
     }
     setOpacity(opacity) {
-        if (opacity === 0) {
-            this.onHide();
-        }
-        if (opacity === 1) {
-            this.onShow();
-        }
         this.style.addRule(StyleTag.Opacity, `${opacity}`);
         return this;
     }
@@ -435,6 +474,11 @@ export class View {
         return this;
     }
     // Transform Styles
+    clearTransformStyle() {
+        this.style.transform.clear();
+        this.style.addRule(StyleTag.Transform, "none");
+        return this;
+    }
     setRotate(angle) {
         this.style.transform.addRotate(angle);
         return this;
@@ -529,4 +573,4 @@ export class View {
         return this.initialDisplayType;
     }
 }
-__isEnable = new WeakMap(), __isClickable = new WeakMap(), __isFocusable = new WeakMap(), __clickEvent = new WeakMap(), __mouseoverEvent = new WeakMap(), __mouseleaveEvent = new WeakMap();
+__isEnable = new WeakMap(), __isClickable = new WeakMap(), __isFocusable = new WeakMap(), __clickEvent = new WeakMap(), __mouseoverEvent = new WeakMap(), __mouseleaveEvent = new WeakMap(), __mousedownEvent = new WeakMap(), __mouseupEvent = new WeakMap(), __onHide = new WeakMap(), __onShow = new WeakMap(), __onAttachedEvent = new WeakMap(), __onInjectedToParent = new WeakMap();

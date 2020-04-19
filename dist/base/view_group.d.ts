@@ -7,7 +7,7 @@ export declare class ViewGroup extends View {
     constructor(element?: HTMLDivElement);
     addView(view: View): void;
     setDisplay(type: DisplayType): this;
-    getSubviewByElement<T extends View>(element: HTMLDivElement): T | undefined;
+    getSubviewByElement<T extends View>(element: HTMLDivElement | EventTarget): T | undefined;
     addDomFragment(domFragment: DomFragment): Promise<void>;
     insertBefore(newView: View, oldView: View): void;
     replaceView(newView: View, oldView: View): void;

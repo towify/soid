@@ -27,12 +27,17 @@ export declare abstract class View {
     setPointerEvent(value: string): this;
     onMouseover(action: (event: MouseEvent) => void): this;
     onMouseleave(action: (event: MouseEvent) => void): this;
+    onMousedown(action: (event: MouseEvent) => void): this;
+    onMouseup(action: (event: MouseEvent) => void): this;
     onClick(action: (event: MouseEvent) => void): this;
     serialize(platform: Platform): string;
     beforeAttached(): Promise<void>;
     onAttached(): Promise<void>;
-    onShow(action?: () => void): this;
-    onHide(action?: () => void): this;
+    setOnAttachedEvent(action: () => void): this;
+    onShow(action: () => void): this;
+    onHide(action: () => void): this;
+    prepareToShow(): void;
+    prepareToHide(): void;
     private clearEventListenerIfNeed;
     private recoveryEventListenerIfNeed;
     onDetached(): void;
@@ -92,6 +97,7 @@ export declare abstract class View {
     setShadow(value: string): this;
     setCursor(cursor: Cursor): this;
     setBackDropFilter(value: string): this;
+    clearTransformStyle(): this;
     setRotate(angle: number): this;
     setTranslate(x: number, y: number): this;
     setTranslateStyleRule(x: string, y: string): this;

@@ -110,15 +110,15 @@ export class Input extends RelativeLayout {
         __classPrivateFieldGet(this, _input).type = type;
         return this;
     }
-    onShow() {
-        super.onShow();
+    prepareToShow() {
+        super.prepareToShow();
         !__classPrivateFieldGet(this, _focusEvent) || __classPrivateFieldGet(this, _input).addEventListener(ListenerType.Focus, __classPrivateFieldGet(this, _focusEvent));
         !__classPrivateFieldGet(this, _blurEvent) || __classPrivateFieldGet(this, _input).addEventListener(ListenerType.Blur, __classPrivateFieldGet(this, _blurEvent));
         !__classPrivateFieldGet(this, _changeEvent) || __classPrivateFieldGet(this, _input).addEventListener(ListenerType.Input, __classPrivateFieldGet(this, _changeEvent));
         return this;
     }
-    onHide() {
-        super.onHide();
+    prepareToHide() {
+        super.prepareToHide();
         !__classPrivateFieldGet(this, _focusEvent) || __classPrivateFieldGet(this, _input).removeEventListener(ListenerType.Focus, __classPrivateFieldGet(this, _focusEvent));
         !__classPrivateFieldGet(this, _blurEvent) || __classPrivateFieldGet(this, _input).removeEventListener(ListenerType.Blur, __classPrivateFieldGet(this, _blurEvent));
         !__classPrivateFieldGet(this, _changeEvent) || __classPrivateFieldGet(this, _input).removeEventListener(ListenerType.Input, __classPrivateFieldGet(this, _changeEvent));

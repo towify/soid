@@ -99,16 +99,16 @@ export class Input extends RelativeLayout implements InputInterface {
     return this;
   }
 
-  public onShow() {
-    super.onShow();
+  public prepareToShow() {
+    super.prepareToShow();
     !this.#focusEvent || this.#input.addEventListener(ListenerType.Focus, this.#focusEvent);
     !this.#blurEvent || this.#input.addEventListener(ListenerType.Blur, this.#blurEvent);
     !this.#changeEvent || this.#input.addEventListener(ListenerType.Input, this.#changeEvent);
     return this;
   }
 
-  public onHide() {
-    super.onHide();
+  public prepareToHide() {
+    super.prepareToHide();
     !this.#focusEvent || this.#input.removeEventListener(ListenerType.Focus, this.#focusEvent);
     !this.#blurEvent || this.#input.removeEventListener(ListenerType.Blur, this.#blurEvent);
     !this.#changeEvent || this.#input.removeEventListener(ListenerType.Input, this.#changeEvent);

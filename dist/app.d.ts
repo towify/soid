@@ -16,8 +16,8 @@ export declare abstract class App {
     protected addFragment(model: ChildFragmentModel): Promise<void>;
     replaceFragment(newFragment: Fragment, oldFragment: Fragment): Promise<void>;
     removeFragment(fragment: Fragment): Promise<void>;
-    commit(): void;
-    private beforeAttachedToBody;
+    commit(): Promise<void>;
+    protected beforeAttachedToBody(): Promise<void>;
     private getTargetChildFragmentPosition;
 }
 export declare class ChildFragmentModel {

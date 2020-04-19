@@ -1,6 +1,7 @@
 export declare class Transform {
     #private;
     constructor();
+    clear(): void;
     hasValue(): number;
     addTranslate(x: number, y: number): this;
     addTranslateValue(x: string, y: string): this;

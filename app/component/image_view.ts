@@ -5,7 +5,6 @@
 
 import { View } from "../base/view";
 import { StyleTag } from "../value/style/style";
-import { ValueChecker } from "../util/value_checker";
 
 export class ImageView extends View {
   #imagePath?: string;
@@ -15,12 +14,8 @@ export class ImageView extends View {
   }
 
   public setImage(path: string) {
-    if (ValueChecker.isImage(path)) {
-      this.#imagePath = path;
-      this.style.addRule(StyleTag.BackgroundImage, `url(${path})`);
-    } else {
-      throw Error("invalid image path");
-    }
+    this.#imagePath = path;
+    this.style.addRule(StyleTag.BackgroundImage, `url(${path})`);
     return this;
   }
 

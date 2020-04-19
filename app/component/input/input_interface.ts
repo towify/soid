@@ -16,10 +16,6 @@ export interface InputInterface {
 
   setType(type: InputType): this
 
-  onShow(): this
-
-  onHide(): this
-
   onFocus(action: () => void): this
 
   onChange(hold: (value: string) => void): this

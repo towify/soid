@@ -82,16 +82,15 @@ export abstract class App {
     }
   }
 
-  public commit() {
+  public async commit() {
     this.#hasCommitted = true;
-    this.beforeAttachedToBody().then(_ => {
-      systemInfo.windowWidth = window.innerWidth;
-      systemInfo.windowHeight = window.innerHeight;
-      document.body.addDomFragment(this.#domFragment);
-    });
+    await this.beforeAttachedToBody();
+    systemInfo.windowWidth = window.innerWidth;
+    systemInfo.windowHeight = window.innerHeight;
+    document.body.addDomFragment(this.#domFragment);
   }
 
-  private async beforeAttachedToBody() {
+  protected async beforeAttachedToBody() {
     await this.onCreate();
     await this.onStart();
     BrowserService

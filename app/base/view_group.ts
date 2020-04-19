@@ -22,6 +22,7 @@ export class ViewGroup extends View {
     this.#sequenceManager.addTask((async () => {
       await view._prepareLifeCycle();
       this._element.appendChild(view._element);
+      await view.onAttached();
     })).run();
   }
 
@@ -30,13 +31,13 @@ export class ViewGroup extends View {
       this.initialDisplayType = type;
     }
     if (type === DisplayType.None) {
-      if (this.isDisplayNone !== undefined) this.onHide();
-      this.children.forEach(child => child.onHide());
+      if (this.isDisplayNone !== undefined) this.prepareToHide();
+      this.children.forEach(child => child.prepareToHide());
       this.isDisplayNone = true;
     } else {
       if (this.isDisplayNone) {
-        this.onShow();
-        this.children.forEach(child => child.onShow());
+        this.prepareToShow();
+        this.children.forEach(child => child.prepareToShow());
         this.isDisplayNone = false;
       }
     }
@@ -44,9 +45,8 @@ export class ViewGroup extends View {
     return this;
   }
 
-  public getSubviewByElement<T extends View>(element: HTMLDivElement) {
-    const childViews = this.children.values();
-    for (const view of childViews) {
+  public getSubviewByElement<T extends View>(element: HTMLDivElement | EventTarget): T | undefined {
+    for (const view of this.children.values()) {
       if (view._element === element) {
         return view as T;
       }

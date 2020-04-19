@@ -4,9 +4,13 @@
  */
 
 export class Transform {
-  readonly #properties: { [key: string]: string } = {};
+  #properties: { [key: string]: string } = {};
 
   constructor() {
+  }
+
+  public clear() {
+    this.#properties = {};
   }
 
   public hasValue() {
